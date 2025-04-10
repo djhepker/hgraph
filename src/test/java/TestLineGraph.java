@@ -18,7 +18,7 @@ class TestLineGraph {
 
     @BeforeEach
     void setUp() {
-        List<Double> initialData = Arrays.asList(1.0, 2.0, 3.0);
+        List<Double> initialData = Arrays.asList(1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 2.0);
         graph = new LineGraph(initialData);
     }
 
@@ -50,6 +50,7 @@ class TestLineGraph {
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame 1");
+            frame.setSize(800, 600);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
@@ -58,11 +59,9 @@ class TestLineGraph {
                 }
             });
             frame.getContentPane().add(graph);
-            frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
         latch.await();
     }
-
 }
