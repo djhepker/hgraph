@@ -22,5 +22,12 @@
             <version>5.10.0</version> <!-- or latest version -->
             <scope>test</scope>
         </dependency>
+        <!-- Lombok boilerplate generator -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
