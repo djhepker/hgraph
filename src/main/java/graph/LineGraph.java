@@ -3,6 +3,7 @@ package graph;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import util.GraphTools;
 
 import javax.swing.JPanel;
 import java.awt.BasicStroke;
@@ -21,8 +22,13 @@ import java.util.Deque;
 public final class LineGraph extends JPanel {
     @Getter(AccessLevel.NONE)
     private final Deque<Double> dataPoints;
+
     private float lineThickness = 2.0f;
+    private int marginSize = 40;
+
     private Color lineColor = Color.GREEN;
+    private Color backgroundColor = new Color(30, 30, 30);
+    private Color borderColor = Color.LIGHT_GRAY;
 
     /**
      * Parameterized constructor for when you already have a dataset.
@@ -62,11 +68,15 @@ public final class LineGraph extends JPanel {
         if (dataPoints.isEmpty()) {
             return;
         }
+        int width = getWidth();
+        int height = getHeight();
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setStroke(new BasicStroke(lineThickness));
-        int width = getWidth();
-        int height = getHeight();
+
+        GraphTools.drawMargin(width, height, g2, marginSize, backgroundColor, borderColor);
+
+        g2.setColor(lineColor);
         int padding = 40;
         int graphWidth = width - 2 * padding;
         int graphHeight = height - 2 * padding;
