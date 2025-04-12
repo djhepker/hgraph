@@ -61,22 +61,18 @@ public class GraphTools {
             int height,
             Deque<Double> dataPoints
     ) {
-        double[] yTicks = config.getYTicks();
-        double[] xTicks = config.getXTicks();
-
         int tickLineLength = config.getTickLength();
-
-        //TODO audit and finish below
 
         int graphWidth = width - 2 * margin;
         int graphHeight = height - 2 * margin;
 
-        int yWithMargin = height - margin;
-        int xWithMargin = width - margin;
+        g2.setColor(config.getTickColor());
+        g2.setFont(config.getTickFont());
 
-        int xTickDelta = xWithMargin / xTicks.length;
-        int yTickDelta = yWithMargin / yTicks.length;
-
-
+        if (config.isShowYTicks()) {
+            for (double yTick : config.getYTicksDouble()) {
+                int y = (int)
+            }
+        }
     }
 }

@@ -15,9 +15,15 @@ import java.awt.Font;
 public class TickMarkConfig {
     private boolean showYTicks;
     private boolean showXTicks;
+    private boolean doublePrecision;
+
     private int tickLength;
-    private double[] xTicks;
-    private double[] yTicks;
+
+    private double[] xTicksDouble;
+    private double[] yTicksDouble;
+    private int[] xTicksInt;
+    private int[] yTicksInt;
+
     private Color tickColor;
     private Font tickFont;
 
@@ -27,10 +33,11 @@ public class TickMarkConfig {
     public TickMarkConfig() {
         this.showYTicks = true;
         this.showXTicks = true;
+        this.doublePrecision = false;
         this.tickLength = 10;
         this.tickColor = Color.BLACK;
-        this.xTicks = new double[0];
-        this.yTicks = new double[0];
+        this.xTicksInt = new int[0];
+        this.yTicksInt = new int[0];
         this.tickFont = new Font("Arial", Font.PLAIN, 12);
     }
 
@@ -71,8 +78,8 @@ public class TickMarkConfig {
      * @param xTicks array of X-axis values
      * @return this config instance
      */
-    public TickMarkConfig xTicks(double[] xTicks) {
-        this.xTicks = xTicks;
+    public TickMarkConfig setXTickValues(double[] xTicks) {
+        this.xTicksDouble = xTicks;
         return this;
     }
 
@@ -83,8 +90,8 @@ public class TickMarkConfig {
      * @param yTicks array of Y-axis values
      * @return this config instance
      */
-    public TickMarkConfig yTicks(double[] yTicks) {
-        this.yTicks = yTicks;
+    public TickMarkConfig setYTickValues(double[] yTicks) {
+        this.yTicksDouble = yTicks;
         return this;
     }
 
