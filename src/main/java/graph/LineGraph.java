@@ -2,8 +2,9 @@ package graph;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import util.GraphTools;
 
 import javax.swing.JPanel;
@@ -19,27 +20,40 @@ import java.util.Deque;
  * Logic for creating a JPanel LineGraph
  */
 @Getter
+@Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public final class LineGraph extends JPanel {
     @Getter(AccessLevel.NONE)
-    private Deque<Double> dataPoints;
+    private final Deque<Double> dataPoints;
 
-    private float lineThickness = 2.0f;
-    private int marginSize = 40;
+    private float lineThickness;
+    private int marginSize;
 
-    private Color lineColor = Color.GREEN;
-    private Color backgroundColor = new Color(30, 30, 30);
+    private Color lineColor;
+    private Color backgroundColor;
     private Color borderColor = Color.LIGHT_GRAY;
+
+    /**
+     * Default constructor initializing default values and an empty data queue
+     */
+    public LineGraph() {
+        this.dataPoints = new ArrayDeque<>();
+        this.lineThickness = 2.0f;
+        this.marginSize = 40;
+        this.lineColor = Color.GREEN;
+        this.backgroundColor = new Color(30, 30, 30);
+        this.borderColor = Color.LIGHT_GRAY;
+    }
 
     /**
      * Parameterized constructor for when you already have a dataset.
      * @param data Iterable object, made to accept numerous different data containers to fill dataPoints with
      */
     public LineGraph(Iterable<Double> data) {
-        this.dataPoints = new ArrayDeque<>();
-        for (double i : data) {
-            this.dataPoints.add(i);
+        this();
+        for (double value : data) {
+            this.dataPoints.add(value);
         }
     }
 
