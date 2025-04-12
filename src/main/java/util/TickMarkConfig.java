@@ -1,7 +1,6 @@
 package util;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.awt.Color;
@@ -12,21 +11,26 @@ import java.awt.Font;
  * Supports both X and Y axis customization, including visibility, color, length, font, and label count.
  */
 @Getter
-@Builder
 @AllArgsConstructor
 public class TickMarkConfig {
-    @Builder.Default
-    private boolean showYTicks = true;
-    @Builder.Default
-    private boolean showXTicks = true;
-    @Builder.Default
-    private int tickLength = 10;
-    @Builder.Default
-    private int tickCount = 10;
-    @Builder.Default
-    private Color tickColor = Color.BLACK;
-    @Builder.Default
-    private Font tickFont = new Font("Arial", Font.PLAIN, 12);
+    private boolean showYTicks;
+    private boolean showXTicks;
+    private int tickLength;
+    private int tickCount; // Axis is divided into this many equal parts and draw that many tick lines
+    private Color tickColor;
+    private Font tickFont;
+
+    /**
+     * Default configuration with all settings enabled and standard styling.
+     */
+    public TickMarkConfig() {
+        this.showYTicks = true;
+        this.showXTicks = true;
+        this.tickLength = 10;
+        this.tickCount = 10;
+        this.tickColor = Color.BLACK;
+        this.tickFont = new Font("Arial", Font.PLAIN, 12);
+    }
 
     /**
      * Enables or disables Y-axis ticks.

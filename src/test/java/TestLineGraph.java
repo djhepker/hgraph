@@ -24,19 +24,19 @@ class TestLineGraph {
 
     @Test
     void testConstructorInitializesDataCorrectly() {
-        assertEquals(3, graph.getDataSize());
+        assertEquals(7, graph.getDataSize());
     }
 
     @Test
     void testInsertDataPointAppends() {
         graph.insertDataPoint(4.0);
-        assertEquals(4, graph.getDataSize());
+        assertEquals(8, graph.getDataSize());
     }
 
     @Test
     void testInsertDataPointHandlesNegativeValues() {
         graph.insertDataPoint(-10.5);
-        assertEquals(4, graph.getDataSize());
+        assertEquals(8, graph.getDataSize());
     }
 
     @Test

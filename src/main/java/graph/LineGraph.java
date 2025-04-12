@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import util.GraphTools;
+import util.TickMarkConfig;
 
 import javax.swing.JPanel;
 import java.awt.BasicStroke;
@@ -20,12 +21,13 @@ import java.util.Deque;
  * Logic for creating a JPanel LineGraph
  */
 @Getter
-@Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public final class LineGraph extends JPanel {
     @Getter(AccessLevel.NONE)
     private final Deque<Double> dataPoints;
+
+    private TickMarkConfig tickMarkConfig = new TickMarkConfig();
 
     private float lineThickness;
     private int marginSize;
@@ -55,6 +57,16 @@ public final class LineGraph extends JPanel {
         for (double value : data) {
             this.dataPoints.add(value);
         }
+    }
+
+    /**
+     * Sets TicMarkConfig for graph
+     * @param config Configuration options for ticks on the graph
+     * @return Instance of class for chain setting
+     */
+    public LineGraph setTickMarkConfig(TickMarkConfig config) {
+        this.tickMarkConfig = config;
+        return this;
     }
 
     /**
@@ -143,6 +155,7 @@ public final class LineGraph extends JPanel {
         g2.setStroke(new BasicStroke(lineThickness));
 
         GraphTools.drawMargin(width, height, g2, marginSize, backgroundColor, borderColor);
+        GraphTools.drawTicks(g2, tickMarkConfig, marginSize, width, height, dataPoints);
 
         g2.setColor(lineColor);
         int padding = 40;
