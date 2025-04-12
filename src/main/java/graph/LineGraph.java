@@ -26,7 +26,7 @@ public final class LineGraph extends JPanel {
     @Getter(AccessLevel.NONE)
     private final Deque<Double> dataPoints;
 
-    private TickMarkConfig tickMarkConfig = new TickMarkConfig();
+    private TickMarkConfig tickMarkConfig;
 
     private float lineThickness;
     private int marginSize;
@@ -40,6 +40,7 @@ public final class LineGraph extends JPanel {
      */
     public LineGraph() {
         this.dataPoints = new ArrayDeque<>();
+        this.tickMarkConfig = new TickMarkConfig();
         this.lineThickness = 2.0f;
         this.marginSize = 40;
         this.lineColor = Color.GREEN;

@@ -61,43 +61,22 @@ public class GraphTools {
             int height,
             Deque<Double> dataPoints
     ) {
-        if (config == null || dataPoints.isEmpty()) return;
+        double[] yTicks = config.getYTicks();
+        double[] xTicks = config.getXTicks();
 
-        int graphX = margin;
-        int graphY = margin;
+        int tickLineLength = config.getTickLength();
+
+        //TODO audit and finish below
+
         int graphWidth = width - 2 * margin;
         int graphHeight = height - 2 * margin;
 
-        double minY = dataPoints.stream().min(Double::compare).orElse(0.0);
-        double maxY = dataPoints.stream().max(Double::compare).orElse(1.0);
-        double rangeY = maxY - minY;
-        if (rangeY == 0) rangeY = 1;
+        int yWithMargin = height - margin;
+        int xWithMargin = width - margin;
 
-        g2.setColor(config.getTickColor());
-        g2.setFont(config.getTickFont());
+        int xTickDelta = xWithMargin / xTicks.length;
+        int yTickDelta = yWithMargin / yTicks.length;
 
-        int tickCount = config.getTickCount();
-        int tickLineLength = config.getTickLength(); // now clearly visual
 
-        // Draw Y-axis ticks and labels
-        if (config.isShowYTicks()) {
-            for (int i = 0; i <= tickCount; i++) {
-                double value = minY + i * (rangeY / tickCount);
-                int y = (int) (graphY + graphHeight - i * (graphHeight / (double) tickCount));
-
-                // Draw tick line
-                g2.drawLine(graphX - tickLineLength, y, graphX, y);
-
-                // Draw tick label
-                String label = String.format("%.2f", value);
-                int labelWidth = g2.getFontMetrics().stringWidth(label);
-                g2.drawString(label, graphX - tickLineLength - labelWidth - 4, y + 4);
-            }
-        }
-
-        // Placeholder for X-axis tick implementation
-        if (config.isShowXTicks()) {
-            // Future enhancement: draw X-axis tick marks and labels
-        }
     }
 }
