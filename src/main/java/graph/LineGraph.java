@@ -1,8 +1,9 @@
 package graph;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import util.GraphTools;
 
 import javax.swing.JPanel;
@@ -17,11 +18,12 @@ import java.util.Deque;
 /**
  * Logic for creating a JPanel LineGraph
  */
-@Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public final class LineGraph extends JPanel {
     @Getter(AccessLevel.NONE)
-    private final Deque<Double> dataPoints;
+    private Deque<Double> dataPoints;
 
     private float lineThickness = 2.0f;
     private int marginSize = 40;
@@ -42,11 +44,63 @@ public final class LineGraph extends JPanel {
     }
 
     /**
+     * Sets the thickness of chart lines
+     * @param lineThickness Thickness of chart lines in pixels
+     * @return Instance of class for chain setting
+     */
+    public LineGraph setlineThickness(float lineThickness) {
+        this.lineThickness = lineThickness;
+        return this;
+    }
+
+    /**
+     * Sets the size of the graph margin
+     * @param marginSize Size of the margin in pixels
+     * @return Instance of class for chain setting
+     */
+    public LineGraph setMarginSize(int marginSize) {
+        this.marginSize = marginSize;
+        return this;
+    }
+
+    /**
+     * Sets the color of the graph line
+     * @param lineColor Color for the data line
+     * @return Instance of class for chain setting
+     */
+    public LineGraph setLineColor(Color lineColor) {
+        this.lineColor = lineColor;
+        return this;
+    }
+
+    /**
+     * Sets the background color of the graph
+     * @param backgroundColor Background color of the graph
+     * @return Instance of class for chain setting
+     */
+    public LineGraph setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+        return this;
+    }
+
+    /**
+     * Sets the color of the graph border
+     * @param borderColor Border color of the graph
+     * @return Instance of class for chain setting
+     */
+    public LineGraph setBorderColor(Color borderColor) {
+        this.borderColor = borderColor;
+        return this;
+    }
+
+
+    /**
      * Adds data to the end of queue
      * @param data Value to be added to dataPoints
      */
-    public void insertDataPoint(double data) {
+    public LineGraph insertDataPoint(double data) {
         dataPoints.add(data);
+        return this;
     }
 
     /**
