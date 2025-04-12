@@ -43,8 +43,8 @@ public class GraphTools {
     }
 
     /**
-     * Draws Y- and X-axis tick marks around a graph based on provided configuration.
-     * Tick lines and labels are positioned relative to the graph's drawing area inside the margin.
+     * Draws tick marks and labels along the Y- and (optionally) X-axes based on provided tick configuration.
+     * Tick mark spacing is derived from the value range of the provided dataset.
      *
      * @param g2          The graphics context to draw with
      * @param config      Configuration options for tick visibility, count, style, and labels
@@ -77,7 +77,7 @@ public class GraphTools {
         g2.setFont(config.getTickFont());
 
         int tickCount = config.getTickCount();
-        int tickLength = config.getTickLength();
+        int tickLineLength = config.getTickLength(); // now clearly visual
 
         // Draw Y-axis ticks and labels
         if (config.isShowYTicks()) {
@@ -85,16 +85,19 @@ public class GraphTools {
                 double value = minY + i * (rangeY / tickCount);
                 int y = (int) (graphY + graphHeight - i * (graphHeight / (double) tickCount));
 
-                g2.drawLine(graphX - tickLength, y, graphX, y); // Tick mark
+                // Draw tick line
+                g2.drawLine(graphX - tickLineLength, y, graphX, y);
+
+                // Draw tick label
                 String label = String.format("%.2f", value);
                 int labelWidth = g2.getFontMetrics().stringWidth(label);
-                g2.drawString(label, graphX - tickLength - labelWidth - 4, y + 4); // Label
+                g2.drawString(label, graphX - tickLineLength - labelWidth - 4, y + 4);
             }
         }
 
-        // Optional: X-axis ticks (placeholder for future support)
+        // Placeholder for X-axis tick implementation
         if (config.isShowXTicks()) {
-            // Implementation pending or custom logic based on X-values
+            // Future enhancement: draw X-axis tick marks and labels
         }
     }
 }

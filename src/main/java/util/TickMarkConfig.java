@@ -16,7 +16,8 @@ public class TickMarkConfig {
     private boolean showYTicks;
     private boolean showXTicks;
     private int tickLength;
-    private int tickCount; // Axis is divided into this many equal parts and draw that many tick lines
+    private double[] xTicks;
+    private double[] yTicks;
     private Color tickColor;
     private Font tickFont;
 
@@ -27,8 +28,9 @@ public class TickMarkConfig {
         this.showYTicks = true;
         this.showXTicks = true;
         this.tickLength = 10;
-        this.tickCount = 10;
         this.tickColor = Color.BLACK;
+        this.xTicks = new double[0];
+        this.yTicks = new double[0];
         this.tickFont = new Font("Arial", Font.PLAIN, 12);
     }
 
@@ -63,12 +65,26 @@ public class TickMarkConfig {
     }
 
     /**
-     * Sets how many tick marks to draw per axis.
-     * @param tickCount Number of ticks
-     * @return This config instance for chaining
+     * Specifies the exact X-values to draw tick marks at.
+     * If this is set, tickCount is ignored for the X-axis.
+     *
+     * @param xTicks array of X-axis values
+     * @return this config instance
      */
-    public TickMarkConfig tickCount(int tickCount) {
-        this.tickCount = tickCount;
+    public TickMarkConfig xTicks(double[] xTicks) {
+        this.xTicks = xTicks;
+        return this;
+    }
+
+    /**
+     * Specifies the exact Y-values to draw tick marks at.
+     * If this is set, tickCount is ignored for the Y-axis.
+     *
+     * @param yTicks array of Y-axis values
+     * @return this config instance
+     */
+    public TickMarkConfig yTicks(double[] yTicks) {
+        this.yTicks = yTicks;
         return this;
     }
 

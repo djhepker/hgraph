@@ -2,7 +2,6 @@ package graph;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import util.GraphTools;
@@ -44,7 +43,7 @@ public final class LineGraph extends JPanel {
         this.lineThickness = 2.0f;
         this.marginSize = 40;
         this.lineColor = Color.GREEN;
-        this.backgroundColor = new Color(30, 30, 30);
+        this.backgroundColor = new Color(255, 255, 255);
         this.borderColor = Color.LIGHT_GRAY;
     }
 
