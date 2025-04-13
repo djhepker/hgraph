@@ -43,12 +43,27 @@ public class TickMarkConfig {
 
     /**
      * Mutator allowing user to allow or disallow double precision. When enabled, ticks are formatted
-     * as 1.00. When disabled, 1. Default false.
+     * as 1.00. When disabled, 1. Default false.<br>
+     * If applicable, copies x,y int[] to double[], then deallocates x,y int[]
      * @param doublePrecision Value to set doublePrecision to.
      * @return This config instance for chaining
      */
     public TickMarkConfig setDoublePrecision(boolean doublePrecision) {
         this.doublePrecision = doublePrecision;
+        if (xTicksInt.length > 0) {
+            xTicksDouble = new double[xTicksInt.length];
+            for (int xTick : xTicksInt) {
+                xTicksDouble[xTick] = xTick;
+            }
+        }
+        if (yTicksInt.length > 0) {
+            yTicksDouble = new double[yTicksInt.length];
+            for (int yTick : yTicksInt) {
+                yTicksDouble[yTick] = yTick;
+            }
+        }
+        xTicksInt = null;
+        yTicksInt = null;
         return this;
     }
 
