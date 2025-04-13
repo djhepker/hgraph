@@ -61,28 +61,26 @@ public class GraphTools {
         int halfTickLineLength = tickLineLength / 2;
         int graphWidth = width - 2 * margin;
         int graphHeight = height - 2 * margin;
+
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
-        if (config.isShowYTicks() && !config.isDoublePrecision()) {
-            int[] yTicks = config.getIntYTicks();
-            if (yTicks.length > 0) {
-                int minY = Arrays.stream(yTicks).min().orElse(0);
-                int maxY = Arrays.stream(yTicks).max().orElse(1);
-                int rangeY = maxY - minY;
-                if (rangeY == 0) rangeY = 1;
 
-                for (int yTick : yTicks) {
-                    double normY = (yTick - minY) / (double) rangeY;
-                    int y = (int) (height - margin - normY * graphHeight);
-                    int x1 = margin - halfTickLineLength;
-                    int x2 = x1 + tickLineLength;
-                    g2.drawLine(x1, y, x2, y);
-                    String label = String.valueOf(yTick);
-                    FontMetrics fm = g2.getFontMetrics();
-                    int labelWidth = fm.stringWidth(label);
-                    int labelHeight = fm.getAscent();
-                    g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
-                }
+        if (config.isShowYTicks()) {
+            if (config.isDoublePrecision()) {
+                drawDoubleYTicks(
+                        g2, config.getDoubleYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength);
+            } else {
+                drawIntYTicks(
+                        g2, config.getIntYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength);
+            }
+        }
+        if (config.isShowXTicks()) {
+            if (config.isDoublePrecision()) {
+                drawDoubleXTicks(
+                        g2, config.getDoubleXTicks(), height, margin, graphHeight, tickLineLength);
+            } else {
+                drawIntXTicks(
+                        g2, config.getIntXTicks(), height, margin, graphHeight, tickLineLength);
             }
         }
     }
@@ -127,5 +125,147 @@ public class GraphTools {
             intArray[i] = (int) doubleArr[i];
         }
         return intArray;
+    }
+
+    private static void drawDoubleYTicks(
+            Graphics2D g2,
+            double[] doubleTicks,
+            int height,
+            int margin,
+            int graphHeight,
+            int tickLineLength,
+            int halfTickLineLength
+    ) {
+        if (doubleTicks.length == 0) {
+            return;
+        }
+
+        double minY = Arrays.stream(doubleTicks).min().orElse(0.0);
+        double maxY = Arrays.stream(doubleTicks).max().orElse(1.0);
+        double rangeY = maxY - minY;
+        if (rangeY == 0) {
+            rangeY = 1;
+        }
+        for (double doubleTick : doubleTicks) {
+            double norm = (doubleTick - minY) / rangeY;
+            int y = (int) (height - margin - norm * graphHeight);
+            int x1 = margin - halfTickLineLength;
+            int x2 = x1 + tickLineLength;
+
+            g2.drawLine(x1, y, x2, y);
+
+            String label = String.format("%.2f", doubleTick);
+            FontMetrics fm = g2.getFontMetrics();
+            int labelWidth = fm.stringWidth(label);
+            int labelHeight = fm.getAscent();
+
+            g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
+        }
+    }
+
+    private static void drawIntYTicks(
+            Graphics2D g2,
+            int[] intTicks,
+            int height,
+            int margin,
+            int graphHeight,
+            int tickLineLength,
+            int halfTickLineLength
+    ) {
+        if (intTicks.length == 0) {
+            return;
+        }
+
+        int minY = Arrays.stream(intTicks).min().orElse(0);
+        int maxY = Arrays.stream(intTicks).max().orElse(1);
+        int rangeY = maxY - minY;
+        if (rangeY == 0) {
+            rangeY = 1;
+        }
+        for (int intTick : intTicks) {
+            double norm = (intTick - minY) / (double) rangeY;
+            int y = (int) (height - margin - norm * graphHeight);
+            int x1 = margin - halfTickLineLength;
+            int x2 = x1 + tickLineLength;
+
+            g2.drawLine(x1, y, x2, y);
+
+            String label = String.valueOf(intTick);
+            FontMetrics fm = g2.getFontMetrics();
+            int labelWidth = fm.stringWidth(label);
+            int labelHeight = fm.getAscent();
+
+            g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
+        }
+    }
+
+    private static void drawIntXTicks(
+            Graphics2D g2,
+            int[] xTicks,
+            int margin,
+            int graphWidth,
+            int tickLineLength,
+            int height
+    ) {
+        if (xTicks.length == 0) {
+            return;
+        }
+
+        int minX = Arrays.stream(xTicks).min().orElse(0);
+        int maxX = Arrays.stream(xTicks).max().orElse(1);
+        int rangeX = maxX - minX;
+        if (rangeX == 0) {
+            rangeX = 1;
+        }
+
+        for (int xTick : xTicks) {
+            double normX = (xTick - minX) / (double) rangeX;
+            int x = (int) (margin + normX * graphWidth);
+            int y1 = height - margin;
+            int y2 = y1 + tickLineLength;
+
+            g2.drawLine(x, y1, x, y2);
+
+            String label = String.valueOf(xTick);
+            FontMetrics fm = g2.getFontMetrics();
+            int labelWidth = fm.stringWidth(label);
+
+            g2.drawString(label, x - labelWidth / 2, y2 + fm.getAscent());
+        }
+    }
+
+    private static void drawDoubleXTicks(
+            Graphics2D g2,
+            double[] xTicks,
+            int margin,
+            int graphWidth,
+            int tickLineLength,
+            int height
+    ) {
+        if (xTicks.length == 0) {
+            return;
+        }
+
+        double minX = Arrays.stream(xTicks).min().orElse(0.0);
+        double maxX = Arrays.stream(xTicks).max().orElse(1.0);
+        double rangeX = maxX - minX;
+        if (rangeX == 0) {
+            rangeX = 1;
+        }
+
+        for (double xTick : xTicks) {
+            double normX = (xTick - minX) / rangeX;
+            int x = (int) (margin + normX * graphWidth);
+            int y1 = height - margin;
+            int y2 = y1 + tickLineLength;
+
+            g2.drawLine(x, y1, x, y2);
+
+            String label = String.format("%.2f", xTick);
+            FontMetrics fm = g2.getFontMetrics();
+            int labelWidth = fm.stringWidth(label);
+
+            g2.drawString(label, x - labelWidth / 2, y2 + fm.getAscent());
+        }
     }
 }
