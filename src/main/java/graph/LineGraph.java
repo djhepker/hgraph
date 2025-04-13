@@ -42,7 +42,7 @@ public final class LineGraph extends JPanel {
         this.dataPoints = new ArrayDeque<>();
         this.tickMarkConfig = new TickMarkConfig();
         this.lineThickness = 2.0f;
-        this.marginSize = 40;
+        this.marginSize = 24;
         this.lineColor = Color.GREEN;
         this.backgroundColor = new Color(255, 255, 255);
         this.borderColor = Color.LIGHT_GRAY;

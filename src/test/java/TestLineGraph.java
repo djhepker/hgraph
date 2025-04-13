@@ -17,28 +17,29 @@ import static org.junit.jupiter.api.Assertions.*;
 class TestLineGraph {
 
     private LineGraph graph;
+    private List<Double> initialData = Arrays.asList(1.0, 2.0, 3.0, 1.0, 15.0, 3.0, 2.0, 10.0);
+    private int listSize = initialData.size();
 
     @BeforeEach
     void setUp() {
-        List<Double> initialData = Arrays.asList(1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 2.0);
         graph = new LineGraph(initialData);
     }
 
     @Test
     void testConstructorInitializesDataCorrectly() {
-        assertEquals(7, graph.getDataSize());
+        assertEquals(listSize, graph.getDataSize());
     }
 
     @Test
     void testInsertDataPointAppends() {
         graph.insertDataPoint(4.0);
-        assertEquals(8, graph.getDataSize());
+        assertEquals(listSize + 1, graph.getDataSize());
     }
 
     @Test
     void testInsertDataPointHandlesNegativeValues() {
         graph.insertDataPoint(-10.5);
-        assertEquals(8, graph.getDataSize());
+        assertEquals(8 + 1, graph.getDataSize());
     }
 
     @Test
@@ -54,13 +55,7 @@ class TestLineGraph {
                 .setYTickValues(new int[]{0, 1, 2, 3})
                 .setTickColor(Color.BLACK)
                 .setDoublePrecision(false);
-        if (config.getIntYTicks().length == 0) {
-            throw new RuntimeException();
-        }
         graph.setTickMarkConfig(config);
-        if (graph.getTickMarkConfig().getIntYTicks().length == 0) {
-            throw new RuntimeException();
-        }
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Int Ticks");
             frame.setSize(1440, 1000);

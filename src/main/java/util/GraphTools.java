@@ -68,19 +68,23 @@ public class GraphTools {
         if (config.isShowYTicks()) {
             if (config.isDoublePrecision()) {
                 drawDoubleYTicks(
-                        g2, config.getDoubleYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength);
+                        g2, config.getDoubleYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength
+                );
             } else {
                 drawIntYTicks(
-                        g2, config.getIntYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength);
+                        g2, config.getIntYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength
+                );
             }
         }
         if (config.isShowXTicks()) {
             if (config.isDoublePrecision()) {
                 drawDoubleXTicks(
-                        g2, config.getDoubleXTicks(), height, margin, graphHeight, tickLineLength);
+                        g2, config.getDoubleXTicks(), margin, graphWidth, tickLineLength, height
+                );
             } else {
                 drawIntXTicks(
-                        g2, config.getIntXTicks(), height, margin, graphHeight, tickLineLength);
+                        g2, config.getIntXTicks(), margin, graphWidth, tickLineLength, height
+                );
             }
         }
     }
