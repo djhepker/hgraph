@@ -42,6 +42,17 @@ public class TickMarkConfig {
     }
 
     /**
+     * Mutator allowing user to allow or disallow double precision. When enabled, ticks are formatted
+     * as 1.00. When disabled, 1. Default false.
+     * @param doublePrecision Value to set doublePrecision to.
+     * @return This config instance for chaining
+     */
+    public TickMarkConfig setDoublePrecision(boolean doublePrecision) {
+        this.doublePrecision = doublePrecision;
+        return this;
+    }
+
+    /**
      * Enables or disables Y-axis ticks.
      * @param show true to show Y-axis ticks, false to hide
      * @return This config instance for chaining
