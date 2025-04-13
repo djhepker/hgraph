@@ -2,8 +2,10 @@
 import graph.LineGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import util.TickMarkConfig;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
@@ -45,12 +47,23 @@ class TestLineGraph {
     }
 
     @Test
-    void testCreatingFrame() throws InterruptedException {
+    void testCreatingFrameIntTicks() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-
+        TickMarkConfig config = new TickMarkConfig()
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
+                .setYTickValues(new int[]{0, 1, 2, 3})
+                .setTickColor(Color.BLACK)
+                .setDoublePrecision(false);
+        if (config.getIntYTicks().length == 0) {
+            throw new RuntimeException();
+        }
+        graph.setTickMarkConfig(config);
+        if (graph.getTickMarkConfig().getIntYTicks().length == 0) {
+            throw new RuntimeException();
+        }
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Test Frame 1");
-            frame.setSize(800, 600);
+            JFrame frame = new JFrame("Test Frame: Int Ticks");
+            frame.setSize(1440, 1000);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
@@ -63,5 +76,21 @@ class TestLineGraph {
             frame.setVisible(true);
         });
         latch.await();
+    }
+
+    @Test
+    void testTickMarkConfigTicks() {
+        TickMarkConfig config = new TickMarkConfig();
+        config.setXTickValues(new int[]{1, 2, 3});
+        config.setYTickValues(new int[]{10, 20, 30});
+
+        assertArrayEquals(new int[]{1, 2, 3}, config.getIntXTicks(), "X ticks should match input int array");
+        assertArrayEquals(new int[]{10, 20, 30}, config.getIntYTicks(), "Y ticks should match input int array");
+
+        config.setDoublePrecision(true);
+
+        assertTrue(config.isDoublePrecision(), "Expected double precision to be true");
+        assertArrayEquals(new double[]{1.0, 2.0, 3.0}, config.getDoubleXTicks(), 0.001);
+        assertArrayEquals(new double[]{10.0, 20.0, 30.0}, config.getDoubleYTicks(), 0.001);
     }
 }

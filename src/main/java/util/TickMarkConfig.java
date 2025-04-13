@@ -41,14 +41,7 @@ public class TickMarkConfig {
      */
     @Getter
     private int tickLength;
-
-    private double[] xTicksDouble;
-    private double[] yTicksDouble;
-    private int[] xTicksInt;
-    private int[] yTicksInt;
-
     /**
-     * -- GETTER --
      *  Returns the tick color used for marks and labels.
      *
      * @return tick color
@@ -56,13 +49,19 @@ public class TickMarkConfig {
     @Getter
     private Color tickColor;
     /**
-     * -- GETTER --
      *  Returns the font used for tick mark labels.
      *
      * @return tick font
      */
     @Getter
     private Font tickFont;
+
+    private double[] xTicksDouble;
+    private double[] yTicksDouble;
+    private int[] xTicksInt;
+    private int[] yTicksInt;
+
+
 
     /**
      * Default configuration with all settings enabled and standard styling.
@@ -87,17 +86,19 @@ public class TickMarkConfig {
      * @return This config instance for chaining
      */
     public TickMarkConfig setDoublePrecision(boolean doublePrecision) {
-        this.doublePrecision = doublePrecision;
-        if (doublePrecision) {
-            this.xTicksDouble = GraphTools.intArrayToDoubleArray(xTicksInt);
-            this.xTicksInt = null;
-            this.yTicksDouble = GraphTools.intArrayToDoubleArray(yTicksInt);
-            this.yTicksInt = null;
-        } else {
-            this.xTicksInt = GraphTools.doubleArrayToIntArray(xTicksDouble);
-            this.xTicksDouble = null;
-            this.yTicksInt = GraphTools.doubleArrayToIntArray(yTicksDouble);
-            this.yTicksDouble = null;
+        if (doublePrecision != this.doublePrecision) {
+            this.doublePrecision = doublePrecision;
+            if (doublePrecision) {
+                this.xTicksDouble = GraphTools.intArrayToDoubleArray(xTicksInt);
+                this.xTicksInt = null;
+                this.yTicksDouble = GraphTools.intArrayToDoubleArray(yTicksInt);
+                this.yTicksInt = null;
+            } else {
+                this.xTicksInt = GraphTools.doubleArrayToIntArray(xTicksDouble);
+                this.xTicksDouble = null;
+                this.yTicksInt = GraphTools.doubleArrayToIntArray(yTicksDouble);
+                this.yTicksDouble = null;
+            }
         }
         return this;
     }
@@ -129,6 +130,20 @@ public class TickMarkConfig {
      */
     public TickMarkConfig tickLength(int tickLength) {
         this.tickLength = tickLength;
+        return this;
+    }
+
+    /**
+     * Sets the color used to draw tick marks and their labels.
+     * <p>
+     * Enables fluent configuration by returning the same {@code TickMarkConfig} instance.
+     * </p>
+     *
+     * @param tickColor the color to use for tick marks and labels
+     * @return this config instance for method chaining
+     */
+    public TickMarkConfig setTickColor(Color tickColor) {
+        this.tickColor = tickColor;
         return this;
     }
 
@@ -191,15 +206,15 @@ public class TickMarkConfig {
     }
 
     /**
-     * Gets the active X-axis tick values based on precision mode.
+     * Gets the active X-axis tick values as a {@code double[]} array.
      * <p>
      * If {@code doublePrecision} is enabled, returns {@code xTicksDouble}, or an empty array if null.
-     * Otherwise, converts {@code xTicksInt} to {@code double[]} or returns empty array if null.
+     * Otherwise, converts {@code xTicksInt} to {@code double[]} or returns an empty array if null.
      * </p>
      *
-     * @return the X-axis tick values as {@code double[]} respecting precision
+     * @return the X-axis tick values as {@code double[]}
      */
-    public double[] getXTicks() {
+    public double[] getDoubleXTicks() {
         if (doublePrecision) {
             return xTicksDouble != null ? xTicksDouble : new double[0];
         } else if (xTicksInt != null) {
@@ -210,15 +225,15 @@ public class TickMarkConfig {
     }
 
     /**
-     * Gets the active Y-axis tick values based on precision mode.
+     * Gets the active Y-axis tick values as a {@code double[]} array.
      * <p>
      * If {@code doublePrecision} is enabled, returns {@code yTicksDouble}, or an empty array if null.
-     * Otherwise, converts {@code yTicksInt} to {@code double[]} or returns empty array if null.
+     * Otherwise, converts {@code yTicksInt} to {@code double[]} or returns an empty array if null.
      * </p>
      *
-     * @return the Y-axis tick values as {@code double[]} respecting precision
+     * @return the Y-axis tick values as {@code double[]}
      */
-    public double[] getYTicks() {
+    public double[] getDoubleYTicks() {
         if (doublePrecision) {
             return yTicksDouble != null ? yTicksDouble : new double[0];
         } else if (yTicksInt != null) {
@@ -226,6 +241,92 @@ public class TickMarkConfig {
         } else {
             return new double[0];
         }
+    }
+
+    /**
+     * Gets the active X-axis tick values as an {@code int[]} array.
+     * <p>
+     * If {@code doublePrecision} is disabled, returns {@code xTicksInt}, or an empty array if null.
+     * Otherwise, converts {@code xTicksDouble} to {@code int[]} or returns an empty array if null.
+     * </p>
+     *
+     * @return the X-axis tick values as {@code int[]}
+     */
+    public int[] getIntXTicks() {
+        if (!doublePrecision) {
+            return xTicksInt != null ? xTicksInt : new int[0];
+        } else if (xTicksDouble != null) {
+            return GraphTools.doubleArrayToIntArray(xTicksDouble);
+        } else {
+            return new int[0];
+        }
+    }
+
+    /**
+     * Gets the active Y-axis tick values as an {@code int[]} array.
+     * <p>
+     * If {@code doublePrecision} is disabled, returns {@code yTicksInt}, or an empty array if null.
+     * Otherwise, converts {@code yTicksDouble} to {@code int[]} or returns an empty array if null.
+     * </p>
+     *
+     * @return the Y-axis tick values as {@code int[]}
+     */
+    public int[] getIntYTicks() {
+        if (!doublePrecision) {
+            return yTicksInt != null ? yTicksInt : new int[0];
+        } else if (yTicksDouble != null) {
+            return GraphTools.doubleArrayToIntArray(yTicksDouble);
+        } else {
+            return new int[0];
+        }
+    }
+
+    /**
+     * Returns a portion of the X-axis tick values as {@code double[]}, in range [start, finish).
+     *
+     * @param start the starting index (inclusive)
+     * @param finish the ending index (exclusive)
+     * @return a subarray of the X-axis ticks in double format
+     */
+    public double[] getDoubleXTicks(int start, int finish) {
+        double[] base = getDoubleXTicks();
+        return sliceDoubleArray(base, start, finish);
+    }
+
+    /**
+     * Returns a portion of the Y-axis tick values as {@code double[]}, in range [start, finish).
+     *
+     * @param start the starting index (inclusive)
+     * @param finish the ending index (exclusive)
+     * @return a subarray of the Y-axis ticks in double format
+     */
+    public double[] getDoubleYTicks(int start, int finish) {
+        double[] base = getDoubleYTicks();
+        return sliceDoubleArray(base, start, finish);
+    }
+
+    /**
+     * Returns a portion of the X-axis tick values as {@code int[]}, in range [start, finish).
+     *
+     * @param start the starting index (inclusive)
+     * @param finish the ending index (exclusive)
+     * @return a subarray of the X-axis ticks in int format
+     */
+    public int[] getIntXTicks(int start, int finish) {
+        int[] base = getIntXTicks();
+        return sliceIntArray(base, start, finish);
+    }
+
+    /**
+     * Returns a portion of the Y-axis tick values as {@code int[]}, in range [start, finish).
+     *
+     * @param start the starting index (inclusive)
+     * @param finish the ending index (exclusive)
+     * @return a subarray of the Y-axis ticks in int format
+     */
+    public int[] getIntYTicks(int start, int finish) {
+        int[] base = getIntYTicks();
+        return sliceIntArray(base, start, finish);
     }
 
     /**
@@ -246,5 +347,23 @@ public class TickMarkConfig {
     public TickMarkConfig tickFont(Font tickFont) {
         this.tickFont = tickFont;
         return this;
+    }
+
+    private double[] sliceDoubleArray(double[] array, int start, int finish) {
+        if (array == null || start < 0 || finish > array.length || start >= finish) {
+            return new double[0];
+        }
+        double[] result = new double[finish - start];
+        System.arraycopy(array, start, result, 0, result.length);
+        return result;
+    }
+
+    private int[] sliceIntArray(int[] array, int start, int finish) {
+        if (array == null || start < 0 || finish > array.length || start >= finish) {
+            return new int[0];
+        }
+        int[] result = new int[finish - start];
+        System.arraycopy(array, start, result, 0, result.length);
+        return result;
     }
 }

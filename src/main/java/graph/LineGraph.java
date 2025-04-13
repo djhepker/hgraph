@@ -154,8 +154,8 @@ public final class LineGraph extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setStroke(new BasicStroke(lineThickness));
 
-        GraphTools.drawMargin(width, height, g2, marginSize, backgroundColor, borderColor);
-        GraphTools.drawTicks(g2, tickMarkConfig, marginSize, width, height, dataPoints);
+        GraphTools.drawMargin(g2, marginSize, width, height, backgroundColor, borderColor);
+        GraphTools.drawTicks(g2, tickMarkConfig, marginSize, width, height);
 
         g2.setColor(lineColor);
         int padding = 40;
@@ -182,5 +182,4 @@ public final class LineGraph extends JPanel {
             i++;
         }
     }
-
 }

@@ -1,7 +1,7 @@
 package util;
 
 import java.awt.*;
-import java.util.Deque;
+import java.util.Arrays;
 
 /**
  * Utility class providing common rendering functions for graphs such as margin drawing and tick mark rendering.
@@ -22,24 +22,22 @@ public class GraphTools {
      * @param borderColor      The stroke color of the graph border
      */
     public static void drawMargin(
-            int panelWidth,
-            int panelHeight,
             Graphics2D g2,
             int marginSize,
+            int panelWidth,
+            int panelHeight,
             Color backgroundColor,
             Color borderColor
     ) {
         g2.setColor(backgroundColor);
         g2.fillRect(0, 0, panelWidth, panelHeight);
 
-        int borderX = marginSize / 2;
-        int borderY = marginSize / 2;
-        int borderW = panelWidth - marginSize;
-        int borderH = panelHeight - marginSize;
+        int borderW = panelWidth - marginSize * 2;
+        int borderH = panelHeight - marginSize * 2;
 
         g2.setColor(borderColor);
         g2.setStroke(new BasicStroke(2f));
-        g2.drawRect(borderX, borderY, borderW, borderH);
+        g2.drawRect(marginSize, marginSize, borderW, borderH);
     }
 
     /**
@@ -51,27 +49,40 @@ public class GraphTools {
      * @param margin      The size of the margin around the graph area
      * @param width       Total width of the graph panel
      * @param height      Total height of the graph panel
-     * @param dataPoints  The dataset used to determine tick value scaling (Y-axis only for now)
      */
     public static void drawTicks(
             Graphics2D g2,
             TickMarkConfig config,
             int margin,
             int width,
-            int height,
-            Deque<Double> dataPoints
+            int height
     ) {
         int tickLineLength = config.getTickLength();
-
+        int halfTickLineLength = tickLineLength / 2;
         int graphWidth = width - 2 * margin;
         int graphHeight = height - 2 * margin;
-
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
+        if (config.isShowYTicks() && !config.isDoublePrecision()) {
+            int[] yTicks = config.getIntYTicks();
+            if (yTicks.length > 0) {
+                int minY = Arrays.stream(yTicks).min().orElse(0);
+                int maxY = Arrays.stream(yTicks).max().orElse(1);
+                int rangeY = maxY - minY;
+                if (rangeY == 0) rangeY = 1;
 
-        if (config.isShowYTicks()) {
-            for (double yTick : config.getYTicksDouble()) {
-                int y = (int)
+                for (int yTick : yTicks) {
+                    double normY = (yTick - minY) / (double) rangeY;
+                    int y = (int) (height - margin - normY * graphHeight);
+                    int x1 = margin - halfTickLineLength;
+                    int x2 = x1 + tickLineLength;
+                    g2.drawLine(x1, y, x2, y);
+                    String label = String.valueOf(yTick);
+                    FontMetrics fm = g2.getFontMetrics();
+                    int labelWidth = fm.stringWidth(label);
+                    int labelHeight = fm.getAscent();
+                    g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
+                }
             }
         }
     }
