@@ -50,16 +50,21 @@ public class TickMarkConfig {
      */
     public TickMarkConfig setDoublePrecision(boolean doublePrecision) {
         this.doublePrecision = doublePrecision;
-        if (xTicksInt.length > 0) {
-            xTicksDouble = new double[xTicksInt.length];
-            for (int xTick : xTicksInt) {
-                xTicksDouble[xTick] = xTick;
+        if (doublePrecision) {
+            if (xTicksInt != null && xTicksInt.length > 0) {
+                xTicksDouble = new double[xTicksInt.length];
+                for (int i = 0; i < xTicksInt.length; i++) {
+                    xTicksDouble[i] = xTicksInt[i];
+                }
+                xTicksInt = null;
             }
-        }
-        if (yTicksInt.length > 0) {
-            yTicksDouble = new double[yTicksInt.length];
-            for (int yTick : yTicksInt) {
-                yTicksDouble[yTick] = yTick;
+
+            if (yTicksInt != null && yTicksInt.length > 0) {
+                yTicksDouble = new double[yTicksInt.length];
+                for (int i = 0; i < yTicksInt.length; i++) {
+                    yTicksDouble[i] = yTicksInt[i];
+                }
+                yTicksInt = null;
             }
         }
         xTicksInt = null;

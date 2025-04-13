@@ -75,4 +75,46 @@ public class GraphTools {
             }
         }
     }
+
+    /**
+     * Converts an array of integers into an array of doubles by copying each element.
+     * <p>
+     * If the input array is {@code null} or empty, returns an empty {@code double[]} array.
+     * </p>
+     *
+     * @param intArray the array of integers to convert
+     * @return a new array of doubles containing the same values as the input array
+     */
+    public static double[] intArrayToDoubleArray(int[] intArray) {
+        if (intArray == null || intArray.length == 0) {
+            return new double[0];
+        }
+        double[] doubleArray = new double[intArray.length];
+        for (int i = 0; i < intArray.length; i++) {
+            doubleArray[i] = intArray[i];
+        }
+        return doubleArray;
+    }
+
+    /**
+     * Converts an array of doubles into an array of integers by truncating each element.
+     * <p>
+     * Each {@code double} value is cast to an {@code int}, discarding any decimal portion.
+     * If the input array is {@code null} or empty, returns an empty {@code int[]} array.
+     * </p>
+     *
+     * @param doubleArr the array of doubles to convert
+     * @return a new array of integers containing the truncated values of the input
+     */
+    public static int[] doubleArrayToIntArray(double[] doubleArr) {
+        if (doubleArr == null || doubleArr.length == 0) {
+            return new int[0];
+        }
+
+        int[] intArray = new int[doubleArr.length];
+        for (int i = 0; i < doubleArr.length; i++) {
+            intArray[i] = (int) doubleArr[i];
+        }
+        return intArray;
+    }
 }
