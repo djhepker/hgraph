@@ -2,12 +2,16 @@ package util;
 
 import lombok.Getter;
 
+import java.util.Iterator;
+
+import util.CircularPointBuffer.PointView;
+
 /**
  * A fixed-size circular buffer that stores paired (x, y) coordinate values.
  * When full, the buffer overwrites the oldest elements in FIFO order.
  * Useful for graphing or time-series data where old data can be discarded as new data arrives.
  */
-public final class CircularPointBuffer {
+public final class CircularPointBuffer implements Iterable<PointView> {
 
     /** Internal array for x-coordinate values */
     private double[] x;
@@ -29,6 +33,7 @@ public final class CircularPointBuffer {
     @Getter
     private int capacity;
 
+    /** Logical iteration counter for cursor-based traversals */
     private int iterCount;
 
     /**
@@ -47,7 +52,7 @@ public final class CircularPointBuffer {
     }
 
     /**
-     * Resets all values in buffer, maintains capacity
+     * Resets all values in buffer, maintains capacity.
      *
      * @return this buffer instance for method chaining
      */
@@ -95,6 +100,7 @@ public final class CircularPointBuffer {
                 tmpX[i] = x[idx];
                 tmpY[i] = y[idx];
             }
+
             x = tmpX;
             y = tmpY;
             head = 0;
@@ -105,7 +111,16 @@ public final class CircularPointBuffer {
     }
 
     /**
-     * Increments cursor to next legal position in buffer
+     * Checks whether the buffer is currently empty.
+     *
+     * @return true if the buffer has no elements, false otherwise
+     */
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    /**
+     * Increments cursor to the next legal position in buffer.
      *
      * @return this buffer instance for method chaining
      */
@@ -116,7 +131,9 @@ public final class CircularPointBuffer {
     }
 
     /**
-     * Moves cursor to head of container
+     * Moves cursor to the head of the container.
+     *
+     * @return this buffer instance for method chaining
      */
     public CircularPointBuffer resetCursor() {
         cursor = head;
@@ -125,49 +142,88 @@ public final class CircularPointBuffer {
     }
 
     /**
-     * Flag for when cursor has reached the end of buffer
+     * Flag for when cursor has reached the end of buffer.
      *
-     * @return True if there is a valid value stored in next index. False otherwise
+     * @return true if there is a valid value stored in the next index; false otherwise
      */
     public boolean hasNext() {
         return iterCount < size;
     }
 
     /**
-     * Getter for x at coordinate cursor position
+     * Gets the x-value at the current cursor position.
      *
-     * @return double x at cursor
+     * @return the x-coordinate at cursor
      */
     public double cursorGetX() {
         return x[cursor];
     }
 
     /**
-     * Getter for y at coordinate cursor
+     * Gets the y-value at the current cursor position.
      *
-     * @return double y at cursor position
+     * @return the y-coordinate at cursor
      */
     public double cursorGetY() {
         return y[cursor];
     }
 
     /**
-     * Removes first element of container.
+     * Removes the first (oldest) element from the container.
      *
-     * @return (x,y) double[]{x, y}
+     * @return a double array containing the removed (x, y) pair
      */
     public double[] pop() {
-        if (size == 0) {
-            return null;
-        }
+        if (size == 0) return null;
+
         double[] top = {x[head], y[head]};
-        if (cursor == head) {
-            head = (head + 1) % capacity;
-            cursor = head;
-        } else {
-            head = (head + 1) % capacity;
-        }
+        head = (head + 1) % capacity;
+        if (cursor == head) cursor = head;
         --size;
         return top;
+    }
+
+    /**
+     * Returns an iterator that yields PointView objects in insertion order.
+     * Note: the returned PointView is reused during iteration for performance.
+     *
+     * @return an iterator over (x, y) point views
+     */
+    @Override
+    public Iterator<PointView> iterator() {
+        return new Iterator<>() {
+            private int index = 0;
+            private int iteratorCursor = head;
+            private final PointView point = new PointView();
+
+            @Override
+            public boolean hasNext() {
+                return index < size;
+            }
+
+            @Override
+            public PointView next() {
+                point.set(x[iteratorCursor], y[iteratorCursor]);
+                iteratorCursor = (iteratorCursor + 1) % capacity;
+                ++index;
+                return point;
+            }
+        };
+    }
+
+    /**
+     * Reusable view object for exposing (x, y) points during iteration.
+     */
+    public static final class PointView {
+        public double x, y;
+
+        private PointView() {
+
+        }
+
+        public void set(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }
