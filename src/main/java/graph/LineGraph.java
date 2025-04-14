@@ -30,10 +30,12 @@ public final class LineGraph extends JPanel {
 
     private float lineThickness;
     private int marginSize;
+    private double minValue;
+    private double maxValue;
 
     private Color lineColor;
     private Color backgroundColor;
-    private Color borderColor = Color.LIGHT_GRAY;
+    private Color borderColor;
 
     /**
      * Default constructor initializing default values and an empty data queue
@@ -44,7 +46,9 @@ public final class LineGraph extends JPanel {
         this.lineThickness = 2.0f;
         this.marginSize = 24;
         this.lineColor = Color.GREEN;
-        this.backgroundColor = new Color(255, 255, 255);
+        this.backgroundColor = new Color(0, 0, 0);
+        this.minValue = Double.MAX_VALUE;
+        this.maxValue = Double.MIN_VALUE;
         this.borderColor = Color.LIGHT_GRAY;
     }
 
@@ -55,7 +59,7 @@ public final class LineGraph extends JPanel {
     public LineGraph(Iterable<Double> data) {
         this();
         for (double value : data) {
-            this.dataPoints.add(value);
+            insertDataPoint(value);
         }
     }
 
@@ -119,13 +123,19 @@ public final class LineGraph extends JPanel {
         return this;
     }
 
-
     /**
      * Adds data to the end of queue
+     *
      * @param data Value to be added to dataPoints
      */
     public LineGraph insertDataPoint(double data) {
         dataPoints.add(data);
+        if (data > maxValue) {
+            maxValue = data;
+        }
+        if (data < minValue) {
+            minValue = data;
+        }
         return this;
     }
 
@@ -136,7 +146,6 @@ public final class LineGraph extends JPanel {
     public int getDataSize() {
         return dataPoints.size();
     }
-
 
     /**
      * Automatically called by repaint()
@@ -158,22 +167,18 @@ public final class LineGraph extends JPanel {
         GraphTools.drawTicks(g2, tickMarkConfig, marginSize, width, height);
 
         g2.setColor(lineColor);
-        int padding = 40;
-        int graphWidth = width - 2 * padding;
-        int graphHeight = height - 2 * padding;
-        double minY = dataPoints.stream().min(Double::compare).orElse(0.0);
-        double maxY = dataPoints.stream().max(Double::compare).orElse(1.0);
-        double rangeY = maxY - minY;
+        int graphWidth = width - 2 * marginSize;
+        int graphHeight = height - 2 * marginSize;
+        double rangeY = maxValue - minValue;
         if (rangeY == 0) {
             rangeY = 1;
         }
-        int size = dataPoints.size();
-        double xStep = (double) graphWidth / (size - 1);
+        double xStep = (double) graphWidth / (dataPoints.size() - 1);
         int i = 0;
         int prevX = -1, prevY = -1;
         for (double value : dataPoints) {
-            int x = (int) (padding + i * xStep);
-            int y = (int) (padding + graphHeight - ((value - minY) / rangeY) * graphHeight);
+            int x = (int) (marginSize + i * xStep);
+            int y = (int) (marginSize + graphHeight - ((value - minValue) / rangeY) * graphHeight);
             if (i > 0) {
                 g2.drawLine(prevX, prevY, x, y);
             }

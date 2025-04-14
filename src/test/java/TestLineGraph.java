@@ -4,15 +4,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import util.TickMarkConfig;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TestLineGraph {
 
@@ -52,13 +56,11 @@ class TestLineGraph {
         CountDownLatch latch = new CountDownLatch(1);
         TickMarkConfig config = new TickMarkConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
-                .setYTickValues(new int[]{0, 1, 2, 3})
-                .setTickColor(Color.BLACK)
-                .setDoublePrecision(false);
+                .setYTickValues(new int[]{0, 1, 2, 3});
         graph.setTickMarkConfig(config);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Int Ticks");
-            frame.setSize(1440, 1000);
+            frame.setSize(1000, 800);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.addWindowListener(new WindowAdapter() {
                 @Override

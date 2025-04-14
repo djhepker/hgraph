@@ -71,7 +71,7 @@ public class TickMarkConfig {
         this.showXTicks = true;
         this.doublePrecision = false;
         this.tickLength = 10;
-        this.tickColor = Color.BLACK;
+        this.tickColor = Color.GREEN;
         this.xTicksInt = new int[0];
         this.yTicksInt = new int[0];
         this.xTicksDouble = null;
