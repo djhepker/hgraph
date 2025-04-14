@@ -11,7 +11,7 @@ import java.awt.Font;
  * Supports both X and Y axis customization, including visibility, color, length, font, and label count.
  */
 @AllArgsConstructor
-public class TickMarkConfig {
+public final class TickMarkConfig {
     /**
      *  Returns whether Y-axis tick marks should be drawn.
      *

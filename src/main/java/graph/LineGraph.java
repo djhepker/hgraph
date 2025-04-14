@@ -173,18 +173,20 @@ public final class LineGraph extends JPanel {
         if (rangeY == 0) {
             rangeY = 1;
         }
-        double xStep = (double) graphWidth / (dataPoints.size() - 1);
+        double dx = (double) graphWidth / (dataPoints.size() - 1);
+        double dy = (double) graphHeight / (dataPoints.size() - 1);
+
         int i = 0;
         int prevX = -1, prevY = -1;
         for (double value : dataPoints) {
-            int x = (int) (marginSize + i * xStep);
+            int x = (int) (marginSize + i * dx);
             int y = (int) (marginSize + graphHeight - ((value - minValue) / rangeY) * graphHeight);
             if (i > 0) {
                 g2.drawLine(prevX, prevY, x, y);
             }
             prevX = x;
             prevY = y;
-            i++;
+            ++i;
         }
     }
 }

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TestLineGraph {
 
     private LineGraph graph;
-    private List<Double> initialData = Arrays.asList(1.0, 2.0, 3.0, 1.0, 15.0, 3.0, 2.0, 10.0);
+    private List<Double> initialData = Arrays.asList(1.0, 10.0, 2.0, 3.0);
     private int listSize = initialData.size();
 
     @BeforeEach

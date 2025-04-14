@@ -6,7 +6,7 @@ import java.util.Arrays;
 /**
  * Utility class providing common rendering functions for graphs such as margin drawing and tick mark rendering.
  */
-public class GraphTools {
+public final class GraphTools {
 
     // Prevent instantiation
     private GraphTools() {}
