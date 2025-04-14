@@ -48,11 +48,14 @@ public final class CircularPointBuffer {
 
     /**
      * Resets all values in buffer, maintains capacity
+     *
+     * @return this buffer instance for method chaining
      */
-    public void clear() {
+    public CircularPointBuffer clear() {
         head = 0;
         cursor = 0;
         size = 0;
+        return this;
     }
 
     /**
@@ -61,16 +64,18 @@ public final class CircularPointBuffer {
      *
      * @param newX the x-coordinate to add
      * @param newY the y-coordinate to add
+     * @return this buffer instance for method chaining
      */
-    public void add(double newX, double newY) {
+    public CircularPointBuffer add(double newX, double newY) {
         int index = (head + size) % capacity;
         x[index] = newX;
         y[index] = newY;
         if (size < capacity) {
             ++size;
-        } else { // size == capacity
-            head = (head + 1) % capacity; // overwrite oldest
+        } else {
+            head = (head + 1) % capacity;
         }
+        return this;
     }
 
     /**
@@ -78,40 +83,45 @@ public final class CircularPointBuffer {
      * If the new capacity is smaller, only the most recent points are retained.
      *
      * @param newCapacity the new buffer capacity
+     * @return this buffer instance for method chaining
      */
-    public void setCapacity(int newCapacity) {
-        if (newCapacity == capacity) {
-            return;
-        }
-        double[] tmpX = new double[newCapacity];
-        double[] tmpY = new double[newCapacity];
+    public CircularPointBuffer setCapacity(int newCapacity) {
+        if (newCapacity != capacity) {
+            double[] tmpX = new double[newCapacity];
+            double[] tmpY = new double[newCapacity];
 
-        for (int i = 0; i < Math.min(size, newCapacity); ++i) {
-            int idx = (head + i) % capacity;
-            tmpX[i] = x[idx];
-            tmpY[i] = y[idx];
+            for (int i = 0; i < Math.min(size, newCapacity); ++i) {
+                int idx = (head + i) % capacity;
+                tmpX[i] = x[idx];
+                tmpY[i] = y[idx];
+            }
+            x = tmpX;
+            y = tmpY;
+            head = 0;
+            size = Math.min(size, newCapacity);
+            capacity = newCapacity;
         }
-        x = tmpX;
-        y = tmpY;
-        head = 0;
-        size = Math.min(size, newCapacity);
-        capacity = newCapacity;
+        return this;
     }
 
     /**
      * Increments cursor to next legal position in buffer
+     *
+     * @return this buffer instance for method chaining
      */
-    public void advanceCursorWrapped() {
+    public CircularPointBuffer advanceCursorWrapped() {
         cursor = (cursor + 1) % capacity;
         ++iterCount;
+        return this;
     }
 
     /**
      * Moves cursor to head of container
      */
-    public void resetCursor() {
+    public CircularPointBuffer resetCursor() {
         cursor = head;
         iterCount = 0;
+        return this;
     }
 
     /**
@@ -122,9 +132,6 @@ public final class CircularPointBuffer {
     public boolean hasNext() {
         return iterCount < size;
     }
-
-    // TODO Build removal logic. Handle random access for user to click points of graph. May just need to
-    //  eliminate wrap logic
 
     /**
      * Getter for x at coordinate cursor position
@@ -142,5 +149,25 @@ public final class CircularPointBuffer {
      */
     public double cursorGetY() {
         return y[cursor];
+    }
+
+    /**
+     * Removes first element of container.
+     *
+     * @return (x,y) double[]{x, y}
+     */
+    public double[] pop() {
+        if (size == 0) {
+            return null;
+        }
+        double[] top = {x[head], y[head]};
+        if (cursor == head) {
+            head = (head + 1) % capacity;
+            cursor = head;
+        } else {
+            head = (head + 1) % capacity;
+        }
+        --size;
+        return top;
     }
 }
