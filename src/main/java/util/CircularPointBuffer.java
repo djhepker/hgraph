@@ -29,6 +29,8 @@ public final class CircularPointBuffer {
     @Getter
     private int capacity;
 
+    private int iterCount;
+
     /**
      * Constructs a circular buffer with the specified capacity.
      *
@@ -38,6 +40,7 @@ public final class CircularPointBuffer {
         this.head = 0;
         this.cursor = 0;
         this.size = 0;
+        this.iterCount = 0;
         this.capacity = capacity;
         this.x = new double[capacity];
         this.y = new double[capacity];
@@ -63,10 +66,9 @@ public final class CircularPointBuffer {
         int index = (head + size) % capacity;
         x[index] = newX;
         y[index] = newY;
-
         if (size < capacity) {
-            size++;
-        } else {
+            ++size;
+        } else { // size == capacity
             head = (head + 1) % capacity; // overwrite oldest
         }
     }
@@ -78,6 +80,9 @@ public final class CircularPointBuffer {
      * @param newCapacity the new buffer capacity
      */
     public void setCapacity(int newCapacity) {
+        if (newCapacity == capacity) {
+            return;
+        }
         double[] tmpX = new double[newCapacity];
         double[] tmpY = new double[newCapacity];
 
@@ -89,7 +94,6 @@ public final class CircularPointBuffer {
         x = tmpX;
         y = tmpY;
         head = 0;
-        cursor = 0;
         size = Math.min(size, newCapacity);
         capacity = newCapacity;
     }
@@ -99,6 +103,7 @@ public final class CircularPointBuffer {
      */
     public void advanceCursorWrapped() {
         cursor = (cursor + 1) % capacity;
+        ++iterCount;
     }
 
     /**
@@ -106,14 +111,16 @@ public final class CircularPointBuffer {
      */
     public void resetCursor() {
         cursor = head;
+        iterCount = 0;
     }
 
     /**
-     * Returns the index after the last readable cursor position.
-     * Used for safe iteration with wrapping logic.
+     * Flag for when cursor has reached the end of buffer
+     *
+     * @return True if there is a valid value stored in next index. False otherwise
      */
-    public int getEndCursor() {
-        return (head + size) % capacity;
+    public boolean hasNext() {
+        return iterCount < size;
     }
 
     // TODO Build removal logic. Handle random access for user to click points of graph. May just need to
