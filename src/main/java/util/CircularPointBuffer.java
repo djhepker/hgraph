@@ -16,13 +16,17 @@ public final class CircularPointBuffer {
     private double[] y;
 
     /** Index of the first (oldest) element in the buffer */
-    private int head = 0;
+    private int head;
+
+    @Getter
+    private int cursor;
 
     /** Current number of elements in the buffer */
     @Getter
-    private int size = 0;
+    private int size;
 
     /** Total capacity of the circular buffer */
+    @Getter
     private int capacity;
 
     /**
@@ -31,9 +35,21 @@ public final class CircularPointBuffer {
      * @param capacity the maximum number of (x, y) points this buffer can hold
      */
     public CircularPointBuffer(int capacity) {
+        this.head = 0;
+        this.cursor = 0;
+        this.size = 0;
         this.capacity = capacity;
         this.x = new double[capacity];
         this.y = new double[capacity];
+    }
+
+    /**
+     * Resets all values in buffer, maintains capacity
+     */
+    public void clear() {
+        head = 0;
+        cursor = 0;
+        size = 0;
     }
 
     /**
@@ -70,60 +86,54 @@ public final class CircularPointBuffer {
             tmpX[i] = x[idx];
             tmpY[i] = y[idx];
         }
-
         x = tmpX;
         y = tmpY;
         head = 0;
+        cursor = 0;
         size = Math.min(size, newCapacity);
         capacity = newCapacity;
     }
 
     /**
-     * Retrieves the x-coordinate at the specified logical index.
-     * The index is relative to the oldest element (index 0).
-     *
-     * @param i the logical index, ranging from 0 to size-1
-     * @return the x-coordinate at index i
-     * @throws ArrayIndexOutOfBoundsException if i is out of range
+     * Increments cursor to next legal position in buffer
      */
-    public double getX(int i) {
-        if (i >= size) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        return x[(head + i) % capacity];
+    public void advanceCursorWrapped() {
+        cursor = (cursor + 1) % capacity;
     }
 
     /**
-     * Removes and returns the oldest (x, y) point from the buffer.
-     *
-     * @return a double array where [0] = x, [1] = y of the removed point
-     * @throws IllegalStateException if the buffer is empty
+     * Moves cursor to head of container
      */
-    public double[] pop() {
-        if (size == 0) {
-            throw new IllegalStateException("Buffer is empty");
-        }
-        double oldX = x[head];
-        double oldY = y[head];
-        head = (head + 1) % capacity;
-        size--;
-        return new double[]{oldX, oldY};
+    public void resetCursor() {
+        cursor = head;
     }
 
     /**
-     * Removes and returns the newest (x, y) point from the buffer.
-     *
-     * @return a double array where [0] = x, [1] = y of the removed point
-     * @throws IllegalStateException if the buffer is empty
+     * Returns the index after the last readable cursor position.
+     * Used for safe iteration with wrapping logic.
      */
-    public double[] popTail() {
-        if (size == 0) {
-            throw new IllegalStateException("Buffer is empty");
-        }
-        int tailIndex = (head + size - 1) % capacity;
-        double lastX = x[tailIndex];
-        double lastY = y[tailIndex];
-        size--;
-        return new double[]{lastX, lastY};
+    public int getEndCursor() {
+        return (head + size) % capacity;
+    }
+
+    // TODO Build removal logic. Handle random access for user to click points of graph. May just need to
+    //  eliminate wrap logic
+
+    /**
+     * Getter for x at coordinate cursor position
+     *
+     * @return double x at cursor
+     */
+    public double cursorGetX() {
+        return x[cursor];
+    }
+
+    /**
+     * Getter for y at coordinate cursor
+     *
+     * @return double y at cursor position
+     */
+    public double cursorGetY() {
+        return y[cursor];
     }
 }
