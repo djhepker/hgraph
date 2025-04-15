@@ -6,7 +6,6 @@ import util.TickMarkConfig;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
@@ -36,19 +35,19 @@ class TestLineGraph {
 
     @Test
     void testInsertDataPointAppends() {
-        graph.insertDataPoint(4.0);
+        graph.insertDataPoint(4.0, 5.0);
         assertEquals(listSize + 1, graph.getDataSize());
     }
 
     @Test
     void testInsertDataPointHandlesNegativeValues() {
-        graph.insertDataPoint(-10.5);
+        graph.insertDataPoint(-10.5, 2.3);
         assertEquals(8 + 1, graph.getDataSize());
     }
 
     @Test
     void testInsertDataPointDoesNotThrow() {
-        assertDoesNotThrow(() -> graph.insertDataPoint(Double.NaN));
+        assertDoesNotThrow(() -> graph.insertDataPoint(Double.NaN, Double.NaN));
     }
 
     @Test

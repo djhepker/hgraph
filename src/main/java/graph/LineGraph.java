@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
-import util.CircularPointBuffer.PointView;
 import util.GraphTools;
 import util.TickMarkConfig;
 
@@ -15,6 +14,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.Point2D.Double;
 
 /**
  * Logic for creating a JPanel LineGraph
@@ -24,7 +24,7 @@ import java.awt.RenderingHints;
 @RequiredArgsConstructor
 public final class LineGraph extends JPanel {
     @Getter(AccessLevel.NONE)
-    private final CircularPointBuffer circularPointBuffer;
+    private final CircularPointBuffer CircularPointBuffer;
 
     private TickMarkConfig tickMarkConfig;
 
@@ -41,25 +41,25 @@ public final class LineGraph extends JPanel {
      * Default constructor initializing default values and an empty data queue
      */
     public LineGraph() {
-        this.circularPointBuffer = new CircularPointBuffer(100);
+        this.CircularPointBuffer = new CircularPointBuffer(100);
         this.tickMarkConfig = new TickMarkConfig();
         this.lineThickness = 2.0f;
         this.marginSize = 24;
         this.lineColor = Color.GREEN;
         this.backgroundColor = new Color(0, 0, 0);
-        this.minValue = Double.MAX_VALUE;
-        this.maxValue = Double.MIN_VALUE;
+        this.maxValue = java.lang.Double.MIN_VALUE;
+        this.minValue = -maxValue;
         this.borderColor = Color.LIGHT_GRAY;
     }
 
     /**
      * Parameterized constructor for when you already have a dataset.
-     * @param data Iterable object, made to accept numerous different data containers to fill dataPoints with
+     * @param data Iterable object, made to accept numerous different data containers to fill dataPoint2Ds with
      */
     public LineGraph(Iterable<Double> data) {
         this();
-        for (double value : data) {
-            insertDataPoint(value);
+        for (Double value : data) {
+            insertData(value);
         }
     }
 
@@ -129,8 +129,9 @@ public final class LineGraph extends JPanel {
      * @param xData Data to be stored for use by Graph
      * @param yData Data to be stored for use by Graph
      */
-    public LineGraph insertDataPoint(double xData, double yData) {
-        circularPointBuffer.add(xData, yData);
+    public LineGraph insertData(double xData, double yData) {
+        Double p = new Double(xData, yData);
+        CircularPointBuffer.add(p);
         if (yData > maxValue) {
             maxValue = yData;
         }
@@ -141,12 +142,29 @@ public final class LineGraph extends JPanel {
     }
 
     /**
-     * Getter for the size of dataPoints
+     * Adds data to be utilized by graph.
+     *
+     * @param data Data to be stored for use by Graph
+     */
+    public LineGraph insertData(Double data) {
+        CircularPointBuffer.add(data);
+        double y = data.getY();
+        if (y > maxValue) {
+            maxValue = y;
+        }
+        if (y < minValue) {
+            minValue = y;
+        }
+        return this;
+    }
+
+    /**
+     * Getter for the size of dataPoint2Ds
      *
      * @return Size of queued data
      */
     public int getDataSize() {
-        return circularPointBuffer.getSize();
+        return CircularPointBuffer.size();
     }
 
     /**
@@ -156,7 +174,7 @@ public final class LineGraph extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (circularPointBuffer.isEmpty()) {
+        if (CircularPointBuffer.isEmpty()) {
             return;
         }
         int width = getWidth();
@@ -175,14 +193,14 @@ public final class LineGraph extends JPanel {
         if (rangeY == 0) {
             rangeY = 1;
         }
-        double dx = (double) graphWidth / (circularPointBuffer.getSize() - 1);
-        double dy = (double) graphHeight / (circularPointBuffer.getSize() - 1);
+        double dx = (double) graphWidth / (CircularPointBuffer.size() - 1);
+        double dy = (double) graphHeight / (CircularPointBuffer.size() - 1);
 
         int i = 0;
         int prevX = -1, prevY = -1;
-        for (PointView value : circularPointBuffer) {
+        for (Double value : CircularPointBuffer) {
             int x = (int) (marginSize + i * dx);
-            int y = (int) (marginSize + graphHeight - ((value.y - minValue) / rangeY) * graphHeight);
+            int y = (int) (marginSize + graphHeight - ((value.getY() - minValue) / rangeY) * graphHeight);
             if (i > 0) {
                 g2.drawLine(prevX, prevY, x, y);
             }
