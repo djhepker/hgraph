@@ -1,7 +1,11 @@
 package util;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.util.Arrays;
+import java.awt.geom.Point2D.Double;
 
 /**
  * Utility class providing common rendering functions for graphs such as margin drawing and tick mark rendering.
@@ -129,6 +133,18 @@ public final class GraphTools {
             intArray[i] = (int) doubleArr[i];
         }
         return intArray;
+    }
+
+    /**
+     * Fast checker method for checking if coordinates match a Point2D.Double.
+     *
+     * @param x x value to be evaluated.
+     * @param y y value to be evaluated.
+     * @param target Point2D.Double to be compared against.
+     * @return True if a match, false otherwise.
+     */
+    public static boolean matchesPoint(double x, double y, Double target) {
+        return java.lang.Double.compare(x, target.getX()) == 0 && java.lang.Double.compare(y, target.getY()) == 0;
     }
 
     private static void drawDoubleYTicks(

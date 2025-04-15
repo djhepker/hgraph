@@ -149,6 +149,11 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         return size;
     }
 
+    /**
+     * Converts buffer to a single []
+     *
+     * @return Point2D.Double[] of all valid elements.
+     */
     @Override
     public Object[] toArray() {
         Double[] pArr = new Double[size];
@@ -159,6 +164,15 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         return pArr;
     }
 
+    /**
+     * Conversion for casting elements to the proper Point2D.Double type.
+     *
+     * @param a the array into which the elements of this collection are to be
+     *        stored, if it is big enough; otherwise, a new array of the same
+     *        runtime type is allocated for this purpose.
+     * @return [] of validated Point2D.Double.
+     * @param <T> [] to validate.
+     */
     @Override
     public <T> T[] toArray(T[] a) {
         if (a.length < size) {
@@ -174,6 +188,12 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         return a;
     }
 
+    /**
+     * Inserts double x and double y into the buffer. Stored with minimal overhead.
+     *
+     * @param point element whose presence in this collection is to be ensured
+     * @return True if store is successful. False if invalid input parameter.
+     */
     @Override
     public boolean add(Double point) {
         if (point == null) {
@@ -190,20 +210,58 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         return true;
     }
 
+    /**
+     * Uses add() method to insert each element into the buffer.
+     *
+     * @param c collection containing elements to be added to this collection
+     * @return True if all elements were valid.
+     */
     @Override
     public boolean addAll(Collection<? extends Double> c) {
-        boolean changed = false;
         for (Double p : c) {
-            if (add(p)) {
-                changed = true;
+            if (!add(p)) {
+                return false;
             }
         }
-        return changed;
+        return true;
     }
 
+    /**
+     * Searches buffer for given value after verification. Object o must be Point2D.Double.
+     *
+     * @param o element to be removed from this collection, if present.
+     * @return True if found. False otherwise.
+     */
     @Override
     public boolean remove(Object o) {
-        return false;
+        if (!(o instanceof Double target)) {
+            return false;
+        }
+        boolean found = false;
+        double[] newX = new double[capacity];
+        double[] newY = new double[capacity];
+        int newSize = 0;
+
+        for (int i = 0; i < size; ++i) {
+            int idx = (head + i) % capacity;
+            double currentX = x[idx];
+            double currentY = y[idx];
+            if (!found && GraphTools.matchesPoint(currentX, currentY, target)) {
+                found = true;
+                continue;
+            }
+            newX[newSize] = currentX;
+            newY[newSize] = currentY;
+            newSize++;
+        }
+        if (found) {
+            x = newX;
+            y = newY;
+            head = 0;
+            size = newSize;
+            cursor = head;
+        }
+        return found;
     }
 
     @Override
