@@ -210,6 +210,7 @@ public final class LineGraph extends JPanel {
         return circularPointBuffer.size();
     }
 
+    // TODO figure out why unit test is not showing edges or vertices
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
