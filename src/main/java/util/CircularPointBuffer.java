@@ -287,7 +287,7 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         return new Iterator<>() {
             private int iteratorIndex = 0;
             private int iteratorCursor = head;
-            private final Double reusable = new Double();
+            private final Double reusable = new Double(); // <-- This line
 
             @Override
             public boolean hasNext() {
@@ -296,7 +296,9 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
 
             @Override
             public Double next() {
-                if (!hasNext()) throw new NoSuchElementException();
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 reusable.setLocation(x[iteratorCursor], y[iteratorCursor]);
                 iteratorCursor = (iteratorCursor + 1) % capacity;
                 ++iteratorIndex;

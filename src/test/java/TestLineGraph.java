@@ -1,4 +1,3 @@
-
 import graph.LineGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,46 +7,51 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TestLineGraph {
-
     private LineGraph graph;
-    private List<Double> initialData = Arrays.asList(1.0, 10.0, 2.0, 3.0);
-    private int listSize = initialData.size();
+    private List<Point2D.Double> initialData;
+    private int listSize;
 
     @BeforeEach
     void setUp() {
+        initialData = Arrays.asList(
+                new Point2D.Double(0.0, 1.0),
+                new Point2D.Double(1.0, 2.0),
+                new Point2D.Double(2.0, 3.0),
+                new Point2D.Double(3.0, 4.0),
+                new Point2D.Double(4.0, 5.0)
+        );
+        listSize = initialData.size();
         graph = new LineGraph(initialData);
     }
 
     @Test
     void testConstructorInitializesDataCorrectly() {
-        assertEquals(listSize, graph.getDataSize());
+        assertEquals(listSize, graph.getDataSize(), "Initial data size should match provided list");
     }
 
     @Test
     void testInsertDataPointAppends() {
-        graph.insertDataPoint(4.0, 5.0);
-        assertEquals(listSize + 1, graph.getDataSize());
+        graph.insertData(new Point2D.Double(5.0, 6.0));
+        assertEquals(listSize + 1, graph.getDataSize(), "Data size should increase after insertion");
     }
 
     @Test
     void testInsertDataPointHandlesNegativeValues() {
-        graph.insertDataPoint(-10.5, 2.3);
-        assertEquals(8 + 1, graph.getDataSize());
+        graph.insertData(-10.5, 2.3);
+        assertEquals(listSize + 1, graph.getDataSize(), "Data size should increase after negative insertion");
     }
 
     @Test
     void testInsertDataPointDoesNotThrow() {
-        assertDoesNotThrow(() -> graph.insertDataPoint(Double.NaN, Double.NaN));
+        assertDoesNotThrow(() -> graph.insertData(Double.NaN, Double.NaN), "Inserting NaN values should not throw");
     }
 
     @Test
@@ -55,7 +59,7 @@ class TestLineGraph {
         CountDownLatch latch = new CountDownLatch(1);
         TickMarkConfig config = new TickMarkConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
-                .setYTickValues(new int[]{0, 1, 2, 3});
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6});
         graph.setTickMarkConfig(config);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Int Ticks");
