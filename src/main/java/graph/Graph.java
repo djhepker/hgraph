@@ -26,13 +26,13 @@ public abstract class Graph extends JPanel {
     protected Color borderColor;
 
     @Getter
-    protected double scrollX;
+    protected double scrollXo;
     @Getter
-    protected double scrollY;
+    protected double scrollYo;
     @Getter
-    protected double visibleValueWidth;
+    protected double scrollXf;
     @Getter
-    protected double visibleValueHeight;
+    protected double scrollYf;
 
     /**
      * Default Graph constructor initializes common fields.

@@ -27,12 +27,12 @@ public final class LineGraph extends Graph {
 
     private float lineThickness;
 
-    private double minXValue;
-    private double maxXValue;
-    private double minYValue;
-    private double maxYValue;
-
     private Color lineColor;
+
+    double minXValue;
+    double maxXValue;
+    double minYValue;
+    double maxYValue;
 
     /**
      * Default constructor initializing default values and an empty data queue
@@ -42,10 +42,10 @@ public final class LineGraph extends Graph {
         this.circularPointBuffer = new CircularPointBuffer(100);
         this.lineThickness = 2.0f;
         this.lineColor = Color.GREEN;
-        this.maxYValue = Double.MIN_VALUE;
-        this.minYValue = -maxYValue;
-        this.maxXValue = maxYValue;
-        this.minXValue = minYValue;
+        maxYValue = Double.MIN_VALUE;
+        minYValue = -maxYValue;
+        maxXValue = maxYValue;
+        minXValue = minYValue;
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -224,24 +224,16 @@ public final class LineGraph extends Graph {
         if (cropGraphToData) {
             if (Double.isFinite(minXValue) && Double.isFinite(maxXValue)
                     && Double.isFinite(minYValue) && Double.isFinite(maxYValue)) {
-                double rangeX = maxXValue - minXValue;
-                double rangeY = maxYValue - minYValue;
 
-                if (Math.abs(rangeX) < 1e-10) {
-                    rangeX = 1.0;
-                }
-                if (Math.abs(rangeY) < 1e-10) {
-                    rangeY = 1.0;
-                }
-                scrollX = minXValue;
-                scrollY = minYValue;
-                visibleValueWidth = rangeX;
-                visibleValueHeight = rangeY;
+                scrollXo = minXValue;
+                scrollYo = minYValue;
+                scrollXf = maxXValue;
+                scrollYf = maxYValue;
             } else {
-                scrollX = 0.0;
-                scrollY = 0.0;
-                visibleValueWidth = 10.0;
-                visibleValueHeight = 10.0;
+                scrollXo = 0.0;
+                scrollYo = 0.0;
+                scrollXf = 10.0;
+                scrollYf = 10.0;
             }
         }
         return super.cropGraphToData(cropGraphToData);
@@ -291,8 +283,8 @@ public final class LineGraph extends Graph {
         int graphWidth = getWidth() - 2 * marginSize;
         int graphHeight = getHeight() - 2 * marginSize;
 
-        double visibleRangeX = Math.max(1e-10, visibleValueWidth);
-        double visibleRangeY = Math.max(1e-10, visibleValueHeight);
+        double visibleRangeX = Math.max(1e-10, scrollXf);
+        double visibleRangeY = Math.max(1e-10, scrollYf);
 
         tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
         tickConfig.setDeltaY((double) graphHeight / visibleRangeY);

@@ -130,8 +130,8 @@ public final class GraphTools {
         int tickLineLength = config.getTickLength();
         int halfTickLineLength = tickLineLength / 2;
 
-        double scrollY = graph.getScrollY();
-        double visibleValueHeight = graph.getVisibleValueHeight();
+        double scrollY = graph.getScrollYo();
+        double visibleValueHeight = graph.getScrollYf();
 
         int i = 0;
         for (double doubleTick : doubleTicks) {
@@ -167,11 +167,12 @@ public final class GraphTools {
         int tickLineLength = config.getTickLength();
         int halfTickLineLength = tickLineLength / 2;
 
-        double scrollY = graph.getScrollY();
-        double visibleValueHeight = graph.getVisibleValueHeight();
+        double scrollY = graph.getScrollYo();
+        double visibleValueHeight = graph.getScrollYf();
 
         int i = 0;
         for (int intTick : intTicks) {
+            System.out.printf("intTick: %d, scrollY: %.2f\n", intTick, scrollY);
             if (graph.isCroppedToData()) {
                 if (intTick < scrollY || intTick > scrollY + visibleValueHeight) {
                     continue;
@@ -205,8 +206,8 @@ public final class GraphTools {
         int margin = graph.getMarginSize();
         int tickLineLength = config.getTickLength();
 
-        double scrollX = graph.getScrollX();
-        double visibleValueWidth = graph.getVisibleValueWidth();
+        double scrollX = graph.getScrollXo();
+        double visibleValueWidth = graph.getScrollXf();
 
         int i = 0;
         for (int xTick : xTicks) {
@@ -241,8 +242,8 @@ public final class GraphTools {
         int margin = graph.getMarginSize();
         int tickLineLength = config.getTickLength();
 
-        double scrollX = graph.getScrollX();
-        double visibleValueWidth = graph.getVisibleValueWidth();
+        double scrollX = graph.getScrollXo();
+        double visibleValueWidth = graph.getScrollXf();
 
         int i = 0;
         for (double xTick : xTicks) {
