@@ -5,6 +5,7 @@ import util.TickMarkConfig;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
@@ -92,5 +93,32 @@ class TestLineGraph {
         assertTrue(config.isDoublePrecision(), "Expected double precision to be true");
         assertArrayEquals(new double[]{1.0, 2.0, 3.0}, config.getDoubleXTicks(), 0.001);
         assertArrayEquals(new double[]{10.0, 20.0, 30.0}, config.getDoubleYTicks(), 0.001);
+    }
+
+    @Test
+    void testCropGraphToDataVisual() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        TickMarkConfig config = new TickMarkConfig()
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6});
+        graph.setTickConfig(config);
+        graph.cropGraphToData(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
+            frame.setSize(1000, 800);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    latch.countDown();
+                }
+            });
+            frame.getContentPane().add(graph);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+
+        latch.await();
     }
 }

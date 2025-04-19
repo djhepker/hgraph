@@ -15,7 +15,6 @@ import java.awt.RenderingHints;
  * Holds reusable graph configuration and rendering logic.
  */
 public abstract class Graph extends JPanel {
-
     @Getter
     protected TickMarkConfig tickConfig;
     @Getter
@@ -71,6 +70,15 @@ public abstract class Graph extends JPanel {
     }
 
     /**
+     * Boolean checker to see if user has activated data cropping.
+     *
+     * @return True if graph should only show used graph space. False otherwise.
+     */
+    public boolean cropToGraphData() {
+        return cropGraphToData;
+    }
+
+    /**
      * Sets the background color for the graph area.
      *
      * @param backgroundColor background fill color
@@ -118,8 +126,13 @@ public abstract class Graph extends JPanel {
      * Core rendering method called by the Swing framework.
      * <p>
      * This method first clears the panel, then draws the background, border, and axis tick marks,
-     * and finally delegates the actual graph data rendering to the subclass implementation
-     * of {@link #paintGraphData(Graphics2D, int, int)}.
+     * and finally delegates the graph-specific data rendering to the subclass implementation
+     * of {@link #paintGraphData(Graphics2D)}.
+     * </p>
+     *
+     * <p>
+     * Subclasses should not override this method directly; they should instead implement
+     * {@link #paintGraphData(Graphics2D)} to define how their specific graph data should be drawn.
      * </p>
      *
      * @param g The Graphics context to use for painting

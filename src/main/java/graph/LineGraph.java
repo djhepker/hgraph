@@ -32,6 +32,11 @@ public final class LineGraph extends Graph {
     private double minYValue;
     private double maxYValue;
 
+    private double scrollX;
+    private double scrollY;
+    private double visibleWidth;
+    private double visibleHeight;
+
     private Color lineColor;
 
     /**
@@ -50,8 +55,7 @@ public final class LineGraph extends Graph {
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                tickConfig.setDeltaX((double) (getWidth() - 2 * marginSize) / Math.max(1, tickConfig.getXTicksSize() - 1));
-                tickConfig.setDeltaY((double) (getHeight() - 2 * marginSize) / Math.max(1, tickConfig.getYTicksSize() - 1));
+                updateTickParameters();
             }
         });
     }
@@ -88,6 +92,20 @@ public final class LineGraph extends Graph {
     }
 
     /**
+     * Adds a dataset to the LineGraph from an Iterable of Point2D.Double objects.
+     * Each point's X and Y values are inserted into the internal CircularPointBuffer.
+     *
+     * @param dataIterable Iterable collection of Point2D.Double objects to be added
+     * @return This LineGraph instance for method chaining
+     */
+    public LineGraph addAll(Collection<Point2D.Double> dataIterable) {
+        for (Point2D.Double p : dataIterable) {
+            this.insertData(p);
+        }
+        return this;
+    }
+
+    /**
      * Method inserting graph vertex into buffer.
      *
      * @param newData Point2D.Double to be inserted into the graph.
@@ -109,20 +127,6 @@ public final class LineGraph extends Graph {
             minXValue = xData;
         }
         circularPointBuffer.add(newData);
-        return this;
-    }
-
-    /**
-     * Adds a dataset to the LineGraph from an Iterable of Point2D.Double objects.
-     * Each point's X and Y values are inserted into the internal CircularPointBuffer.
-     *
-     * @param dataIterable Iterable collection of Point2D.Double objects to be added
-     * @return This LineGraph instance for method chaining
-     */
-    public LineGraph addAll(Collection<Point2D.Double> dataIterable) {
-        for (Point2D.Double p : dataIterable) {
-            this.insertData(p);
-        }
         return this;
     }
 
@@ -214,6 +218,41 @@ public final class LineGraph extends Graph {
     }
 
     /**
+     * Override function for graph cropping. Sets the scroll parameters appropriately for cropped data. Updates
+     * cropGraphToData to user input.
+     *
+     * @param cropGraphToData True if only relevant graph space is shown.
+     * @return Instance of class for chain setting.
+     */
+    @Override
+    public Graph cropGraphToData(boolean cropGraphToData) {
+        if (cropGraphToData) {
+            if (Double.isFinite(minXValue) && Double.isFinite(maxXValue)
+                    && Double.isFinite(minYValue) && Double.isFinite(maxYValue)) {
+                double rangeX = maxXValue - minXValue;
+                double rangeY = maxYValue - minYValue;
+
+                if (Math.abs(rangeX) < 1e-10) {
+                    rangeX = 1.0;
+                }
+                if (Math.abs(rangeY) < 1e-10) {
+                    rangeY = 1.0;
+                }
+                scrollX = minXValue;
+                scrollY = minYValue;
+                visibleWidth = rangeX;
+                visibleHeight = rangeY;
+            } else {
+                scrollX = 0.0;
+                scrollY = 0.0;
+                visibleWidth = 10.0;
+                visibleHeight = 10.0;
+            }
+        }
+        return super.cropGraphToData(cropGraphToData);
+    }
+
+    /**
      * Renders the graph-specific data for a LineGraph.
      * <p>
      * This method draws lines connecting each sequential pair of (x, y) points
@@ -248,5 +287,19 @@ public final class LineGraph extends Graph {
             prevX = x;
             prevY = y;
         }
+    }
+
+    /**
+     * Helper function which updates delta values for graph ticks.
+     */
+    private void updateTickParameters() {
+        int graphWidth = getWidth() - 2 * marginSize;
+        int graphHeight = getHeight() - 2 * marginSize;
+
+        double visibleRangeX = Math.max(1e-10, visibleWidth);
+        double visibleRangeY = Math.max(1e-10, visibleHeight);
+
+        tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
+        tickConfig.setDeltaY((double) graphHeight / visibleRangeY);
     }
 }

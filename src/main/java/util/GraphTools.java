@@ -3,10 +3,8 @@ package util;
 import graph.Graph;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.Arrays;
 import java.awt.geom.Point2D.Double;
 
 /**
