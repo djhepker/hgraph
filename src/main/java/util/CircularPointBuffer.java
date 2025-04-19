@@ -287,7 +287,7 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         return new Iterator<>() {
             private int iteratorIndex = 0;
             private int iteratorCursor = head;
-            private final Double reusable = new Double(); // <-- This line
+            private final Double reusable = new Double();
 
             @Override
             public boolean hasNext() {

@@ -14,8 +14,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -28,7 +29,7 @@ public final class LineGraph extends JPanel {
     @Getter(AccessLevel.NONE)
     private final CircularPointBuffer circularPointBuffer;
 
-    private TickMarkConfig tickMarkConfig;
+    private TickMarkConfig tickConfig;
 
     private float lineThickness;
     private int marginSize;
@@ -47,7 +48,7 @@ public final class LineGraph extends JPanel {
      */
     public LineGraph() {
         this.circularPointBuffer = new CircularPointBuffer(100);
-        this.tickMarkConfig = new TickMarkConfig();
+        this.tickConfig = new TickMarkConfig();
         this.lineThickness = 2.0f;
         this.marginSize = 24;
         this.lineColor = Color.GREEN;
@@ -57,16 +58,14 @@ public final class LineGraph extends JPanel {
         this.maxXValue = maxYValue;
         this.minXValue = minYValue;
         this.borderColor = Color.LIGHT_GRAY;
-    }
 
-    /**
-     * Parameterized constructor for when you already have a dataset.
-     * @param dataX Iterable object, made to accept numerous different data containers to fill dataPoint2Ds with
-     * @param dataY Iterable object, made to accept numerous different data containers to fill dataPoint2Ds with
-     */
-    public LineGraph(Iterable<Double> dataX, Iterable<Double> dataY) {
-        this();
-        this.addAll(dataX, dataY);
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                tickConfig.setDeltaX((double) (getWidth() - 2 * marginSize) / (tickConfig.getXTicksSize() - 1));
+                tickConfig.setDeltaY((double) (getHeight() - 2 * marginSize) / (tickConfig.getYTicksSize() - 1));
+            }
+        });
     }
 
     public LineGraph(Collection<Point2D.Double> initialData) {
@@ -75,46 +74,14 @@ public final class LineGraph extends JPanel {
     }
 
     /**
-     * Adds a dataset to the LineGraph using separate X and Y iterables.
-     * Internally pairs each (x, y) and forwards the combined points to the main addAll method.
+     * Method inserting graph vertex into buffer.
      *
-     * @param dataX Iterable object containing X-axis values
-     * @param dataY Iterable object containing Y-axis values
+     * @param newData Point2D.Double to be inserted into the graph.
      * @return This LineGraph instance for method chaining
      */
-    public LineGraph addAll(Iterable<Double> dataX, Iterable<Double> dataY) {
-        var iterX = dataX.iterator();
-        var iterY = dataY.iterator();
-
-        ArrayList<Point2D.Double> points = new ArrayList<>();
-        while (iterX.hasNext() && iterY.hasNext()) {
-            double x = iterX.next();
-            double y = iterY.next();
-            points.add(new Point2D.Double(x, y));
-        }
-        circularPointBuffer.addAll(points);
-        return this;
-    }
-
-    /**
-     * Adds a dataset to the LineGraph from an Iterable of Point2D.Double objects.
-     * Each point's X and Y values are inserted into the internal CircularPointBuffer.
-     *
-     * @param dataIterable Iterable collection of Point2D.Double objects to be added
-     * @return This LineGraph instance for method chaining
-     */
-    public LineGraph addAll(Collection<Point2D.Double> dataIterable) {
-        circularPointBuffer.addAll(dataIterable);
-        return this;
-    }
-
-    /**
-     * Adds data to be utilized by graph.
-     *
-     * @param xData Data to be stored for use by Graph
-     * @param yData Data to be stored for use by Graph
-     */
-    public LineGraph insertData(double xData, double yData) {
+    public LineGraph insertData(Point2D.Double newData) {
+        double xData = newData.getX();
+        double yData = newData.getY();
         if (yData > maxYValue) {
             maxYValue = yData;
         }
@@ -127,18 +94,32 @@ public final class LineGraph extends JPanel {
         if (xData < minXValue) {
             minXValue = xData;
         }
-        return this.insertData(new Point2D.Double(xData, yData));
+        circularPointBuffer.add(newData);
+        return this;
     }
 
     /**
-     * Method inserting graph vertex into buffer.
+     * Adds a dataset to the LineGraph from an Iterable of Point2D.Double objects.
+     * Each point's X and Y values are inserted into the internal CircularPointBuffer.
      *
-     * @param newData Point2D.Double to be inserted into the graph.
+     * @param dataIterable Iterable collection of Point2D.Double objects to be added
      * @return This LineGraph instance for method chaining
      */
-    public LineGraph insertData(Point2D.Double newData) {
-        circularPointBuffer.add(newData);
+    public LineGraph addAll(Collection<Point2D.Double> dataIterable) {
+        for (Point2D.Double p : dataIterable) {
+            this.insertData(p);
+        }
         return this;
+    }
+
+    /**
+     * Adds data to be utilized by graph.
+     *
+     * @param xData Data to be stored for use by Graph
+     * @param yData Data to be stored for use by Graph
+     */
+    public LineGraph insertData(double xData, double yData) {
+        return this.insertData(new Point2D.Double(xData, yData));
     }
 
     /**
@@ -146,8 +127,8 @@ public final class LineGraph extends JPanel {
      * @param config Configuration options for ticks on the graph
      * @return Instance of class for chain setting
      */
-    public LineGraph setTickMarkConfig(TickMarkConfig config) {
-        this.tickMarkConfig = config;
+    public LineGraph setTickConfig(TickMarkConfig config) {
+        this.tickConfig = config;
         return this;
     }
 
@@ -210,11 +191,9 @@ public final class LineGraph extends JPanel {
         return circularPointBuffer.size();
     }
 
-    // TODO figure out why unit test is not showing edges or vertices
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         if (circularPointBuffer.isEmpty()) {
             return;
         }
@@ -226,34 +205,23 @@ public final class LineGraph extends JPanel {
         g2.setStroke(new BasicStroke(lineThickness));
 
         GraphTools.drawMargin(g2, marginSize, width, height, backgroundColor, borderColor);
-        GraphTools.drawTicks(g2, tickMarkConfig, marginSize, width, height);
+        GraphTools.drawTicks(g2, tickConfig, marginSize, width, height);
 
         g2.setColor(lineColor);
 
-        int graphWidth = width - 2 * marginSize;
-        int graphHeight = height - 2 * marginSize;
-
-        double rangeX = maxXValue - minXValue;
-        double rangeY = maxYValue - minYValue;
-
-        if (rangeX == 0) {
-            rangeX = 1;
-        }
-        if (rangeY == 0) {
-            rangeY = 1;
-        }
-
-        int prevX = -1;
-        int prevY = -1;
+        boolean postStart = false;
+        int prevX = 0;
+        int prevY = 0;
 
         for (Point2D.Double point : circularPointBuffer) {
-            int x = (int) (marginSize + ((point.getX() - minXValue) / rangeX) * graphWidth);
-            int y = (int) (marginSize + graphHeight - ((point.getY() - minYValue) / rangeY) * graphHeight);
+            int x = (int) (marginSize + (point.getX() * tickConfig.getDeltaX()));
+            int y = (int) (height - (marginSize + (point.getY() * tickConfig.getDeltaY())));
 
-            if (prevX != -1 && prevY != -1) {
+            if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);
+            } else {
+                postStart = true;
             }
-
             prevX = x;
             prevY = y;
         }
