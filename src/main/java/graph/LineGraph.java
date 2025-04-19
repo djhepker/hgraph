@@ -74,6 +74,27 @@ public final class LineGraph extends JPanel {
     }
 
     /**
+     * Constructs a LineGraph with a custom TickMarkConfig.
+     *
+     * @param config TickMarkConfig to configure axis ticks
+     */
+    public LineGraph(TickMarkConfig config) {
+        this();
+        this.tickConfig = config;
+    }
+
+    /**
+     * Constructs a LineGraph with a custom TickMarkConfig and initial data points.
+     *
+     * @param config TickMarkConfig to configure axis ticks
+     * @param initialData Collection of Point2D.Double points to initialize graph data
+     */
+    public LineGraph(TickMarkConfig config, Collection<Point2D.Double> initialData) {
+        this(config); // Reuse the config constructor
+        this.addAll(initialData);
+    }
+
+    /**
      * Method inserting graph vertex into buffer.
      *
      * @param newData Point2D.Double to be inserted into the graph.
@@ -120,6 +141,21 @@ public final class LineGraph extends JPanel {
      */
     public LineGraph insertData(double xData, double yData) {
         return this.insertData(new Point2D.Double(xData, yData));
+    }
+
+    /**
+     * Sets whether double precision is enabled for tick mark values.
+     * <p>
+     * When enabled, axis tick values will display with decimal formatting (e.g., 1.00 instead of 1).
+     * When disabled, axis tick values will display as whole integers.
+     * </p>
+     *
+     * @param doublePrecision true to enable double precision, false to disable
+     * @return this LineGraph instance for method chaining
+     */
+    public LineGraph setDoublePrecision(boolean doublePrecision) {
+        tickConfig.setDoublePrecision(doublePrecision);
+        return this;
     }
 
     /**
@@ -189,6 +225,54 @@ public final class LineGraph extends JPanel {
      */
     public int getDataSize() {
         return circularPointBuffer.size();
+    }
+
+    /**
+     * Sets the X-axis tick values using an array of integers.
+     * <p>
+     * Passing an integer array will disable double-precision mode for the X-axis ticks.
+     * </p>
+     *
+     * @param xAxis the array of integer values to use for X-axis tick marks
+     */
+    public void setXAxis(int[] xAxis) {
+        tickConfig.setXTickValues(xAxis);
+    }
+
+    /**
+     * Sets the X-axis tick values using an array of doubles.
+     * <p>
+     * Passing a double array will enable double-precision mode for the X-axis ticks.
+     * </p>
+     *
+     * @param xAxis the array of double values to use for X-axis tick marks
+     */
+    public void setXAxis(double[] xAxis) {
+        tickConfig.setXTickValues(xAxis);
+    }
+
+    /**
+     * Sets the Y-axis tick values using an array of integers.
+     * <p>
+     * Passing an integer array will disable double-precision mode for the Y-axis ticks.
+     * </p>
+     *
+     * @param yAxis the array of integer values to use for Y-axis tick marks
+     */
+    public void setYAxis(int[] yAxis) {
+        tickConfig.setYTickValues(yAxis);
+    }
+
+    /**
+     * Sets the Y-axis tick values using an array of doubles.
+     * <p>
+     * Passing a double array will enable double-precision mode for the Y-axis ticks.
+     * </p>
+     *
+     * @param yAxis the array of double values to use for Y-axis tick marks
+     */
+    public void setYAxis(double[] yAxis) {
+        tickConfig.setYTickValues(yAxis);
     }
 
     @Override
