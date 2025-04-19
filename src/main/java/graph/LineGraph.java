@@ -32,11 +32,6 @@ public final class LineGraph extends Graph {
     private double minYValue;
     private double maxYValue;
 
-    private double scrollX;
-    private double scrollY;
-    private double visibleWidth;
-    private double visibleHeight;
-
     private Color lineColor;
 
     /**
@@ -240,13 +235,13 @@ public final class LineGraph extends Graph {
                 }
                 scrollX = minXValue;
                 scrollY = minYValue;
-                visibleWidth = rangeX;
-                visibleHeight = rangeY;
+                visibleValueWidth = rangeX;
+                visibleValueHeight = rangeY;
             } else {
                 scrollX = 0.0;
                 scrollY = 0.0;
-                visibleWidth = 10.0;
-                visibleHeight = 10.0;
+                visibleValueWidth = 10.0;
+                visibleValueHeight = 10.0;
             }
         }
         return super.cropGraphToData(cropGraphToData);
@@ -296,8 +291,8 @@ public final class LineGraph extends Graph {
         int graphWidth = getWidth() - 2 * marginSize;
         int graphHeight = getHeight() - 2 * marginSize;
 
-        double visibleRangeX = Math.max(1e-10, visibleWidth);
-        double visibleRangeY = Math.max(1e-10, visibleHeight);
+        double visibleRangeX = Math.max(1e-10, visibleValueWidth);
+        double visibleRangeY = Math.max(1e-10, visibleValueHeight);
 
         tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
         tickConfig.setDeltaY((double) graphHeight / visibleRangeY);

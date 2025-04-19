@@ -99,40 +99,47 @@ public final class GraphTools {
      * @param graph       Contains the context parameters we will be drawing
      */
     public static void drawTicks(Graphics2D g2, Graph graph) {
-        int graphHeight = graph.getHeight();
-        int margin = graph.getMarginSize();
         TickMarkConfig config = graph.getTickConfig();
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
 
         if (config.isShowYTicks()) {
             if (config.isDoublePrecision()) {
-                drawDoubleYTicks(g2, config, graphHeight, margin);
+                drawDoubleYTicks(g2, config, graph);
             } else {
-                drawIntYTicks(g2, config, graphHeight, margin);
+                drawIntYTicks(g2, config, graph);
             }
         }
         if (config.isShowXTicks()) {
             if (config.isDoublePrecision()) {
-                drawDoubleXTicks(g2, config, graphHeight, margin);
+                drawDoubleXTicks(g2, config, graph);
             } else {
-                drawIntXTicks(g2, config, graphHeight, margin);
+                drawIntXTicks(g2, config, graph);
             }
         }
     }
 
-    private static void drawDoubleYTicks(Graphics2D g2, TickMarkConfig config, int height, int margin) {
+    private static void drawDoubleYTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
         double[] doubleTicks = config.getDoubleYTicks();
         if (doubleTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
         int graphHeight = height - 2 * margin;
-
         int tickLineLength = config.getTickLength();
         int halfTickLineLength = tickLineLength / 2;
 
+        double scrollY = graph.getScrollY();
+        double visibleValueHeight = graph.getVisibleValueHeight();
+
         int i = 0;
         for (double doubleTick : doubleTicks) {
+            if (graph.isCroppedToData()) {
+                if (doubleTick < scrollY || doubleTick > scrollY + visibleValueHeight) {
+                    continue;
+                }
+            }
             double norm = config.getDeltaY() * i++;
 
             int y = (int) (height - margin - norm * graphHeight);
@@ -150,16 +157,26 @@ public final class GraphTools {
         }
     }
 
-    private static void drawIntYTicks(Graphics2D g2, TickMarkConfig config, int height, int margin) {
+    private static void drawIntYTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
         int[] intTicks = config.getIntYTicks();
         if (intTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
         int tickLineLength = config.getTickLength();
         int halfTickLineLength = tickLineLength / 2;
 
+        double scrollY = graph.getScrollY();
+        double visibleValueHeight = graph.getVisibleValueHeight();
+
         int i = 0;
         for (int intTick : intTicks) {
+            if (graph.isCroppedToData()) {
+                if (intTick < scrollY || intTick > scrollY + visibleValueHeight) {
+                    continue;
+                }
+            }
             double norm = config.getDeltaY() * i++;
 
             int y = (int) (height - margin - norm);
@@ -178,15 +195,26 @@ public final class GraphTools {
         }
     }
 
-    private static void drawIntXTicks(Graphics2D g2, TickMarkConfig config, int height, int margin) {
+    // TODO fix x ticks to go over the line, matching y ticks.
+    private static void drawIntXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
         int[] xTicks = config.getIntXTicks();
         if (xTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
         int tickLineLength = config.getTickLength();
+
+        double scrollX = graph.getScrollX();
+        double visibleValueWidth = graph.getVisibleValueWidth();
 
         int i = 0;
         for (int xTick : xTicks) {
+            if (graph.isCroppedToData()) {
+                if (xTick < scrollX || xTick > scrollX + visibleValueWidth) {
+                    continue;
+                }
+            }
             double norm = config.getDeltaX() * i++;
 
             int x = (int) (norm + margin);
@@ -204,15 +232,25 @@ public final class GraphTools {
         }
     }
 
-    private static void drawDoubleXTicks(Graphics2D g2, TickMarkConfig config, int height, int margin) {
+    private static void drawDoubleXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
         double[] xTicks = config.getDoubleXTicks();
         if (xTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
         int tickLineLength = config.getTickLength();
+
+        double scrollX = graph.getScrollX();
+        double visibleValueWidth = graph.getVisibleValueWidth();
 
         int i = 0;
         for (double xTick : xTicks) {
+            if (graph.isCroppedToData()) {
+                if (xTick < scrollX || xTick > scrollX + visibleValueWidth) {
+                    continue;
+                }
+            }
             double norm = config.getDeltaX() * i++;
 
             int x = (int) (norm + margin);

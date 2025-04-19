@@ -100,6 +100,7 @@ class TestLineGraph {
         CountDownLatch latch = new CountDownLatch(1);
 
         TickMarkConfig config = new TickMarkConfig()
+                .setDoublePrecision(false)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6});
         graph.setTickConfig(config);

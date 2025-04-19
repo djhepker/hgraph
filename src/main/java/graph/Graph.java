@@ -25,6 +25,15 @@ public abstract class Graph extends JPanel {
     @Getter
     protected Color borderColor;
 
+    @Getter
+    protected double scrollX;
+    @Getter
+    protected double scrollY;
+    @Getter
+    protected double visibleValueWidth;
+    @Getter
+    protected double visibleValueHeight;
+
     /**
      * Default Graph constructor initializes common fields.
      */
@@ -74,7 +83,7 @@ public abstract class Graph extends JPanel {
      *
      * @return True if graph should only show used graph space. False otherwise.
      */
-    public boolean cropToGraphData() {
+    public boolean isCroppedToData() {
         return cropGraphToData;
     }
 
