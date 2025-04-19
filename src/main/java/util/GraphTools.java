@@ -1,5 +1,7 @@
 package util;
 
+import graph.Graph;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -72,30 +74,23 @@ public final class GraphTools {
     /**
      * Draws a margin area with a background fill and a rectangular border inside a JPanel.
      *
-     * @param panelWidth       The width of the panel in pixels
-     * @param panelHeight      The height of the panel in pixels
-     * @param g2               The graphics context to draw with
-     * @param marginSize       The size of the margin around the graph area
-     * @param backgroundColor  The fill color of the panel background
-     * @param borderColor      The stroke color of the graph border
+     * @param g2 The graphics context to draw with
+     * @param graph The graph we are drawing in effect. Holds relevant parameter variables
      */
-    public static void drawMargin(
-            Graphics2D g2,
-            int marginSize,
-            int panelWidth,
-            int panelHeight,
-            Color backgroundColor,
-            Color borderColor
-    ) {
-        g2.setColor(backgroundColor);
-        g2.fillRect(0, 0, panelWidth, panelHeight);
+    public static void drawMargin(Graphics2D g2, Graph graph) {
+        int graphWidth = graph.getWidth();
+        int graphHeight = graph.getHeight();
+        int margin = graph.getMarginSize();
 
-        int borderW = panelWidth - marginSize * 2;
-        int borderH = panelHeight - marginSize * 2;
+        g2.setColor(graph.getBackgroundColor());
+        g2.fillRect(0, 0, graphWidth, graphHeight);
 
-        g2.setColor(borderColor);
+        int borderW = graphWidth - margin * 2;
+        int borderH = graphHeight - margin * 2;
+
+        g2.setColor(graph.getBorderColor());
         g2.setStroke(new BasicStroke(2f));
-        g2.drawRect(marginSize, marginSize, borderW, borderH);
+        g2.drawRect(margin, margin, borderW, borderH);
     }
 
     /**
@@ -103,27 +98,27 @@ public final class GraphTools {
      * Tick mark spacing is derived from the value range of the provided dataset.
      *
      * @param g2          The graphics context to draw with
-     * @param config      Configuration options for tick visibility, count, style, and labels
-     * @param margin      The size of the margin around the graph area
-     * @param width       Total width of the graph panel
-     * @param height      Total height of the graph panel
+     * @param graph       Contains the context parameters we will be drawing
      */
-    public static void drawTicks(Graphics2D g2, TickMarkConfig config, int margin, int width, int height) {
+    public static void drawTicks(Graphics2D g2, Graph graph) {
+        TickMarkConfig config = graph.getTickConfig();
+        int graphHeight = graph.getHeight();
+        int margin = graph.getMarginSize();
+
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
-
         if (config.isShowYTicks()) {
             if (config.isDoublePrecision()) {
-                drawDoubleYTicks(g2, config, height, margin);
+                drawDoubleYTicks(g2, config, graphHeight, margin);
             } else {
-                drawIntYTicks(g2, config, height, margin);
+                drawIntYTicks(g2, config, graphHeight, margin);
             }
         }
         if (config.isShowXTicks()) {
             if (config.isDoublePrecision()) {
-                drawDoubleXTicks(g2, config, height, margin);
+                drawDoubleXTicks(g2, config, graphHeight, margin);
             } else {
-                drawIntXTicks(g2, config, height, margin);
+                drawIntXTicks(g2, config, graphHeight, margin);
             }
         }
     }
