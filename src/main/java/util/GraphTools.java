@@ -99,12 +99,12 @@ public final class GraphTools {
      * @param graph       Contains the context parameters we will be drawing
      */
     public static void drawTicks(Graphics2D g2, Graph graph) {
-        TickMarkConfig config = graph.getTickConfig();
         int graphHeight = graph.getHeight();
         int margin = graph.getMarginSize();
-
+        TickMarkConfig config = graph.getTickConfig();
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
+
         if (config.isShowYTicks()) {
             if (config.isDoublePrecision()) {
                 drawDoubleYTicks(g2, config, graphHeight, margin);
