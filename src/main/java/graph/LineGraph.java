@@ -222,15 +222,14 @@ public final class LineGraph extends Graph {
     @Override
     public Graph cropGraphToData(boolean cropGraphToData) {
         if (cropGraphToData) {
-            if (Double.isFinite(minXValue) && Double.isFinite(maxXValue)
-                    && Double.isFinite(minYValue) && Double.isFinite(maxYValue)) {
-
+            if (Double.isFinite(minXValue)
+                    && Double.isFinite(maxXValue)
+                    && Double.isFinite(minYValue)
+                    && Double.isFinite(maxYValue)) {
                 scrollXo = minXValue;
                 scrollYo = minYValue;
                 scrollXf = maxXValue;
                 scrollYf = maxYValue;
-                System.out.printf("minXValue = %.2f, maxXValue = %.2f%n", minXValue, maxXValue);
-                System.out.printf("minYValue = %.2f, maxYValue = %.2f%n", minYValue, maxYValue);
             } else {
                 scrollXo = 0.0;
                 scrollYo = 0.0;
@@ -265,9 +264,15 @@ public final class LineGraph extends Graph {
         int prevY = 0;
 
         for (Point2D.Double point : circularPointBuffer) {
-            int x = (int) (marginSize + (point.getX() * tickConfig.getDeltaX()));
-            int y = (int) (getHeight() - (marginSize + (point.getY() * tickConfig.getDeltaY())));
-
+            int x;
+            int y;
+            if (cropGraphToData) {
+                x = (int) (marginSize + ((point.getX() - scrollXo) * tickConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + ((point.getY() - scrollYo) * tickConfig.getDeltaY())));
+            } else {
+                x = (int) (marginSize + (point.getX() * tickConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + (point.getY() * tickConfig.getDeltaY())));
+            }
             if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);
             } else {
@@ -284,9 +289,15 @@ public final class LineGraph extends Graph {
     private void updateTickParameters() {
         int graphWidth = getWidth() - 2 * marginSize;
         int graphHeight = getHeight() - 2 * marginSize;
-
-        double visibleRangeX = Math.max(1e-10, scrollXf);
-        double visibleRangeY = Math.max(1e-10, scrollYf);
+        double visibleRangeX;
+        double visibleRangeY;
+        if (cropGraphToData) {
+            visibleRangeX = Math.max(1e-10, scrollXf - scrollXo);
+            visibleRangeY = Math.max(1e-10, scrollYf - scrollYo);
+        } else {
+            visibleRangeX = Math.max(1e-10, scrollXf);
+            visibleRangeY = Math.max(1e-10, scrollYf);
+        }
 
         tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
         tickConfig.setDeltaY((double) graphHeight / visibleRangeY);

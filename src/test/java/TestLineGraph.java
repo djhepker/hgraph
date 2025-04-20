@@ -102,8 +102,7 @@ class TestLineGraph {
                 .setDoublePrecision(false)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        graph.setTickConfig(config);
-        graph.cropGraphToData(true);
+        graph.setTickConfig(config).cropGraphToData(true);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
             frame.setSize(1000, 800);
