@@ -180,7 +180,6 @@ public final class GraphTools {
             }
             double norm = config.getDeltaY() * i;
             int y = (int) (height - margin - norm);
-
             int x1 = margin - halfTickLineLength;
             int x2 = x1 + tickLineLength;
 

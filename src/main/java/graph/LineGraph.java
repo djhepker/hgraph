@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
 import util.TickMarkConfig;
 
+import javax.swing.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;

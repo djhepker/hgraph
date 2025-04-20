@@ -120,7 +120,6 @@ class TestLineGraph {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
-
         latch.await();
     }
 }

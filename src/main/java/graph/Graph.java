@@ -54,6 +54,7 @@ public abstract class Graph extends JPanel {
      */
     public Graph cropGraphToData(boolean cropGraphToData) {
         this.cropGraphToData = cropGraphToData;
+        updateTickParameters();
         return this;
     }
 
@@ -137,8 +138,11 @@ public abstract class Graph extends JPanel {
             visibleRangeX = tickConfig.getIntXTicks().length - 1;
             visibleRangeY = tickConfig.getIntYTicks().length - 1;
         }
-        tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
-        tickConfig.setDeltaY((double) graphHeight / visibleRangeY);
+        double newDeltaX = (double) graphWidth / visibleRangeX;
+        double newDeltaY = (double) graphHeight / visibleRangeY;
+        tickConfig.setDeltaX(newDeltaX);
+        tickConfig.setDeltaY(newDeltaY);
+        repaint();
     }
 
     /**
