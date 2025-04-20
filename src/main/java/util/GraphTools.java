@@ -199,11 +199,12 @@ public final class GraphTools {
             Graphics2D g2,
             TickMarkConfig config,
             int[] ticks,
-            int length,
+            int distance,
             int breadth,
             int margin,
             double oScroll,
             double fScroll,
+            double delta,
             boolean croppedToData
     ) {
         if (ticks.length == 0) {
@@ -218,23 +219,27 @@ public final class GraphTools {
                     continue;
                 }
             }
-            double norm = config.getDeltaX() * i++;
+            double norm = delta * i++;
 
-            int x = (int) (norm + margin);
+            // When y, need to have distance sent as height - margin, margin sent as -margin
+            // int x = (int) (norm + margin); NOTE this
+            int adjustedDistance = (int) norm + margin; // TODO troubleshoot if distance is needed
 
-            int y1 = height - margin + halfTickLineLength;
-            int y2 = height - margin - halfTickLineLength;
+//            int y1 = height - margin + halfTickLineLength;
+//            int y2 = height - margin - halfTickLineLength;
+            int breadth1 = breadth - margin + halfTickLineLength;
+            int breadth2 = breadth - margin - halfTickLineLength;
 
-            g2.drawLine(x, y1, x, y2);
+            g2.drawLine(adjustedDistance, breadth1, adjustedDistance, breadth2);
 
             String label = String.valueOf(tick);
             FontMetrics fm = g2.getFontMetrics();
             int labelWidth = fm.stringWidth(label);
 
             int buffer = fm.getAscent() / 3;
-            int yString = y1 + buffer + fm.getAscent();
+            int breadthString = breadth1 + buffer + fm.getAscent();
 
-            g2.drawString(label, x - labelWidth / 2, yString);
+            g2.drawString(label, adjustedDistance - labelWidth / 2, breadthString);
         }
     }
 
