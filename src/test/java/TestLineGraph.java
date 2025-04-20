@@ -1,5 +1,6 @@
 import graph.LineGraph;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import util.TickMarkConfig;
 
@@ -55,6 +56,23 @@ class TestLineGraph {
     }
 
     @Test
+    void testTickMarkConfigTicks() {
+        TickMarkConfig config = new TickMarkConfig();
+        config.setXTickValues(new int[]{1, 2, 3});
+        config.setYTickValues(new int[]{10, 20, 30});
+
+        assertArrayEquals(new int[]{1, 2, 3}, config.getIntXTicks(), "X ticks should match input int array");
+        assertArrayEquals(new int[]{10, 20, 30}, config.getIntYTicks(), "Y ticks should match input int array");
+
+        config.setDoublePrecision(true);
+
+        assertTrue(config.isDoublePrecision(), "Expected double precision to be true");
+        assertArrayEquals(new double[]{1.0, 2.0, 3.0}, config.getDoubleXTicks(), 0.001);
+        assertArrayEquals(new double[]{10.0, 20.0, 30.0}, config.getDoubleYTicks(), 0.001);
+    }
+
+    @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
+    @Test
     void testCreatingFrameIntTicks() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         TickMarkConfig config = new TickMarkConfig()
@@ -78,22 +96,7 @@ class TestLineGraph {
         latch.await();
     }
 
-    @Test
-    void testTickMarkConfigTicks() {
-        TickMarkConfig config = new TickMarkConfig();
-        config.setXTickValues(new int[]{1, 2, 3});
-        config.setYTickValues(new int[]{10, 20, 30});
-
-        assertArrayEquals(new int[]{1, 2, 3}, config.getIntXTicks(), "X ticks should match input int array");
-        assertArrayEquals(new int[]{10, 20, 30}, config.getIntYTicks(), "Y ticks should match input int array");
-
-        config.setDoublePrecision(true);
-
-        assertTrue(config.isDoublePrecision(), "Expected double precision to be true");
-        assertArrayEquals(new double[]{1.0, 2.0, 3.0}, config.getDoubleXTicks(), 0.001);
-        assertArrayEquals(new double[]{10.0, 20.0, 30.0}, config.getDoubleYTicks(), 0.001);
-    }
-
+    @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
     @Test
     void testCropGraphToDataVisual() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
