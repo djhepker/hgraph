@@ -22,11 +22,11 @@ class TestLineGraph {
     @BeforeEach
     void setUp() {
         initialData = Arrays.asList(
-                new Point2D.Double(0.0, 1.0),
                 new Point2D.Double(1.0, 2.0),
-                new Point2D.Double(2.0, 3.0),
-                new Point2D.Double(3.0, 4.0),
-                new Point2D.Double(4.0, 5.0)
+                new Point2D.Double(2.0, 5.0),
+                new Point2D.Double(3.0, 2.0),
+                new Point2D.Double(4.0, 1.0),
+                new Point2D.Double(5.0, 6.0)
         );
         listSize = initialData.size();
         graph = new LineGraph(initialData);
@@ -60,7 +60,7 @@ class TestLineGraph {
         TickMarkConfig config = new TickMarkConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6});
-        graph.setTickMarkConfig(config);
+        graph.setTickConfig(config);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Int Ticks");
             frame.setSize(1000, 800);
@@ -92,5 +92,32 @@ class TestLineGraph {
         assertTrue(config.isDoublePrecision(), "Expected double precision to be true");
         assertArrayEquals(new double[]{1.0, 2.0, 3.0}, config.getDoubleXTicks(), 0.001);
         assertArrayEquals(new double[]{10.0, 20.0, 30.0}, config.getDoubleYTicks(), 0.001);
+    }
+
+    @Test
+    void testCropGraphToDataVisual() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        TickMarkConfig config = new TickMarkConfig()
+                .setDoublePrecision(false)
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        graph.setTickConfig(config).cropGraphToData(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
+            frame.setSize(1000, 800);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    latch.countDown();
+                }
+            });
+            frame.getContentPane().add(graph);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+
+        latch.await();
     }
 }

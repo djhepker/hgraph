@@ -2,6 +2,7 @@ package util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -61,7 +62,12 @@ public final class TickMarkConfig {
     private int[] xTicksInt;
     private int[] yTicksInt;
 
-
+    @Getter
+    @Setter
+    private double deltaX;
+    @Getter
+    @Setter
+    private double deltaY;
 
     /**
      * Default configuration with all settings enabled and standard styling.
@@ -77,6 +83,8 @@ public final class TickMarkConfig {
         this.xTicksDouble = null;
         this.yTicksDouble = null;
         this.tickFont = new Font("Arial", Font.PLAIN, 12);
+        this.deltaX = 0.0;
+        this.deltaY = 0.0;
     }
 
     /**
@@ -121,6 +129,32 @@ public final class TickMarkConfig {
     public TickMarkConfig showXTicks(boolean show) {
         this.showXTicks = show;
         return this;
+    }
+
+    /**
+     * Getter returns the size for the appropriate yTick container.
+     *
+     * @return [0,length) of the container.
+     */
+    public int getXTicksSize() {
+        if (doublePrecision) {
+            return xTicksDouble.length;
+        } else {
+            return xTicksInt.length;
+        }
+    }
+
+    /**
+     * Getter returns the size for the appropriate xTick container.
+     *
+     * @return [0,length) of the container.
+     */
+    public int getYTicksSize() {
+        if (doublePrecision) {
+            return yTicksDouble.length;
+        } else {
+            return yTicksInt.length;
+        }
     }
 
     /**

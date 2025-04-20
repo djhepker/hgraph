@@ -5,17 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
-import util.GraphTools;
 import util.TickMarkConfig;
 
-import javax.swing.JPanel;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -24,76 +21,69 @@ import java.util.Collection;
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
-public final class LineGraph extends JPanel {
+public final class LineGraph extends Graph {
     @Getter(AccessLevel.NONE)
     private final CircularPointBuffer circularPointBuffer;
 
-    private TickMarkConfig tickMarkConfig;
-
     private float lineThickness;
-    private int marginSize;
+
+    private Color lineColor;
 
     private double minXValue;
     private double maxXValue;
     private double minYValue;
     private double maxYValue;
 
-    private Color lineColor;
-    private Color backgroundColor;
-    private Color borderColor;
-
     /**
      * Default constructor initializing default values and an empty data queue
      */
     public LineGraph() {
+        super();
         this.circularPointBuffer = new CircularPointBuffer(100);
-        this.tickMarkConfig = new TickMarkConfig();
         this.lineThickness = 2.0f;
-        this.marginSize = 24;
         this.lineColor = Color.GREEN;
-        this.backgroundColor = new Color(0, 0, 0);
-        this.maxYValue = Double.MIN_VALUE;
+        this.maxXValue = Double.NEGATIVE_INFINITY;
+        this.minXValue = -maxXValue;
+        this.maxYValue = maxXValue;
         this.minYValue = -maxYValue;
-        this.maxXValue = maxYValue;
-        this.minXValue = minYValue;
-        this.borderColor = Color.LIGHT_GRAY;
+
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateTickParameters();
+            }
+        });
     }
 
     /**
-     * Parameterized constructor for when you already have a dataset.
-     * @param dataX Iterable object, made to accept numerous different data containers to fill dataPoint2Ds with
-     * @param dataY Iterable object, made to accept numerous different data containers to fill dataPoint2Ds with
+     * Constructs a LineGraph with initial data points.
+     *
+     * @param initialData Collection of Point2D.Double points to initialize graph data
      */
-    public LineGraph(Iterable<Double> dataX, Iterable<Double> dataY) {
-        this();
-        this.addAll(dataX, dataY);
-    }
-
     public LineGraph(Collection<Point2D.Double> initialData) {
         this();
         this.addAll(initialData);
     }
 
     /**
-     * Adds a dataset to the LineGraph using separate X and Y iterables.
-     * Internally pairs each (x, y) and forwards the combined points to the main addAll method.
+     * Constructs a LineGraph with a custom TickMarkConfig.
      *
-     * @param dataX Iterable object containing X-axis values
-     * @param dataY Iterable object containing Y-axis values
-     * @return This LineGraph instance for method chaining
+     * @param config TickMarkConfig to configure axis ticks
      */
-    public LineGraph addAll(Iterable<Double> dataX, Iterable<Double> dataY) {
-        var iterX = dataX.iterator();
-        var iterY = dataY.iterator();
+    public LineGraph(TickMarkConfig config) {
+        this();
+        this.tickConfig = config;
+    }
 
-        ArrayList<Point2D.Double> points = new ArrayList<>();
-        while (iterX.hasNext() && iterY.hasNext()) {
-            double x = iterX.next();
-            double y = iterY.next();
-            points.add(new Point2D.Double(x, y));
-        }
-        circularPointBuffer.addAll(points);
-        return this;
+    /**
+     * Constructs a LineGraph with a custom TickMarkConfig and initial data points.
+     *
+     * @param config TickMarkConfig to configure axis ticks
+     * @param initialData Collection of Point2D.Double points to initialize graph data
+     */
+    public LineGraph(TickMarkConfig config, Collection<Point2D.Double> initialData) {
+        this(config);
+        this.addAll(initialData);
     }
 
     /**
@@ -104,17 +94,21 @@ public final class LineGraph extends JPanel {
      * @return This LineGraph instance for method chaining
      */
     public LineGraph addAll(Collection<Point2D.Double> dataIterable) {
-        circularPointBuffer.addAll(dataIterable);
+        for (Point2D.Double p : dataIterable) {
+            this.insertData(p);
+        }
         return this;
     }
 
     /**
-     * Adds data to be utilized by graph.
+     * Method inserting graph vertex into buffer.
      *
-     * @param xData Data to be stored for use by Graph
-     * @param yData Data to be stored for use by Graph
+     * @param newData Point2D.Double to be inserted into the graph.
+     * @return This LineGraph instance for method chaining
      */
-    public LineGraph insertData(double xData, double yData) {
+    public LineGraph insertData(Point2D.Double newData) {
+        double xData = newData.getX();
+        double yData = newData.getY();
         if (yData > maxYValue) {
             maxYValue = yData;
         }
@@ -127,28 +121,75 @@ public final class LineGraph extends JPanel {
         if (xData < minXValue) {
             minXValue = xData;
         }
-        return this.insertData(new Point2D.Double(xData, yData));
-    }
-
-    /**
-     * Method inserting graph vertex into buffer.
-     *
-     * @param newData Point2D.Double to be inserted into the graph.
-     * @return This LineGraph instance for method chaining
-     */
-    public LineGraph insertData(Point2D.Double newData) {
         circularPointBuffer.add(newData);
         return this;
     }
 
     /**
-     * Sets TicMarkConfig for graph
-     * @param config Configuration options for ticks on the graph
-     * @return Instance of class for chain setting
+     * Adds data to be utilized by graph.
+     *
+     * @param xData Data to be stored for use by Graph
+     * @param yData Data to be stored for use by Graph
      */
-    public LineGraph setTickMarkConfig(TickMarkConfig config) {
-        this.tickMarkConfig = config;
-        return this;
+    public LineGraph insertData(double xData, double yData) {
+        return this.insertData(new Point2D.Double(xData, yData));
+    }
+
+    /**
+     * Getter for the size of dataPoint2Ds
+     *
+     * @return Size of queued data
+     */
+    public int getDataSize() {
+        return circularPointBuffer.size();
+    }
+
+    /**
+     * Sets the X-axis tick values using an array of integers.
+     * <p>
+     * Passing an integer array will disable double-precision mode for the X-axis ticks.
+     * </p>
+     *
+     * @param xAxis the array of integer values to use for X-axis tick marks
+     */
+    public void setXAxis(int[] xAxis) {
+        tickConfig.setXTickValues(xAxis);
+    }
+
+    /**
+     * Sets the X-axis tick values using an array of doubles.
+     * <p>
+     * Passing a double array will enable double-precision mode for the X-axis ticks.
+     * </p>
+     *
+     * @param xAxis the array of double values to use for X-axis tick marks
+     */
+    public void setXAxis(double[] xAxis) {
+        tickConfig.setXTickValues(xAxis);
+    }
+
+    /**
+     * Sets the Y-axis tick values using an array of integers.
+     * <p>
+     * Passing an integer array will disable double-precision mode for the Y-axis ticks.
+     * </p>
+     *
+     * @param yAxis the array of integer values to use for Y-axis tick marks
+     */
+    public void setYAxis(int[] yAxis) {
+        tickConfig.setYTickValues(yAxis);
+    }
+
+    /**
+     * Sets the Y-axis tick values using an array of doubles.
+     * <p>
+     * Passing a double array will enable double-precision mode for the Y-axis ticks.
+     * </p>
+     *
+     * @param yAxis the array of double values to use for Y-axis tick marks
+     */
+    public void setYAxis(double[] yAxis) {
+        tickConfig.setYTickValues(yAxis);
     }
 
     /**
@@ -156,18 +197,8 @@ public final class LineGraph extends JPanel {
      * @param lineThickness Thickness of chart lines in pixels
      * @return Instance of class for chain setting
      */
-    public LineGraph setlineThickness(float lineThickness) {
+    public LineGraph setLineThickness(float lineThickness) {
         this.lineThickness = lineThickness;
-        return this;
-    }
-
-    /**
-     * Sets the size of the graph margin
-     * @param marginSize Size of the margin in pixels
-     * @return Instance of class for chain setting
-     */
-    public LineGraph setMarginSize(int marginSize) {
-        this.marginSize = marginSize;
         return this;
     }
 
@@ -182,80 +213,93 @@ public final class LineGraph extends JPanel {
     }
 
     /**
-     * Sets the background color of the graph
-     * @param backgroundColor Background color of the graph
-     * @return Instance of class for chain setting
-     */
-    public LineGraph setBackgroundColor(Color backgroundColor) {
-        this.backgroundColor = backgroundColor;
-        return this;
-    }
-
-    /**
-     * Sets the color of the graph border
-     * @param borderColor Border color of the graph
-     * @return Instance of class for chain setting
-     */
-    public LineGraph setBorderColor(Color borderColor) {
-        this.borderColor = borderColor;
-        return this;
-    }
-
-    /**
-     * Getter for the size of dataPoint2Ds
+     * Override function for graph cropping. Sets the scroll parameters appropriately for cropped data. Updates
+     * cropGraphToData to user input.
      *
-     * @return Size of queued data
+     * @param cropGraphToData True if only relevant graph space is shown.
+     * @return Instance of class for chain setting.
      */
-    public int getDataSize() {
-        return circularPointBuffer.size();
+    @Override
+    public Graph cropGraphToData(boolean cropGraphToData) {
+        if (cropGraphToData) {
+            if (Double.isFinite(minXValue)
+                    && Double.isFinite(maxXValue)
+                    && Double.isFinite(minYValue)
+                    && Double.isFinite(maxYValue)) {
+                scrollXo = minXValue;
+                scrollYo = minYValue;
+                scrollXf = maxXValue;
+                scrollYf = maxYValue;
+            } else {
+                scrollXo = 0.0;
+                scrollYo = 0.0;
+                scrollXf = 10.0;
+                scrollYf = 10.0;
+            }
+        }
+        return super.cropGraphToData(cropGraphToData);
     }
 
-    // TODO figure out why unit test is not showing edges or vertices
+    /**
+     * Renders the graph-specific data for a LineGraph.
+     * <p>
+     * This method draws lines connecting each sequential pair of (x, y) points
+     * from the internal CircularPointBuffer. It uses the configured line color
+     * and line thickness for rendering.
+     * </p>
+     *
+     * @param g2 Graphics2D context already set up with antialiasing
+     */
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
+    protected void paintGraphData(Graphics2D g2) {
         if (circularPointBuffer.isEmpty()) {
             return;
         }
 
-        int width = getWidth();
-        int height = getHeight();
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setStroke(new BasicStroke(lineThickness));
-
-        GraphTools.drawMargin(g2, marginSize, width, height, backgroundColor, borderColor);
-        GraphTools.drawTicks(g2, tickMarkConfig, marginSize, width, height);
-
         g2.setColor(lineColor);
 
-        int graphWidth = width - 2 * marginSize;
-        int graphHeight = height - 2 * marginSize;
-
-        double rangeX = maxXValue - minXValue;
-        double rangeY = maxYValue - minYValue;
-
-        if (rangeX == 0) {
-            rangeX = 1;
-        }
-        if (rangeY == 0) {
-            rangeY = 1;
-        }
-
-        int prevX = -1;
-        int prevY = -1;
+        boolean postStart = false;
+        int prevX = 0;
+        int prevY = 0;
 
         for (Point2D.Double point : circularPointBuffer) {
-            int x = (int) (marginSize + ((point.getX() - minXValue) / rangeX) * graphWidth);
-            int y = (int) (marginSize + graphHeight - ((point.getY() - minYValue) / rangeY) * graphHeight);
-
-            if (prevX != -1 && prevY != -1) {
-                g2.drawLine(prevX, prevY, x, y);
+            int x;
+            int y;
+            if (cropGraphToData) {
+                x = (int) (marginSize + ((point.getX() - scrollXo) * tickConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + ((point.getY() - scrollYo) * tickConfig.getDeltaY())));
+            } else {
+                x = (int) (marginSize + (point.getX() * tickConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + (point.getY() * tickConfig.getDeltaY())));
             }
-
+            if (postStart) {
+                g2.drawLine(prevX, prevY, x, y);
+            } else {
+                postStart = true;
+            }
             prevX = x;
             prevY = y;
         }
+    }
+
+    /**
+     * Helper function which updates delta values for graph ticks.
+     */
+    private void updateTickParameters() {
+        int graphWidth = getWidth() - 2 * marginSize;
+        int graphHeight = getHeight() - 2 * marginSize;
+        double visibleRangeX;
+        double visibleRangeY;
+        if (cropGraphToData) {
+            visibleRangeX = Math.max(1e-10, scrollXf - scrollXo);
+            visibleRangeY = Math.max(1e-10, scrollYf - scrollYo);
+        } else {
+            visibleRangeX = Math.max(1e-10, scrollXf);
+            visibleRangeY = Math.max(1e-10, scrollYf);
+        }
+
+        tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
+        tickConfig.setDeltaY((double) graphHeight / visibleRangeY);
     }
 }

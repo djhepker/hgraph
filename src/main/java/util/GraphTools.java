@@ -1,10 +1,10 @@
 package util;
 
+import graph.Graph;
+
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.Arrays;
 import java.awt.geom.Point2D.Double;
 
 /**
@@ -14,84 +14,6 @@ public final class GraphTools {
 
     // Prevent instantiation
     private GraphTools() {}
-
-    /**
-     * Draws a margin area with a background fill and a rectangular border inside a JPanel.
-     *
-     * @param panelWidth       The width of the panel in pixels
-     * @param panelHeight      The height of the panel in pixels
-     * @param g2               The graphics context to draw with
-     * @param marginSize       The size of the margin around the graph area
-     * @param backgroundColor  The fill color of the panel background
-     * @param borderColor      The stroke color of the graph border
-     */
-    public static void drawMargin(
-            Graphics2D g2,
-            int marginSize,
-            int panelWidth,
-            int panelHeight,
-            Color backgroundColor,
-            Color borderColor
-    ) {
-        g2.setColor(backgroundColor);
-        g2.fillRect(0, 0, panelWidth, panelHeight);
-
-        int borderW = panelWidth - marginSize * 2;
-        int borderH = panelHeight - marginSize * 2;
-
-        g2.setColor(borderColor);
-        g2.setStroke(new BasicStroke(2f));
-        g2.drawRect(marginSize, marginSize, borderW, borderH);
-    }
-
-    /**
-     * Draws tick marks and labels along the Y- and (optionally) X-axes based on provided tick configuration.
-     * Tick mark spacing is derived from the value range of the provided dataset.
-     *
-     * @param g2          The graphics context to draw with
-     * @param config      Configuration options for tick visibility, count, style, and labels
-     * @param margin      The size of the margin around the graph area
-     * @param width       Total width of the graph panel
-     * @param height      Total height of the graph panel
-     */
-    public static void drawTicks(
-            Graphics2D g2,
-            TickMarkConfig config,
-            int margin,
-            int width,
-            int height
-    ) {
-        int tickLineLength = config.getTickLength();
-        int halfTickLineLength = tickLineLength / 2;
-        int graphWidth = width - 2 * margin;
-        int graphHeight = height - 2 * margin;
-
-        g2.setColor(config.getTickColor());
-        g2.setFont(config.getTickFont());
-
-        if (config.isShowYTicks()) {
-            if (config.isDoublePrecision()) {
-                drawDoubleYTicks(
-                        g2, config.getDoubleYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength
-                );
-            } else {
-                drawIntYTicks(
-                        g2, config.getIntYTicks(), height, margin, graphHeight, tickLineLength, halfTickLineLength
-                );
-            }
-        }
-        if (config.isShowXTicks()) {
-            if (config.isDoublePrecision()) {
-                drawDoubleXTicks(
-                        g2, config.getDoubleXTicks(), margin, graphWidth, tickLineLength, height
-                );
-            } else {
-                drawIntXTicks(
-                        g2, config.getIntXTicks(), margin, graphWidth, tickLineLength, height
-                );
-            }
-        }
-    }
 
     /**
      * Converts an array of integers into an array of doubles by copying each element.
@@ -147,27 +69,79 @@ public final class GraphTools {
         return java.lang.Double.compare(x, target.getX()) == 0 && java.lang.Double.compare(y, target.getY()) == 0;
     }
 
-    private static void drawDoubleYTicks(
-            Graphics2D g2,
-            double[] doubleTicks,
-            int height,
-            int margin,
-            int graphHeight,
-            int tickLineLength,
-            int halfTickLineLength
-    ) {
+    /**
+     * Draws a margin area with a background fill and a rectangular border inside a JPanel.
+     *
+     * @param g2 The graphics context to draw with
+     * @param graph The graph we are drawing in effect. Holds relevant parameter variables
+     */
+    public static void drawMargin(Graphics2D g2, Graph graph) {
+        int graphWidth = graph.getWidth();
+        int graphHeight = graph.getHeight();
+        int margin = graph.getMarginSize();
+
+        g2.setColor(graph.getBackgroundColor());
+        g2.fillRect(0, 0, graphWidth, graphHeight);
+
+        int borderW = graphWidth - margin * 2;
+        int borderH = graphHeight - margin * 2;
+
+        g2.setColor(graph.getBorderColor());
+        g2.setStroke(new BasicStroke(2f));
+        g2.drawRect(margin, margin, borderW, borderH);
+    }
+
+    /**
+     * Draws tick marks and labels along the Y- and (optionally) X-axes based on provided tick configuration.
+     * Tick mark spacing is derived from the value range of the provided dataset.
+     *
+     * @param g2          The graphics context to draw with
+     * @param graph       Contains the context parameters we will be drawing
+     */
+    public static void drawTicks(Graphics2D g2, Graph graph) {
+        TickMarkConfig config = graph.getTickConfig();
+        g2.setColor(config.getTickColor());
+        g2.setFont(config.getTickFont());
+
+        if (config.isShowYTicks()) {
+            if (config.isDoublePrecision()) {
+                drawDoubleYTicks(g2, config, graph);
+            } else {
+                drawIntYTicks(g2, config, graph);
+            }
+        }
+        if (config.isShowXTicks()) {
+            if (config.isDoublePrecision()) {
+                drawDoubleXTicks(g2, config, graph);
+            } else {
+                drawIntXTicks(g2, config, graph);
+            }
+        }
+    }
+
+    private static void drawDoubleYTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
+        double[] doubleTicks = config.getDoubleYTicks();
         if (doubleTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
+        int graphHeight = height - 2 * margin;
+        int tickLineLength = config.getTickLength();
+        int halfTickLineLength = tickLineLength / 2;
 
-        double minY = Arrays.stream(doubleTicks).min().orElse(0.0);
-        double maxY = Arrays.stream(doubleTicks).max().orElse(1.0);
-        double rangeY = maxY - minY;
-        if (rangeY == 0) {
-            rangeY = 1;
-        }
+        double scrollY = graph.getScrollYo();
+        double visibleValueHeight = graph.getScrollYf();
+
+        int i = 0;
         for (double doubleTick : doubleTicks) {
-            double norm = (doubleTick - minY) / rangeY;
+            if (graph.isCroppedToData()) {
+                if (doubleTick < scrollY || doubleTick > scrollY + visibleValueHeight) {
+                    continue;
+                }
+            }
+            double norm = config.getDeltaY() * i++;
+
             int y = (int) (height - margin - norm * graphHeight);
             int x1 = margin - halfTickLineLength;
             int x2 = x1 + tickLineLength;
@@ -183,28 +157,30 @@ public final class GraphTools {
         }
     }
 
-    private static void drawIntYTicks(
-            Graphics2D g2,
-            int[] intTicks,
-            int height,
-            int margin,
-            int graphHeight,
-            int tickLineLength,
-            int halfTickLineLength
-    ) {
+    private static void drawIntYTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
+        int[] intTicks = config.getIntYTicks();
         if (intTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
+        int tickLineLength = config.getTickLength();
+        int halfTickLineLength = tickLineLength / 2;
 
-        int minY = Arrays.stream(intTicks).min().orElse(0);
-        int maxY = Arrays.stream(intTicks).max().orElse(1);
-        int rangeY = maxY - minY;
-        if (rangeY == 0) {
-            rangeY = 1;
-        }
+        double scrollY = graph.getScrollYo();
+        double visibleValueHeight = graph.getScrollYf();
+
+        int i = 0;
         for (int intTick : intTicks) {
-            double norm = (intTick - minY) / (double) rangeY;
-            int y = (int) (height - margin - norm * graphHeight);
+            if (graph.isCroppedToData()) {
+                if (intTick < scrollY || intTick > scrollY + visibleValueHeight) {
+                    continue;
+                }
+            }
+            double norm = config.getDeltaY() * i++;
+
+            int y = (int) (height - margin - norm);
+
             int x1 = margin - halfTickLineLength;
             int x2 = x1 + tickLineLength;
 
@@ -219,28 +195,30 @@ public final class GraphTools {
         }
     }
 
-    private static void drawIntXTicks(
-            Graphics2D g2,
-            int[] xTicks,
-            int margin,
-            int graphWidth,
-            int tickLineLength,
-            int height
-    ) {
+    // TODO fix x ticks to go over the line, matching y ticks.
+    private static void drawIntXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
+        int[] xTicks = config.getIntXTicks();
         if (xTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
+        int tickLineLength = config.getTickLength();
 
-        int minX = Arrays.stream(xTicks).min().orElse(0);
-        int maxX = Arrays.stream(xTicks).max().orElse(1);
-        int rangeX = maxX - minX;
-        if (rangeX == 0) {
-            rangeX = 1;
-        }
+        double scrollX = graph.getScrollXo();
+        double visibleValueWidth = graph.getScrollXf();
 
+        int i = 0;
         for (int xTick : xTicks) {
-            double normX = (xTick - minX) / (double) rangeX;
-            int x = (int) (margin + normX * graphWidth);
+            if (graph.isCroppedToData()) {
+                if (xTick < scrollX || xTick > scrollX + visibleValueWidth) {
+                    continue;
+                }
+            }
+            double norm = config.getDeltaX() * i++;
+
+            int x = (int) (norm + margin);
+
             int y1 = height - margin;
             int y2 = y1 + tickLineLength;
 
@@ -254,28 +232,29 @@ public final class GraphTools {
         }
     }
 
-    private static void drawDoubleXTicks(
-            Graphics2D g2,
-            double[] xTicks,
-            int margin,
-            int graphWidth,
-            int tickLineLength,
-            int height
-    ) {
+    private static void drawDoubleXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
+        double[] xTicks = config.getDoubleXTicks();
         if (xTicks.length == 0) {
             return;
         }
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
+        int tickLineLength = config.getTickLength();
 
-        double minX = Arrays.stream(xTicks).min().orElse(0.0);
-        double maxX = Arrays.stream(xTicks).max().orElse(1.0);
-        double rangeX = maxX - minX;
-        if (rangeX == 0) {
-            rangeX = 1;
-        }
+        double scrollX = graph.getScrollXo();
+        double visibleValueWidth = graph.getScrollXf();
 
+        int i = 0;
         for (double xTick : xTicks) {
-            double normX = (xTick - minX) / rangeX;
-            int x = (int) (margin + normX * graphWidth);
+            if (graph.isCroppedToData()) {
+                if (xTick < scrollX || xTick > scrollX + visibleValueWidth) {
+                    continue;
+                }
+            }
+            double norm = config.getDeltaX() * i++;
+
+            int x = (int) (norm + margin);
+
             int y1 = height - margin;
             int y2 = y1 + tickLineLength;
 
