@@ -5,7 +5,6 @@ import util.TickMarkConfig;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;

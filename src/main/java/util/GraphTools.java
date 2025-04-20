@@ -172,7 +172,6 @@ public final class GraphTools {
 
         int i = 0;
         for (int intTick : intTicks) {
-            System.out.printf("intTick: %d, scrollY: %.2f\n", intTick, scrollY);
             if (graph.isCroppedToData()) {
                 if (intTick < scrollY || intTick > scrollY + visibleValueHeight) {
                     continue;

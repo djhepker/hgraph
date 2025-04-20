@@ -29,10 +29,10 @@ public final class LineGraph extends Graph {
 
     private Color lineColor;
 
-    double minXValue;
-    double maxXValue;
-    double minYValue;
-    double maxYValue;
+    private double minXValue;
+    private double maxXValue;
+    private double minYValue;
+    private double maxYValue;
 
     /**
      * Default constructor initializing default values and an empty data queue
@@ -42,10 +42,10 @@ public final class LineGraph extends Graph {
         this.circularPointBuffer = new CircularPointBuffer(100);
         this.lineThickness = 2.0f;
         this.lineColor = Color.GREEN;
-        maxYValue = Double.MIN_VALUE;
-        minYValue = -maxYValue;
-        maxXValue = maxYValue;
-        minXValue = minYValue;
+        this.maxXValue = Double.NEGATIVE_INFINITY;
+        this.minXValue = -maxXValue;
+        this.maxYValue = maxXValue;
+        this.minYValue = -maxYValue;
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -229,6 +229,8 @@ public final class LineGraph extends Graph {
                 scrollYo = minYValue;
                 scrollXf = maxXValue;
                 scrollYf = maxYValue;
+                System.out.printf("minXValue = %.2f, maxXValue = %.2f%n", minXValue, maxXValue);
+                System.out.printf("minYValue = %.2f, maxYValue = %.2f%n", minYValue, maxYValue);
             } else {
                 scrollXo = 0.0;
                 scrollYo = 0.0;

@@ -1,5 +1,6 @@
 package graph;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import util.TickMarkConfig;
 import util.GraphTools;
@@ -14,6 +15,7 @@ import java.awt.RenderingHints;
  * Base abstract class for graphs, extending JPanel.
  * Holds reusable graph configuration and rendering logic.
  */
+@AllArgsConstructor
 public abstract class Graph extends JPanel {
     @Getter
     protected TickMarkConfig tickConfig;

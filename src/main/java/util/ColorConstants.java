@@ -1,5 +1,5 @@
 package util;
 
-public class ColorConstants {
+public final class ColorConstants {
 
 }
