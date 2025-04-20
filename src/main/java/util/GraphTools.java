@@ -102,16 +102,17 @@ public final class GraphTools {
         TickMarkConfig config = graph.getTickConfig();
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
+        boolean doublePrecision = config.isDoublePrecision();
 
         if (config.isShowYTicks()) {
-            if (config.isDoublePrecision()) {
+            if (doublePrecision) {
                 drawDoubleYTicks(g2, config, graph);
             } else {
                 drawIntYTicks(g2, config, graph);
             }
         }
         if (config.isShowXTicks()) {
-            if (config.isDoublePrecision()) {
+            if (doublePrecision) {
                 drawDoubleXTicks(g2, config, graph);
             } else {
                 drawIntXTicks(g2, config, graph);
@@ -184,11 +185,6 @@ public final class GraphTools {
             int x2 = x1 + tickLineLength;
 
             g2.drawLine(x1, y, x2, y);
-            System.out.printf(
-                    "y = (int)(%d - %d - %.2f * %d) = %d%n",
-                    height, margin, config.getDeltaY(), i, y
-            );
-
             String label = String.valueOf(intTick);
             FontMetrics fm = g2.getFontMetrics();
             int labelWidth = fm.stringWidth(label);
@@ -199,7 +195,7 @@ public final class GraphTools {
         }
     }
 
-    // TODO fix x ticks to go over the line, matching y ticks.
+    // TODO combine draw intX and intY by normalizing input parameters
     private static void drawIntXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
         int[] xTicks = config.getIntXTicks();
         if (xTicks.length == 0) {
@@ -207,7 +203,7 @@ public final class GraphTools {
         }
         int height = graph.getHeight();
         int margin = graph.getMarginSize();
-        int tickLineLength = config.getTickLength();
+        int halfTickLineLength = config.getTickLength() / 2;
 
         double scrollX = graph.getScrollXo();
         double visibleValueWidth = graph.getScrollXf();
@@ -223,8 +219,8 @@ public final class GraphTools {
 
             int x = (int) (norm + margin);
 
-            int y1 = height - margin;
-            int y2 = y1 + tickLineLength;
+            int y1 = height - margin + halfTickLineLength;
+            int y2 = height - margin - halfTickLineLength;
 
             g2.drawLine(x, y1, x, y2);
 
@@ -232,7 +228,10 @@ public final class GraphTools {
             FontMetrics fm = g2.getFontMetrics();
             int labelWidth = fm.stringWidth(label);
 
-            g2.drawString(label, x - labelWidth / 2, y2 + fm.getAscent());
+            int buffer = fm.getAscent() / 3;
+            int yString = y1 + buffer + fm.getAscent();
+
+            g2.drawString(label, x - labelWidth / 2, yString);
         }
     }
 
@@ -243,7 +242,7 @@ public final class GraphTools {
         }
         int height = graph.getHeight();
         int margin = graph.getMarginSize();
-        int tickLineLength = config.getTickLength();
+        int halfTickLineLength = config.getTickLength() / 2;
 
         double scrollX = graph.getScrollXo();
         double visibleValueWidth = graph.getScrollXf();
@@ -259,8 +258,8 @@ public final class GraphTools {
 
             int x = (int) (norm + margin);
 
-            int y1 = height - margin;
-            int y2 = y1 + tickLineLength;
+            int y1 = height - margin + halfTickLineLength;
+            int y2 = height - margin - halfTickLineLength;
 
             g2.drawLine(x, y1, x, y2);
 
@@ -268,7 +267,11 @@ public final class GraphTools {
             FontMetrics fm = g2.getFontMetrics();
             int labelWidth = fm.stringWidth(label);
 
-            g2.drawString(label, x - labelWidth / 2, y2 + fm.getAscent());
+            int buffer = fm.getAscent() / 3;
+            int yString = y1 + buffer + fm.getAscent();
+
+            g2.drawString(label, x - labelWidth / 2, yString);
         }
     }
+
 }

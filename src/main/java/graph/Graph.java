@@ -118,7 +118,27 @@ public abstract class Graph extends JPanel {
      */
     public Graph setDoublePrecision(boolean doublePrecision) {
         this.tickConfig.setDoublePrecision(doublePrecision);
+        updateTickParameters();
         return this;
+    }
+
+    /**
+     * Helper function which updates delta values for graph ticks.
+     */
+    protected void updateTickParameters() {
+        int graphWidth = getWidth() - 2 * marginSize;
+        int graphHeight = getHeight() - 2 * marginSize;
+        double visibleRangeX;
+        double visibleRangeY;
+        if (cropGraphToData) {
+            visibleRangeX = Math.max(1e-10, scrollXf - scrollXo);
+            visibleRangeY = Math.max(1e-10, scrollYf - scrollYo);
+        } else { // If it isn't cropped, we simply set the distance between ticks to be height / numticks
+            visibleRangeX = tickConfig.getIntXTicks().length - 1;
+            visibleRangeY = tickConfig.getIntYTicks().length - 1;
+        }
+        tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
+        tickConfig.setDeltaY((double) graphHeight / visibleRangeY);
     }
 
     /**
