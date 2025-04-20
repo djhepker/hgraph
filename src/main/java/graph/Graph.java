@@ -21,12 +21,10 @@ public abstract class Graph extends JPanel {
     protected TickMarkConfig tickConfig;
     @Getter
     protected int marginSize;
-    protected boolean cropGraphToData;
     @Getter
     protected Color backgroundColor;
     @Getter
     protected Color borderColor;
-
     @Getter
     protected double scrollXo;
     @Getter
@@ -35,6 +33,7 @@ public abstract class Graph extends JPanel {
     protected double scrollXf;
     @Getter
     protected double scrollYf;
+    protected boolean cropGraphToData;
 
     /**
      * Default Graph constructor initializes common fields.

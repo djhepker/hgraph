@@ -13,47 +13,21 @@ import java.awt.Font;
  */
 @AllArgsConstructor
 public final class TickMarkConfig {
-    /**
-     *  Returns whether Y-axis tick marks should be drawn.
-     *
-     * @return true if Y-axis ticks should be shown
-     */
+
     @Getter
     private boolean showYTicks;
-    /**
-     *  Returns whether X-axis tick marks should be drawn.
-     *
-     * @return true if X-axis ticks should be shown
-     */
+
     @Getter
     private boolean showXTicks;
-    /**
-     *  Returns whether double precision is enabled for tick mark formatting.
-     *
-     * @return true if double precision mode is enabled; false if integer formatting is used
-     */
+
     @Getter
     private boolean doublePrecision;
 
-    /**
-     *  Returns the tick mark length in pixels.
-     *
-     * @return length of tick marks
-     */
     @Getter
     private int tickLength;
-    /**
-     *  Returns the tick color used for marks and labels.
-     *
-     * @return tick color
-     */
+
     @Getter
     private Color tickColor;
-    /**
-     *  Returns the font used for tick mark labels.
-     *
-     * @return tick font
-     */
     @Getter
     private Font tickFont;
 
