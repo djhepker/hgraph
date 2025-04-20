@@ -177,14 +177,17 @@ public final class GraphTools {
                     continue;
                 }
             }
-            double norm = config.getDeltaY() * i++;
-
+            double norm = config.getDeltaY() * i;
             int y = (int) (height - margin - norm);
 
             int x1 = margin - halfTickLineLength;
             int x2 = x1 + tickLineLength;
 
             g2.drawLine(x1, y, x2, y);
+            System.out.printf(
+                    "y = (int)(%d - %d - %.2f * %d) = %d%n",
+                    height, margin, config.getDeltaY(), i, y
+            );
 
             String label = String.valueOf(intTick);
             FontMetrics fm = g2.getFontMetrics();
@@ -192,6 +195,7 @@ public final class GraphTools {
             int labelHeight = fm.getAscent();
 
             g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
+            ++i;
         }
     }
 
