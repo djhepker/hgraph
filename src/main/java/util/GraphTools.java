@@ -195,6 +195,49 @@ public final class GraphTools {
         }
     }
 
+    private static void drawIntTicks(
+            Graphics2D g2,
+            TickMarkConfig config,
+            int[] ticks,
+            int length,
+            int breadth,
+            int margin,
+            double oScroll,
+            double fScroll,
+            boolean croppedToData
+    ) {
+        if (ticks.length == 0) {
+            return;
+        }
+        int halfTickLineLength = config.getTickLength() / 2;
+
+        int i = 0;
+        for (int tick : ticks) {
+            if (croppedToData) {
+                if (tick < oScroll || tick > oScroll + fScroll) {
+                    continue;
+                }
+            }
+            double norm = config.getDeltaX() * i++;
+
+            int x = (int) (norm + margin);
+
+            int y1 = height - margin + halfTickLineLength;
+            int y2 = height - margin - halfTickLineLength;
+
+            g2.drawLine(x, y1, x, y2);
+
+            String label = String.valueOf(tick);
+            FontMetrics fm = g2.getFontMetrics();
+            int labelWidth = fm.stringWidth(label);
+
+            int buffer = fm.getAscent() / 3;
+            int yString = y1 + buffer + fm.getAscent();
+
+            g2.drawString(label, x - labelWidth / 2, yString);
+        }
+    }
+
     // TODO combine draw intX and intY by normalizing input parameters
     private static void drawIntXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
         int[] xTicks = config.getIntXTicks();
