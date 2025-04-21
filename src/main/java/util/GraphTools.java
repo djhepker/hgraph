@@ -103,19 +103,86 @@ public final class GraphTools {
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
         boolean doublePrecision = config.isDoublePrecision();
+        boolean isCroppedToData = graph.isCroppedToData();
+        int height = graph.getHeight();
+        int margin = graph.getMarginSize();
+        int halfTickLength = config.getTickLength() / 2;
 
-        if (config.isShowYTicks()) {
-            if (doublePrecision) {
-                drawDoubleYTicks(g2, config, graph);
-            } else {
-                drawIntYTicks(g2, config, graph);
-            }
-        }
         if (config.isShowXTicks()) {
             if (doublePrecision) {
                 drawDoubleXTicks(g2, config, graph);
             } else {
-                drawIntXTicks(g2, config, graph);
+                drawIntTicks(
+                        height,
+                        margin,
+                        config.getDeltaX(),
+                        halfTickLength,
+                        graph.getScrollXo(),
+                        graph.getScrollXf(),
+                        isCroppedToData,
+                        config.getIntXTicks(),
+                        g2
+                );
+            }
+        }
+        if (config.isShowYTicks()) {
+            if (doublePrecision) {
+                drawDoubleYTicks(g2, config, graph);
+            } else {
+                drawIntTicks(
+                        margin + height - margin,
+                        height - margin,
+                        -config.getDeltaY(),
+                        halfTickLength,
+                        graph.getScrollYo(),
+                        graph.getScrollYf(),
+                        isCroppedToData,
+                        config.getIntYTicks(),
+                        g2
+                );
+            }
+        }
+    }
+
+    private static void drawIntTicks(
+            int borderCenter,
+            int tickPosNaught,
+            double delta,
+            int halfTickLineLength,
+            double oScroll,
+            double fScroll,
+            boolean croppedToData,
+            int[] ticks,
+            Graphics2D g2
+    ) {
+        if (ticks.length == 0) {
+            return;
+        }
+        int i = 0;
+        for (int tick : ticks) { // TODO figure out why there is extra iteration in cropped mode
+            if (croppedToData) {
+                if (tick < oScroll || tick > oScroll + fScroll) {
+                    continue;
+                }
+            }
+            int magnitude = (int) (delta * i++ + tickPosNaught);
+            int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
+            int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
+
+            String label = String.valueOf(tick);
+            FontMetrics fm = g2.getFontMetrics();
+            int labelWidth = fm.stringWidth(label);
+            int halfLabelWidth = labelWidth / 2;
+
+            int breadthString;
+            if (delta > 0) {
+                breadthString = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
+                g2.drawLine(magnitude, breadth1, magnitude, breadth2);
+                g2.drawString(label, magnitude - halfLabelWidth, breadthString);
+            } else { // y-axis
+                breadthString = breadth2 - halfLabelWidth - labelWidth;
+                g2.drawLine(breadth1, magnitude, breadth2, magnitude);
+                g2.drawString(label, breadthString, magnitude + halfLabelWidth);
             }
         }
     }
@@ -155,130 +222,6 @@ public final class GraphTools {
             int labelHeight = fm.getAscent();
 
             g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
-        }
-    }
-
-    private static void drawIntYTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
-        int[] intTicks = config.getIntYTicks();
-        if (intTicks.length == 0) {
-            return;
-        }
-        int height = graph.getHeight();
-        int margin = graph.getMarginSize();
-        int tickLineLength = config.getTickLength();
-        int halfTickLineLength = tickLineLength / 2;
-
-        double scrollY = graph.getScrollYo();
-        double visibleValueHeight = graph.getScrollYf();
-
-        int i = 0;
-        for (int intTick : intTicks) {
-            if (graph.isCroppedToData()) {
-                if (intTick < scrollY || intTick > scrollY + visibleValueHeight) {
-                    continue;
-                }
-            }
-            double norm = config.getDeltaY() * i;
-            int y = (int) (height - margin - norm);
-            int x1 = margin - halfTickLineLength;
-            int x2 = x1 + tickLineLength;
-
-            g2.drawLine(x1, y, x2, y);
-            String label = String.valueOf(intTick);
-            FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(label);
-            int labelHeight = fm.getAscent();
-
-            g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
-            ++i;
-        }
-    }
-
-    private static void drawIntTicks(
-            Graphics2D g2,
-            TickMarkConfig config,
-            int[] ticks,
-            int distance,
-            int breadth,
-            int margin,
-            double oScroll,
-            double fScroll,
-            double delta,
-            boolean croppedToData
-    ) {
-        if (ticks.length == 0) {
-            return;
-        }
-        int halfTickLineLength = config.getTickLength() / 2;
-
-        int i = 0;
-        for (int tick : ticks) {
-            if (croppedToData) {
-                if (tick < oScroll || tick > oScroll + fScroll) {
-                    continue;
-                }
-            }
-            double norm = delta * i++;
-
-            // When y, need to have distance sent as height - margin, margin sent as -margin
-            // int x = (int) (norm + margin); NOTE this
-            int adjustedDistance = (int) norm + margin; // TODO troubleshoot if distance is needed
-
-//            int y1 = height - margin + halfTickLineLength;
-//            int y2 = height - margin - halfTickLineLength;
-            int breadth1 = breadth - margin + halfTickLineLength;
-            int breadth2 = breadth - margin - halfTickLineLength;
-
-            g2.drawLine(adjustedDistance, breadth1, adjustedDistance, breadth2);
-
-            String label = String.valueOf(tick);
-            FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(label);
-
-            int buffer = fm.getAscent() / 3;
-            int breadthString = breadth1 + buffer + fm.getAscent();
-
-            g2.drawString(label, adjustedDistance - labelWidth / 2, breadthString);
-        }
-    }
-
-    // TODO combine draw intX and intY by normalizing input parameters
-    private static void drawIntXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
-        int[] xTicks = config.getIntXTicks();
-        if (xTicks.length == 0) {
-            return;
-        }
-        int height = graph.getHeight();
-        int margin = graph.getMarginSize();
-        int halfTickLineLength = config.getTickLength() / 2;
-
-        double scrollX = graph.getScrollXo();
-        double visibleValueWidth = graph.getScrollXf();
-
-        int i = 0;
-        for (int xTick : xTicks) {
-            if (graph.isCroppedToData()) {
-                if (xTick < scrollX || xTick > scrollX + visibleValueWidth) {
-                    continue;
-                }
-            }
-            double norm = config.getDeltaX() * i++;
-
-            int x = (int) (norm + margin);
-
-            int y1 = height - margin + halfTickLineLength;
-            int y2 = height - margin - halfTickLineLength;
-
-            g2.drawLine(x, y1, x, y2);
-
-            String label = String.valueOf(xTick);
-            FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(label);
-
-            int buffer = fm.getAscent() / 3;
-            int yString = y1 + buffer + fm.getAscent();
-
-            g2.drawString(label, x - labelWidth / 2, yString);
         }
     }
 
