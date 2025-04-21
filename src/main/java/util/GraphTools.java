@@ -102,6 +102,7 @@ public final class GraphTools {
         TickMarkConfig config = graph.getTickConfig();
         g2.setColor(config.getTickColor());
         g2.setFont(config.getTickFont());
+
         boolean doublePrecision = config.isDoublePrecision();
         boolean isCroppedToData = graph.isCroppedToData();
         int height = graph.getHeight();
@@ -180,29 +181,25 @@ public final class GraphTools {
         }
         int i = 0;
         for (int tick : ticks) { // TODO figure out why there is extra iteration in cropped mode
-            if (croppedToData) {
-                if (tick < oScroll || tick > oScroll + fScroll) {
-                    continue;
-                }
+            if (croppedToData && (tick < oScroll || tick > oScroll + fScroll)) {
+                continue;
             }
             int magnitude = (int) (delta * i++ + tickPosNaught);
             int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
             int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
-
             String label = String.valueOf(tick);
             FontMetrics fm = g2.getFontMetrics();
             int labelWidth = fm.stringWidth(label);
             int halfLabelWidth = labelWidth / 2;
-
-            int breadthString;
+            int breadthStringPixelo;
             if (delta > 0) { // x-axis
-                breadthString = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
+                breadthStringPixelo = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
                 g2.drawLine(magnitude, breadth1, magnitude, breadth2);
-                g2.drawString(label, magnitude - halfLabelWidth, breadthString);
+                g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
             } else { // y-axis
-                breadthString = breadth2 - halfLabelWidth - labelWidth;
+                breadthStringPixelo = breadth2 - halfLabelWidth - labelWidth;
                 g2.drawLine(breadth1, magnitude, breadth2, magnitude);
-                g2.drawString(label, breadthString, magnitude + halfLabelWidth);
+                g2.drawString(label, breadthStringPixelo, magnitude + halfLabelWidth);
             }
         }
     }
@@ -223,21 +220,17 @@ public final class GraphTools {
         }
         int i = 0;
         for (double doubleTick : ticks) { // TODO figure out why there is extra iteration in cropped mode
-            if (croppedToData) {
-                if (doubleTick < oScroll || doubleTick > oScroll + fScroll) {
-                    continue;
-                }
+            if (croppedToData && (doubleTick < oScroll || doubleTick > oScroll + fScroll)) {
+                continue;
             }
             int magnitude = (int) (delta * i++ + tickPosNaught);
             int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
             int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
-
             String label = String.format("%.2f", doubleTick);
             FontMetrics fm = g2.getFontMetrics();
             int fmAscent = fm.getAscent();
             int labelWidth = fm.stringWidth(label);
             int halfLabelWidth = labelWidth / 2;
-
             if (delta > 0) { // x-axis
                 int breadthStringPixelo = breadth1 + (fmAscent / 3) + fmAscent;
                 g2.drawLine(magnitude, breadth1, magnitude, breadth2);
