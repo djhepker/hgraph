@@ -110,7 +110,17 @@ public final class GraphTools {
 
         if (config.isShowXTicks()) {
             if (doublePrecision) {
-                drawDoubleXTicks(g2, config, graph);
+                drawDoubleTicks(
+                        height,
+                        margin,
+                        config.getDeltaX(),
+                        halfTickLength,
+                        graph.getScrollXo(),
+                        graph.getScrollXf(),
+                        isCroppedToData,
+                        config.getDoubleXTicks(),
+                        g2
+                );
             } else {
                 drawIntTicks(
                         height,
@@ -127,7 +137,17 @@ public final class GraphTools {
         }
         if (config.isShowYTicks()) {
             if (doublePrecision) {
-                drawDoubleYTicks(g2, config, graph);
+                drawDoubleTicks(
+                        margin + height - margin,
+                        height - margin,
+                        -config.getDeltaY(),
+                        halfTickLength,
+                        graph.getScrollYo(),
+                        graph.getScrollYf(),
+                        isCroppedToData,
+                        config.getDoubleYTicks(),
+                        g2
+                );
             } else {
                 drawIntTicks(
                         margin + height - margin,
@@ -175,7 +195,7 @@ public final class GraphTools {
             int halfLabelWidth = labelWidth / 2;
 
             int breadthString;
-            if (delta > 0) {
+            if (delta > 0) { // x-axis
                 breadthString = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
                 g2.drawLine(magnitude, breadth1, magnitude, breadth2);
                 g2.drawString(label, magnitude - halfLabelWidth, breadthString);
@@ -187,81 +207,46 @@ public final class GraphTools {
         }
     }
 
-    private static void drawDoubleYTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
-        double[] doubleTicks = config.getDoubleYTicks();
-        if (doubleTicks.length == 0) {
+    private static void drawDoubleTicks(
+            int borderCenter,
+            int tickPosNaught,
+            double delta,
+            int halfTickLineLength,
+            double oScroll,
+            double fScroll,
+            boolean croppedToData,
+            double[] ticks,
+            Graphics2D g2
+    ) {
+        if (ticks.length == 0) {
             return;
         }
-        int height = graph.getHeight();
-        int margin = graph.getMarginSize();
-        int graphHeight = height - 2 * margin;
-        int tickLineLength = config.getTickLength();
-        int halfTickLineLength = tickLineLength / 2;
-
-        double scrollY = graph.getScrollYo();
-        double visibleValueHeight = graph.getScrollYf();
-
         int i = 0;
-        for (double doubleTick : doubleTicks) {
-            if (graph.isCroppedToData()) {
-                if (doubleTick < scrollY || doubleTick > scrollY + visibleValueHeight) {
+        for (double doubleTick : ticks) { // TODO figure out why there is extra iteration in cropped mode
+            if (croppedToData) {
+                if (doubleTick < oScroll || doubleTick > oScroll + fScroll) {
                     continue;
                 }
             }
-            double norm = config.getDeltaY() * i++;
-
-            int y = (int) (height - margin - norm * graphHeight);
-            int x1 = margin - halfTickLineLength;
-            int x2 = x1 + tickLineLength;
-
-            g2.drawLine(x1, y, x2, y);
+            int magnitude = (int) (delta * i++ + tickPosNaught);
+            int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
+            int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
 
             String label = String.format("%.2f", doubleTick);
             FontMetrics fm = g2.getFontMetrics();
+            int fmAscent = fm.getAscent();
             int labelWidth = fm.stringWidth(label);
-            int labelHeight = fm.getAscent();
+            int halfLabelWidth = labelWidth / 2;
 
-            g2.drawString(label, x1 - labelWidth - 5, y + labelHeight / 2 - 2);
-        }
-    }
-
-    private static void drawDoubleXTicks(Graphics2D g2, TickMarkConfig config, Graph graph) {
-        double[] xTicks = config.getDoubleXTicks();
-        if (xTicks.length == 0) {
-            return;
-        }
-        int height = graph.getHeight();
-        int margin = graph.getMarginSize();
-        int halfTickLineLength = config.getTickLength() / 2;
-
-        double scrollX = graph.getScrollXo();
-        double visibleValueWidth = graph.getScrollXf();
-
-        int i = 0;
-        for (double xTick : xTicks) {
-            if (graph.isCroppedToData()) {
-                if (xTick < scrollX || xTick > scrollX + visibleValueWidth) {
-                    continue;
-                }
+            if (delta > 0) { // x-axis
+                int breadthStringPixelo = breadth1 + (fmAscent / 3) + fmAscent;
+                g2.drawLine(magnitude, breadth1, magnitude, breadth2);
+                g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
+            } else { // y-axis
+                int centeredLabelPt = breadth2 / 2 - halfLabelWidth;
+                g2.drawLine(breadth1, magnitude, breadth2, magnitude);
+                g2.drawString(label, centeredLabelPt, magnitude + fmAscent / 2);
             }
-            double norm = config.getDeltaX() * i++;
-
-            int x = (int) (norm + margin);
-
-            int y1 = height - margin + halfTickLineLength;
-            int y2 = height - margin - halfTickLineLength;
-
-            g2.drawLine(x, y1, x, y2);
-
-            String label = String.format("%.2f", xTick);
-            FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(label);
-
-            int buffer = fm.getAscent() / 3;
-            int yString = y1 + buffer + fm.getAscent();
-
-            g2.drawString(label, x - labelWidth / 2, yString);
         }
     }
-
 }

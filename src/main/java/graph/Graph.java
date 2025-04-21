@@ -40,7 +40,7 @@ public abstract class Graph extends JPanel {
      */
     public Graph() {
         this.tickConfig = new TickMarkConfig();
-        this.marginSize = 24;
+        this.marginSize = 32;
         this.backgroundColor = Color.BLACK;
         this.borderColor = Color.WHITE;
         this.cropGraphToData = false;
