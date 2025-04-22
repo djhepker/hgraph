@@ -185,8 +185,6 @@ public final class GraphTools {
             if (croppedToData && (tick < oScroll || tick >= oScroll + fScroll)) {
                 continue;
             }
-            System.out.printf("Iteration: %d, Processing tick: %d, oScroll: %.1f, fScroll: %.1f, Ticks.length: %d%n",
-                    debugTimer++, tick, oScroll, fScroll, ticks.length);
             int magnitude = (int) (delta * i++ + tickPosNaught);
             int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
             int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
