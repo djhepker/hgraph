@@ -1,7 +1,6 @@
 package graph;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
@@ -19,7 +18,6 @@ import java.util.Collection;
  * Logic for creating a JPanel LineGraph
  */
 @Getter
-@AllArgsConstructor
 @RequiredArgsConstructor
 public final class LineGraph extends Graph {
     @Getter(AccessLevel.NONE)

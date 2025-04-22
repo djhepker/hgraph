@@ -1,18 +1,21 @@
 package graph;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import util.TickMarkConfig;
 import util.GraphTools;
 
 import javax.swing.JPanel;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 /**
  * Base abstract class for graphs, extending JPanel.
  * Holds reusable graph configuration and rendering logic.
  */
-@AllArgsConstructor
 public abstract class Graph extends JPanel {
     @Getter
     protected TickMarkConfig tickConfig;
@@ -42,7 +45,7 @@ public abstract class Graph extends JPanel {
     /**
      * Default Graph constructor initializes common fields.
      */
-    public Graph() {
+    protected Graph() {
         this.xMinVal = Double.POSITIVE_INFINITY;
         this.yMinVal = xMinVal;
         this.xMaxVal = -xMinVal;
@@ -254,18 +257,20 @@ public abstract class Graph extends JPanel {
 
     /**
      * Verifies that Margin is a viable size given the size of possible tick labels
+     *
+     * @param fm Font metric we verify the size of with our given graph parameters
      */
-    protected void verifyMarginUse(Graphics2D g2) {
-        // width testing
-        String label = String.format("%.2f", Math.max(xMaxVal, yMaxVal));
-        FontMetrics fm = g2.getFontMetrics();
-        int labelWidth = fm.stringWidth(label);
-
-        // height testing
-        int fmAscent = fm.getAscent();
-
-        // TODO calculate delta of border-axis to margin for both, find an accurate percentage
-        // potentially use dimensions to get the ratio of screen, ie 16:9
+    protected void verifyMarginToLabelScale(FontMetrics fm) {
+        // Width testing
+        int labelWidth = fm.stringWidth(GraphTools.doubleToString(Math.max(xMaxVal, yMaxVal)));
+        if (labelWidth * 4 > marginSize * 3) { // Case where labelWidth is greater than 75% of marginSize
+            this.marginSize = (labelWidth * 4 + 2) / 3;
+        }
+        // Height testing
+        int labelHeight = fm.getAscent() + fm.getDescent();
+        if (labelHeight * 4 > marginSize * 3) { // Case where label height is greater than 75% of marginSize
+            this.marginSize = (labelHeight * 4 + 2) / 3;
+        }
     }
 
     /**
