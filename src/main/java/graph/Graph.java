@@ -234,6 +234,20 @@ public abstract class Graph extends JPanel {
     }
 
     /**
+     * Retrieves aspect ratio of the current graph inside this instance of JPanel.
+     *
+     * @return Height-to-width aspect ratio of the given graph.
+     */
+    public double getAspectRatio() {
+        int usableWidth = getWidth() - 2 * marginSize;
+        int usableHeight = getHeight() - 2 * marginSize;
+        if (usableWidth <= 0 || usableHeight <= 0) {
+            return 1.0;
+        }
+        return (double) usableWidth / usableHeight;
+    }
+
+    /**
      * Helper function which updates delta values for graph ticks.
      */
     protected void updateTickParameters() {

@@ -111,67 +111,84 @@ public final class GraphTools {
         boolean drawTickLabels = graph.isShowingTickLabels();
         boolean drawGrid = graph.isShowingGridLines();
         int height = graph.getHeight();
+        int width = graph.getWidth();
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
 
-        if (config.isShowXTicks()) {
-            if (doublePrecision) {
-                drawDoubleGridFeatures(
-                        height,
-                        margin,
-                        config.getDeltaX(),
-                        halfTickLength,
-                        graph.getXMinVal(),
-                        graph.getXMaxVal(),
-                        isCroppedToData,
-                        drawTickLabels,
-                        config.getDoubleXTicks(),
-                        g2
-                );
-            } else {
-                drawIntGridFeatures(
-                        height,
-                        margin,
-                        config.getDeltaX(),
-                        halfTickLength,
-                        graph.getXMinVal(),
-                        graph.getXMaxVal(),
-                        isCroppedToData,
-                        drawTickLabels,
-                        config.getIntXTicks(),
-                        g2
-                );
-            }
-        }
-        if (config.isShowYTicks()) {
-            if (doublePrecision) {
-                drawDoubleGridFeatures(
-                        margin + height - margin,
-                        height - margin,
-                        -config.getDeltaY(),
-                        halfTickLength,
-                        graph.getYMinVal(),
-                        graph.getYMaxVal(),
-                        isCroppedToData,
-                        drawTickLabels,
-                        config.getDoubleYTicks(),
-                        g2
-                );
-            } else {
-                drawIntGridFeatures(
-                        margin + height - margin,
-                        height - margin,
-                        -config.getDeltaY(),
-                        halfTickLength,
-                        graph.getYMinVal(),
-                        graph.getYMaxVal(),
-                        isCroppedToData,
-                        drawTickLabels,
-                        config.getIntYTicks(),
-                        g2
-                );
-            }
-        }
+        drawFeatures(
+                config.getIntXTicks(),
+                config.getIntYTicks(),
+                height,
+                width,
+                margin,
+                halfTickLength,
+                graph.getAspectRatio(),
+                config.getDeltaX(),
+                config.getDeltaY(),
+                graph.getXMinVal(),
+                graph.getXMaxVal(),
+                isCroppedToData,
+                g2
+        );
+
+//        if (config.isShowXTicks()) {
+//            if (doublePrecision) {
+//                drawDoubleGridFeatures(
+//                        height,
+//                        margin,
+//                        config.getDeltaX(),
+//                        halfTickLength,
+//                        graph.getXMinVal(),
+//                        graph.getXMaxVal(),
+//                        isCroppedToData,
+//                        drawTickLabels,
+//                        config.getDoubleXTicks(),
+//                        g2
+//                );
+//            } else {
+//                drawIntGridFeatures(
+//                        height,
+//                        margin,
+//                        config.getDeltaX(),
+//                        halfTickLength,
+//                        graph.getXMinVal(),
+//                        graph.getXMaxVal(),
+//                        isCroppedToData,
+//                        drawTickLabels,
+//                        config.getIntXTicks(),
+//                        g2
+//                );
+//            }
+//        }
+//        if (config.isShowYTicks()) {
+//            if (doublePrecision) {
+//                drawDoubleGridFeatures(
+//                        margin + height - margin,
+//                        height - margin,
+//                        -config.getDeltaY(),
+//                        halfTickLength,
+//                        graph.getYMinVal(),
+//                        graph.getYMaxVal(),
+//                        isCroppedToData,
+//                        drawTickLabels,
+//                        config.getDoubleYTicks(),
+//                        g2
+//                );
+//            } else {
+//                drawIntGridFeatures(
+//                        margin + height - margin,
+//                        height - margin,
+//                        -config.getDeltaY(),
+//                        halfTickLength,
+//                        graph.getYMinVal(),
+//                        graph.getYMaxVal(),
+//                        isCroppedToData,
+//                        drawTickLabels,
+//                        config.getIntYTicks(),
+//                        g2
+//                );
+//            }
+//        }
     }
 
     public static int[] getTickMagnitudes(int[] ticks, double delta, int tickPosNaught) {
@@ -180,6 +197,48 @@ public final class GraphTools {
             tickMagnitudes[i] = (int) (delta * i + tickPosNaught);
         }
         return tickMagnitudes;
+    }
+
+    private static void drawFeatures(
+            int[] xTicks,
+            int[] yTicks,
+            int height,
+            int width,
+            int margin,
+            int halfTickLength,
+            double ratio,
+            double deltaX,
+            double deltaY,
+            double oScroll,
+            double fScroll,
+            boolean croppedToData,
+            Graphics2D g2
+    ) {
+        if (xTicks.length == 0 || yTicks.length == 0) {
+            return;
+        }
+        for (int i = 0; i < xTicks.length; ++i) {
+//            if (croppedToData && (xTicks[i] < oScroll || xTicks[i] >= oScroll + fScroll)) {
+//                continue;
+//            }
+
+            int heightDeltaMargin = height - margin;
+
+            int magnitude = (int) (deltaX * i) + margin;
+            int breadth1 = heightDeltaMargin + halfTickLength;
+            int breadth2 = heightDeltaMargin - halfTickLength;
+
+            FontMetrics fm = g2.getFontMetrics();
+            int leftMostPixelIndex;
+
+            // draw tick x
+            g2.drawLine(magnitude, breadth1, magnitude, breadth2);
+
+            // draw tick y
+            int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
+
+            g2.drawLine(margin - halfTickLength, magnitudeY, margin + halfTickLength, magnitudeY);
+        }
     }
 
     private static void drawIntGridFeatures(
