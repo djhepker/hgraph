@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.Color;
-import java.awt.Font;
 
 /**
  * Configuration object for controlling the appearance and behavior of axis tick marks in a LineGraph.
@@ -28,8 +27,6 @@ public final class TickMarkConfig {
 
     @Getter
     private Color tickColor;
-    @Getter
-    private Font tickFont;
 
     private double[] xTicksDouble;
     private double[] yTicksDouble;
@@ -56,7 +53,6 @@ public final class TickMarkConfig {
         this.yTicksInt = new int[0];
         this.xTicksDouble = null;
         this.yTicksDouble = null;
-        this.tickFont = new Font("Arial", Font.PLAIN, 12);
         this.deltaX = 0.0;
         this.deltaY = 0.0;
     }
@@ -344,16 +340,6 @@ public final class TickMarkConfig {
      */
     public TickMarkConfig tickColor(Color tickColor) {
         this.tickColor = tickColor;
-        return this;
-    }
-
-    /**
-     * Sets the font used to render tick mark labels.
-     * @param tickFont Font object
-     * @return This config instance for chaining
-     */
-    public TickMarkConfig tickFont(Font tickFont) {
-        this.tickFont = tickFont;
         return this;
     }
 

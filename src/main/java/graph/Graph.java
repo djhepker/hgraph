@@ -7,6 +7,7 @@ import util.GraphTools;
 
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -20,20 +21,27 @@ public abstract class Graph extends JPanel {
     @Getter
     protected TickMarkConfig tickConfig;
     @Getter
-    protected int marginSize;
-    @Getter
     protected Color backgroundColor;
     @Getter
     protected Color borderColor;
+
     @Getter
-    protected double scrollXo;
+    protected int marginSize;
+
     @Getter
-    protected double scrollYo;
+    protected double xMinVal;
     @Getter
-    protected double scrollXf;
+    protected double xMaxVal;
     @Getter
-    protected double scrollYf;
+    protected double yMinVal;
+    @Getter
+    protected double yMaxVal;
+
+    protected boolean showGrid; // TODO LOGIC FOR GRID SHOWING
     protected boolean cropGraphToData;
+    protected boolean showMarginBorder;
+    protected boolean showGraphTickMarks;
+    protected boolean showTickLabels;
 
     /**
      * Default Graph constructor initializes common fields.
@@ -41,10 +49,23 @@ public abstract class Graph extends JPanel {
     public Graph() {
         this.tickConfig = new TickMarkConfig();
         this.marginSize = 32;
-        this.backgroundColor = Color.BLACK;
         this.borderColor = Color.WHITE;
+        this.showGraphTickMarks = true;
+        this.showTickLabels = true;
         this.cropGraphToData = false;
+        this.showGrid = false;
+        this.showMarginBorder = true;
+        this.backgroundColor = Color.BLACK;
+        super.setBackground(backgroundColor);
+        super.setFont(new Font("Arial", Font.PLAIN, 12));
     }
+
+    // width testing
+//String label = String.format("%.2f", doubleTick);
+//FontMetrics fm = g2.getFontMetrics();
+//int labelWidth = fm.stringWidth(label);
+// height testing
+//int fmAscent = fm.getAscent();
 
     /**
      * Sets whether the graph shows axis space outside visible data.
@@ -57,6 +78,99 @@ public abstract class Graph extends JPanel {
         updateTickParameters();
         return this;
     }
+
+    /**
+     * Sets whether gridlines are shown on graph.
+     *
+     * @param showGrid True if lines are shown, false otherwise
+     * @return this instance for method chaining
+     */
+    public Graph setShowGridlines(boolean showGrid) {
+        this.showGrid = showGrid;
+        return this;
+    }
+
+    /**
+     * Getter for checking whether gridlines are drawn or not
+     *
+     * @return True if gridlines shown, false otherwise
+     */
+    public boolean isShowingGridlines() {
+        return showGrid;
+    }
+
+    /**
+     * Sets whether the margin border around the graph area is shown
+     *
+     * @param showMarginBorder True if showing border, false otherwise
+     * @return this instance for method chaining
+     */
+    public Graph setShowMarginBorder(boolean showMarginBorder) {
+        this.showMarginBorder = showMarginBorder;
+        return this;
+    }
+
+    /**
+     * Checks if margin is being shown
+     *
+     * @return True if margin border is shown, false otherwise
+     */
+    public boolean isShowingMarginBorder() {
+        return showMarginBorder;
+    }
+
+    /**
+     * Sets whether tick marks should be shown on the graph.
+     *
+     * @param showGraphTickMarks true to show tick marks, false to hide them
+     * @return this instance for method chaining
+     */
+    public Graph setShowGraphTickMarks(boolean showGraphTickMarks) {
+        this.showGraphTickMarks = showGraphTickMarks;
+        return this;
+    }
+
+    /**
+     * Getter for checking whether tick marks are drawn or not.
+     *
+     * @return true if tick marks are shown, false otherwise
+     */
+    public boolean isShowingTicks() {
+        return showGraphTickMarks;
+    }
+
+    /**
+     * Sets whether tick labels should be shown on the graph.
+     *
+     * @param showTickLabels true to show tick labels, false otherwise
+     * @return this instance for method chaining
+     */
+    public Graph setShowTickLabels(boolean showTickLabels) {
+        this.showTickLabels = showTickLabels;
+        return this;
+    }
+
+    /**
+     * Sets the font used to render tick mark labels. Loosely overloads JPanel's setFont. JPanel.setFont is called
+     * before returning this instance. Solely exists for chain setting.
+     *
+     * @param graphFont Font to set characters of the graph to
+     * @return this instance for method chaining
+     */
+    public Graph setGraphFont(Font graphFont) {
+        super.setFont(graphFont);
+        return this;
+    }
+
+    /**
+     * Getter for checking whether tick labels are drawn or not.
+     *
+     * @return true if tick labels are shown, false otherwise
+     */
+    public boolean isShowingTickLabels() {
+        return showTickLabels;
+    }
+
 
     /**
      * Sets the TickMarkConfig used for tick rendering.
@@ -132,8 +246,8 @@ public abstract class Graph extends JPanel {
         double visibleRangeX;
         double visibleRangeY;
         if (cropGraphToData) {
-            visibleRangeX = Math.max(1e-10, scrollXf - scrollXo);
-            visibleRangeY = Math.max(1e-10, scrollYf - scrollYo);
+            visibleRangeX = Math.max(1e-10, xMaxVal - xMinVal);
+            visibleRangeY = Math.max(1e-10, yMaxVal - yMinVal);
         } else { // If it isn't cropped, we simply set the distance between ticks to be height / numticks
             visibleRangeX = tickConfig.getIntXTicks().length - 1;
             visibleRangeY = tickConfig.getIntYTicks().length - 1;
@@ -143,17 +257,6 @@ public abstract class Graph extends JPanel {
         tickConfig.setDeltaX(newDeltaX);
         tickConfig.setDeltaY(newDeltaY);
         repaint();
-    }
-
-    /**
-     * Paints the graph background and tick marks.
-     * Subclasses should call this before drawing specific data.
-     *
-     * @param g2 the Graphics2D context
-     */
-    protected void paintMarginAndTicks(Graphics2D g2) {
-        GraphTools.drawMargin(g2, this);
-        GraphTools.drawTicks(g2, this);
     }
 
     /**
@@ -178,7 +281,12 @@ public abstract class Graph extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        paintMarginAndTicks(g2);
+        if (showGraphTickMarks) {
+            GraphTools.drawTicks(g2, this);
+        }
+        if (showMarginBorder) {
+            GraphTools.drawMargin(g2, this);
+        }
 
         paintGraphData(g2);
     }

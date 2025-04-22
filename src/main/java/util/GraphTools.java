@@ -49,7 +49,6 @@ public final class GraphTools {
         if (doubleArr == null || doubleArr.length == 0) {
             return new int[0];
         }
-
         int[] intArray = new int[doubleArr.length];
         for (int i = 0; i < doubleArr.length; i++) {
             intArray[i] = (int) doubleArr[i];
@@ -76,23 +75,17 @@ public final class GraphTools {
      * @param graph The graph we are drawing in effect. Holds relevant parameter variables
      */
     public static void drawMargin(Graphics2D g2, Graph graph) {
-        int graphWidth = graph.getWidth();
-        int graphHeight = graph.getHeight();
         int margin = graph.getMarginSize();
-
-        g2.setColor(graph.getBackgroundColor());
-        g2.fillRect(0, 0, graphWidth, graphHeight);
-
-        int borderW = graphWidth - margin * 2;
-        int borderH = graphHeight - margin * 2;
+        int borderW = graph.getWidth() - margin * 2;
+        int borderH = graph.getHeight() - margin * 2;
 
         g2.setColor(graph.getBorderColor());
-        g2.setStroke(new BasicStroke(2f));
+        g2.setStroke(new BasicStroke(1f));
         g2.drawRect(margin, margin, borderW, borderH);
     }
 
     /**
-     * Draws tick marks and labels along the Y- and (optionally) X-axes based on provided tick configuration.
+     * Draws tick marks and labels along the Y- and (optionally) X-axes based on given tick configuration.
      * Tick mark spacing is derived from the value range of the provided dataset.
      *
      * @param g2          The graphics context to draw with
@@ -101,10 +94,11 @@ public final class GraphTools {
     public static void drawTicks(Graphics2D g2, Graph graph) {
         TickMarkConfig config = graph.getTickConfig();
         g2.setColor(config.getTickColor());
-        g2.setFont(config.getTickFont());
+        g2.setFont(graph.getFont());
 
         boolean doublePrecision = config.isDoublePrecision();
         boolean isCroppedToData = graph.isCroppedToData();
+        boolean drawTickLabels = graph.isShowingTickLabels();
         int height = graph.getHeight();
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
@@ -116,9 +110,10 @@ public final class GraphTools {
                         margin,
                         config.getDeltaX(),
                         halfTickLength,
-                        graph.getScrollXo(),
-                        graph.getScrollXf(),
+                        graph.getXMinVal(),
+                        graph.getXMaxVal(),
                         isCroppedToData,
+                        drawTickLabels,
                         config.getDoubleXTicks(),
                         g2
                 );
@@ -128,9 +123,10 @@ public final class GraphTools {
                         margin,
                         config.getDeltaX(),
                         halfTickLength,
-                        graph.getScrollXo(),
-                        graph.getScrollXf(),
+                        graph.getXMinVal(),
+                        graph.getXMaxVal(),
                         isCroppedToData,
+                        drawTickLabels,
                         config.getIntXTicks(),
                         g2
                 );
@@ -143,9 +139,10 @@ public final class GraphTools {
                         height - margin,
                         -config.getDeltaY(),
                         halfTickLength,
-                        graph.getScrollYo(),
-                        graph.getScrollYf(),
+                        graph.getYMinVal(),
+                        graph.getYMaxVal(),
                         isCroppedToData,
+                        drawTickLabels,
                         config.getDoubleYTicks(),
                         g2
                 );
@@ -155,9 +152,10 @@ public final class GraphTools {
                         height - margin,
                         -config.getDeltaY(),
                         halfTickLength,
-                        graph.getScrollYo(),
-                        graph.getScrollYf(),
+                        graph.getYMinVal(),
+                        graph.getYMaxVal(),
                         isCroppedToData,
+                        drawTickLabels,
                         config.getIntYTicks(),
                         g2
                 );
@@ -173,6 +171,7 @@ public final class GraphTools {
             double oScroll,
             double fScroll,
             boolean croppedToData,
+            boolean drawTickLabels,
             int[] ticks,
             Graphics2D g2
     ) {
@@ -180,7 +179,6 @@ public final class GraphTools {
             return;
         }
         int i = 0;
-        int debugTimer = 0;
         for (int tick : ticks) { // TODO figure out why there is extra iteration in cropped mode
             if (croppedToData && (tick < oScroll || tick >= oScroll + fScroll)) {
                 continue;
@@ -196,11 +194,15 @@ public final class GraphTools {
             if (delta > 0) { // x-axis
                 breadthStringPixelo = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
                 g2.drawLine(magnitude, breadth1, magnitude, breadth2);
-                g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
+                if (drawTickLabels) {
+                    g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
+                }
             } else { // y-axis
                 breadthStringPixelo = breadth2 - halfLabelWidth - labelWidth;
                 g2.drawLine(breadth1, magnitude, breadth2, magnitude);
-                g2.drawString(label, breadthStringPixelo, magnitude + halfLabelWidth);
+                if (drawTickLabels) {
+                    g2.drawString(label, breadthStringPixelo, magnitude + halfLabelWidth);
+                }
             }
         }
     }
@@ -213,6 +215,7 @@ public final class GraphTools {
             double oScroll,
             double fScroll,
             boolean croppedToData,
+            boolean drawTickLabels,
             double[] ticks,
             Graphics2D g2
     ) {
@@ -235,11 +238,15 @@ public final class GraphTools {
             if (delta > 0) { // x-axis
                 int breadthStringPixelo = breadth1 + (fmAscent / 3) + fmAscent;
                 g2.drawLine(magnitude, breadth1, magnitude, breadth2);
-                g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
+                if (drawTickLabels) {
+                    g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
+                }
             } else { // y-axis
                 int centeredLabelPt = breadth2 / 2 - halfLabelWidth;
                 g2.drawLine(breadth1, magnitude, breadth2, magnitude);
-                g2.drawString(label, centeredLabelPt, magnitude + fmAscent / 2);
+                if (drawTickLabels) {
+                    g2.drawString(label, centeredLabelPt, magnitude + fmAscent / 2);
+                }
             }
         }
     }

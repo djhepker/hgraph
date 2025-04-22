@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
 import util.TickMarkConfig;
 
-import javax.swing.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -30,11 +29,6 @@ public final class LineGraph extends Graph {
 
     private Color lineColor;
 
-    private double minXValue;
-    private double maxXValue;
-    private double minYValue;
-    private double maxYValue;
-
     /**
      * Default constructor initializing default values and an empty data queue
      */
@@ -43,10 +37,10 @@ public final class LineGraph extends Graph {
         this.circularPointBuffer = new CircularPointBuffer(100);
         this.lineThickness = 2.0f;
         this.lineColor = Color.GREEN;
-        this.maxXValue = Double.NEGATIVE_INFINITY;
-        this.minXValue = -maxXValue;
-        this.maxYValue = maxXValue;
-        this.minYValue = -maxYValue;
+        this.xMinVal = Double.POSITIVE_INFINITY;
+        this.yMinVal = xMinVal;
+        this.xMaxVal = -xMinVal;
+        this.yMaxVal = -yMinVal;
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -110,17 +104,17 @@ public final class LineGraph extends Graph {
     public LineGraph insertData(Point2D.Double newData) {
         double xData = newData.getX();
         double yData = newData.getY();
-        if (yData > maxYValue) {
-            maxYValue = yData;
+        if (yData > yMaxVal) {
+            yMaxVal = yData;
         }
-        if (yData < minYValue) {
-            minYValue = yData;
+        if (yData < yMinVal) {
+            yMinVal = yData;
         }
-        if (xData > maxXValue) {
-            maxXValue = xData;
+        if (xData > xMaxVal) {
+            xMaxVal = xData;
         }
-        if (xData < minXValue) {
-            minXValue = xData;
+        if (xData < xMinVal) {
+            xMinVal = xData;
         }
         circularPointBuffer.add(newData);
         return this;
@@ -214,31 +208,17 @@ public final class LineGraph extends Graph {
     }
 
     /**
-     * Override function for graph cropping. Sets the scroll parameters appropriately for cropped data. Updates
-     * cropGraphToData to user input.
+     * Override function for graph cropping. Updates cropGraphToData setting
+     * and refreshes tick scaling based on current data bounds.
      *
      * @param cropGraphToData True if only relevant graph space is shown.
      * @return Instance of class for chain setting.
      */
     @Override
     public Graph cropGraphToData(boolean cropGraphToData) {
-        if (cropGraphToData) {
-            if (Double.isFinite(minXValue)
-                    && Double.isFinite(maxXValue)
-                    && Double.isFinite(minYValue)
-                    && Double.isFinite(maxYValue)) {
-                scrollXo = minXValue;
-                scrollYo = minYValue;
-                scrollXf = maxXValue;
-                scrollYf = maxYValue;
-            } else {
-                scrollXo = 0.0;
-                scrollYo = 0.0;
-                scrollXf = 10.0;
-                scrollYf = 10.0;
-            }
-        }
-        return super.cropGraphToData(cropGraphToData);
+        this.cropGraphToData = cropGraphToData;
+        updateTickParameters();
+        return this;
     }
 
     /**
@@ -268,8 +248,8 @@ public final class LineGraph extends Graph {
             int x;
             int y;
             if (cropGraphToData) {
-                x = (int) (marginSize + ((point.getX() - scrollXo) * tickConfig.getDeltaX()));
-                y = (int) (getHeight() - (marginSize + ((point.getY() - scrollYo) * tickConfig.getDeltaY())));
+                x = (int) (marginSize + ((point.getX() - xMinVal) * tickConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * tickConfig.getDeltaY())));
             } else {
                 x = (int) (marginSize + (point.getX() * tickConfig.getDeltaX()));
                 y = (int) (getHeight() - (marginSize + (point.getY() * tickConfig.getDeltaY())));
