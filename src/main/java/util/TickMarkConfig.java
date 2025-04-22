@@ -38,10 +38,10 @@ public final class TickMarkConfig {
 
     @Getter
     @Setter
-    private double deltaX;
+    private double deltaX; // Horizontal pixel distance between two things
     @Getter
     @Setter
-    private double deltaY;
+    private double deltaY; // Vertical pixel distance between two things
 
     /**
      * Default configuration with all settings enabled and standard styling.

@@ -98,7 +98,7 @@ class TestLineGraph {
 
     @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
     @Test
-    void testCropGraphToDataVisual() throws InterruptedException {
+    void testCropGraphToDataVisualInt() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
         TickMarkConfig config = new TickMarkConfig()
@@ -120,7 +120,33 @@ class TestLineGraph {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
+        latch.await();
+    }
 
+    @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
+    @Test
+    void testCropGraphToDataVisualDouble() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        TickMarkConfig config = new TickMarkConfig()
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .setDoublePrecision(true);
+        graph.setTickConfig(config).cropGraphToData(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
+            frame.setSize(1000, 800);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    latch.countDown();
+                }
+            });
+            frame.getContentPane().add(graph);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
         latch.await();
     }
 }

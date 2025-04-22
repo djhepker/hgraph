@@ -40,7 +40,7 @@ public abstract class Graph extends JPanel {
      */
     public Graph() {
         this.tickConfig = new TickMarkConfig();
-        this.marginSize = 24;
+        this.marginSize = 32;
         this.backgroundColor = Color.BLACK;
         this.borderColor = Color.WHITE;
         this.cropGraphToData = false;
@@ -54,6 +54,7 @@ public abstract class Graph extends JPanel {
      */
     public Graph cropGraphToData(boolean cropGraphToData) {
         this.cropGraphToData = cropGraphToData;
+        updateTickParameters();
         return this;
     }
 
@@ -118,7 +119,30 @@ public abstract class Graph extends JPanel {
      */
     public Graph setDoublePrecision(boolean doublePrecision) {
         this.tickConfig.setDoublePrecision(doublePrecision);
+        updateTickParameters();
         return this;
+    }
+
+    /**
+     * Helper function which updates delta values for graph ticks.
+     */
+    protected void updateTickParameters() {
+        int graphWidth = getWidth() - 2 * marginSize;
+        int graphHeight = getHeight() - 2 * marginSize;
+        double visibleRangeX;
+        double visibleRangeY;
+        if (cropGraphToData) {
+            visibleRangeX = Math.max(1e-10, scrollXf - scrollXo);
+            visibleRangeY = Math.max(1e-10, scrollYf - scrollYo);
+        } else { // If it isn't cropped, we simply set the distance between ticks to be height / numticks
+            visibleRangeX = tickConfig.getIntXTicks().length - 1;
+            visibleRangeY = tickConfig.getIntYTicks().length - 1;
+        }
+        double newDeltaX = (double) graphWidth / visibleRangeX;
+        double newDeltaY = (double) graphHeight / visibleRangeY;
+        tickConfig.setDeltaX(newDeltaX);
+        tickConfig.setDeltaY(newDeltaY);
+        repaint();
     }
 
     /**

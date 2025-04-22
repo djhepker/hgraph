@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
 import util.TickMarkConfig;
 
+import javax.swing.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -281,25 +282,5 @@ public final class LineGraph extends Graph {
             prevX = x;
             prevY = y;
         }
-    }
-
-    /**
-     * Helper function which updates delta values for graph ticks.
-     */
-    private void updateTickParameters() {
-        int graphWidth = getWidth() - 2 * marginSize;
-        int graphHeight = getHeight() - 2 * marginSize;
-        double visibleRangeX;
-        double visibleRangeY;
-        if (cropGraphToData) {
-            visibleRangeX = Math.max(1e-10, scrollXf - scrollXo);
-            visibleRangeY = Math.max(1e-10, scrollYf - scrollYo);
-        } else {
-            visibleRangeX = Math.max(1e-10, scrollXf);
-            visibleRangeY = Math.max(1e-10, scrollYf);
-        }
-
-        tickConfig.setDeltaX((double) graphWidth / visibleRangeX);
-        tickConfig.setDeltaY((double) graphHeight / visibleRangeY);
     }
 }
