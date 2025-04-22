@@ -264,6 +264,8 @@ public abstract class Graph extends JPanel {
         // height testing
         int fmAscent = fm.getAscent();
 
+        // TODO calculate delta of border-axis to margin for both, find an accurate percentage
+        // potentially use dimensions to get the ratio of screen, ie 16:9
     }
 
     /**
