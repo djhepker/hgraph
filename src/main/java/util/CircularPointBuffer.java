@@ -48,13 +48,11 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         if (newCapacity != capacity) {
             double[] tmpX = new double[newCapacity];
             double[] tmpY = new double[newCapacity];
-
             for (int i = 0; i < Math.min(size, newCapacity); ++i) {
                 int idx = (head + i) % capacity;
                 tmpX[i] = x[idx];
                 tmpY[i] = y[idx];
             }
-
             x = tmpX;
             y = tmpY;
             head = 0;
@@ -64,36 +62,71 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         return this;
     }
 
+    /**
+     * Moves cursor forward one step in buffer. If pre-cursor is at last valid index in buffer, post-cursor
+     * will be pointing to head. This can be done infinitely without mutation.
+     *
+     * @return Instance of this class for method chaining.
+     */
     public CircularPointBuffer advanceCursorWrapped() {
         cursor = (cursor + 1) % capacity;
         ++iterCount;
         return this;
     }
 
+    /**
+     * Sets cursor to the beginning (top) of buffer.
+     *
+     * @return Instance of this class for method chaining.
+     */
     public CircularPointBuffer resetCursor() {
         cursor = head;
         iterCount = 0;
         return this;
     }
 
+    /**
+     * Boolean checks if relative cursor position in buffer is less than the current number
+     * of elements in the buffer.
+     *
+     * @return True when next index is valid index. False otherwise.
+     */
     public boolean hasNext() {
         return iterCount < size;
     }
 
+    /**
+     * Simple getter function for retrieving, without mutating, the x cursor is pointing to.
+     *
+     * @return x value cursor is pointing to.
+     */
     public double cursorGetX() {
         return x[cursor];
     }
 
+    /**
+     * Simple getter function for retrieving, without mutating, the y cursor is pointing to.
+     *
+     * @return y value cursor is pointing to.
+     */
     public double cursorGetY() {
         return y[cursor];
     }
 
+    /**
+     * Removes the top [x,y] of buffer.
+     *
+     * @return [] containing [x,y], in that order.
+     */
     public double[] pop() {
-        if (size == 0) return null;
-
+        if (size == 0) {
+            return null;
+        }
         double[] top = {x[head], y[head]};
         head = (head + 1) % capacity;
-        if (cursor == head) cursor = head;
+        if (cursor == head) {
+            cursor = head;
+        }
         --size;
         return top;
     }

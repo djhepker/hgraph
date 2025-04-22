@@ -43,7 +43,7 @@ public abstract class Graph extends JPanel {
     protected boolean showTickLabels;
 
     /**
-     * Default Graph constructor initializes common fields.
+     * Protected constructor prevents instantiation outside of this package when not explicitly extending.
      */
     protected Graph() {
         this.xMinVal = Double.POSITIVE_INFINITY;
@@ -256,20 +256,22 @@ public abstract class Graph extends JPanel {
     }
 
     /**
-     * Verifies that Margin is a viable size given the size of possible tick labels
+     * Verifies that Margin is a viable size given the size of possible tick labels.
+     * Dynamically adjusts marginSize larger or smaller as needed.
      *
-     * @param fm Font metric we verify the size of with our given graph parameters
+     * @param fm FontMetrics used to verify size against graph parameters
      */
     protected void verifyMarginToLabelScale(FontMetrics fm) {
-        // Width testing
-        int labelWidth = fm.stringWidth(GraphTools.doubleToString(Math.max(xMaxVal, yMaxVal)));
-        if (labelWidth * 4 > marginSize * 3) { // Case where labelWidth is greater than 75% of marginSize
-            this.marginSize = (labelWidth * 4 + 2) / 3;
-        }
-        // Height testing
+        int halfTickLength = (int) (tickConfig.getTickLength() * 0.5);
+        // Width check (for x-axis labels)
+        int labelWidth = fm.stringWidth(GraphTools.doubleToString(Math.max(Math.abs(xMaxVal), Math.abs(yMaxVal))));
+        int widthRequirement = (labelWidth * 4 + 2) / 3 + halfTickLength;
+        // Height check (for y-axis labels)
         int labelHeight = fm.getAscent() + fm.getDescent();
-        if (labelHeight * 4 > marginSize * 3) { // Case where label height is greater than 75% of marginSize
-            this.marginSize = (labelHeight * 4 + 2) / 3;
+        int heightRequirement = (labelHeight * 4 + 2) / 3 + halfTickLength;
+        int requiredMargin = Math.max(widthRequirement, heightRequirement);
+        if (Math.abs(requiredMargin - marginSize) > 1) { // 1 pixel threshold for safety
+            this.marginSize = requiredMargin;
         }
     }
 
@@ -291,17 +293,17 @@ public abstract class Graph extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
         if (showGraphTickMarks) {
+            if (showTickLabels) {
+                verifyMarginToLabelScale(g2.getFontMetrics());
+            }
             GraphTools.drawTicks(g2, this);
         }
         if (showMarginBorder) {
             GraphTools.drawMargin(g2, this);
         }
-
         paintGraphData(g2);
     }
 

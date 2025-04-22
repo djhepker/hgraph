@@ -26,7 +26,7 @@ public final class GraphTools {
      * @param intArray the array of integers to convert
      * @return a new array of doubles containing the same values as the input array
      */
-    public static double[] intArrayToDoubleArray(int[] intArray) {
+    public static double[] arrayIntToArrayDouble(int[] intArray) {
         if (intArray == null || intArray.length == 0) {
             return new double[0];
         }
@@ -47,7 +47,7 @@ public final class GraphTools {
      * @param doubleArr the array of doubles to convert
      * @return a new array of integers containing the truncated values of the input
      */
-    public static int[] doubleArrayToIntArray(double[] doubleArr) {
+    public static int[] arrayDoubleToArrayInt(double[] doubleArr) {
         if (doubleArr == null || doubleArr.length == 0) {
             return new int[0];
         }
@@ -191,7 +191,7 @@ public final class GraphTools {
             return;
         }
         int i = 0;
-        for (int tick : ticks) { // TODO figure out why there is extra iteration in cropped mode
+        for (int tick : ticks) {
             if (croppedToData && (tick < oScroll || tick >= oScroll + fScroll)) {
                 continue;
             }

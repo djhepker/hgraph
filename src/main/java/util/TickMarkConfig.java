@@ -67,14 +67,14 @@ public final class TickMarkConfig {
         if (doublePrecision != this.doublePrecision) {
             this.doublePrecision = doublePrecision;
             if (doublePrecision) {
-                this.xTicksDouble = GraphTools.intArrayToDoubleArray(xTicksInt);
+                this.xTicksDouble = GraphTools.arrayIntToArrayDouble(xTicksInt);
                 this.xTicksInt = null;
-                this.yTicksDouble = GraphTools.intArrayToDoubleArray(yTicksInt);
+                this.yTicksDouble = GraphTools.arrayIntToArrayDouble(yTicksInt);
                 this.yTicksInt = null;
             } else {
-                this.xTicksInt = GraphTools.doubleArrayToIntArray(xTicksDouble);
+                this.xTicksInt = GraphTools.arrayDoubleToArrayInt(xTicksDouble);
                 this.xTicksDouble = null;
-                this.yTicksInt = GraphTools.doubleArrayToIntArray(yTicksDouble);
+                this.yTicksInt = GraphTools.arrayDoubleToArrayInt(yTicksDouble);
                 this.yTicksDouble = null;
             }
         }
@@ -222,7 +222,7 @@ public final class TickMarkConfig {
         if (doublePrecision) {
             return xTicksDouble != null ? xTicksDouble : new double[0];
         } else if (xTicksInt != null) {
-            return GraphTools.intArrayToDoubleArray(xTicksInt);
+            return GraphTools.arrayIntToArrayDouble(xTicksInt);
         } else {
             return new double[0];
         }
@@ -241,7 +241,7 @@ public final class TickMarkConfig {
         if (doublePrecision) {
             return yTicksDouble != null ? yTicksDouble : new double[0];
         } else if (yTicksInt != null) {
-            return GraphTools.intArrayToDoubleArray(yTicksInt);
+            return GraphTools.arrayIntToArrayDouble(yTicksInt);
         } else {
             return new double[0];
         }
@@ -260,7 +260,7 @@ public final class TickMarkConfig {
         if (!doublePrecision) {
             return xTicksInt != null ? xTicksInt : new int[0];
         } else if (xTicksDouble != null) {
-            return GraphTools.doubleArrayToIntArray(xTicksDouble);
+            return GraphTools.arrayDoubleToArrayInt(xTicksDouble);
         } else {
             return new int[0];
         }
@@ -279,7 +279,7 @@ public final class TickMarkConfig {
         if (!doublePrecision) {
             return yTicksInt != null ? yTicksInt : new int[0];
         } else if (yTicksDouble != null) {
-            return GraphTools.doubleArrayToIntArray(yTicksDouble);
+            return GraphTools.arrayDoubleToArrayInt(yTicksDouble);
         } else {
             return new int[0];
         }
