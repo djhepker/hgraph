@@ -2,7 +2,7 @@ package util;
 
 import lombok.Getter;
 
-import java.awt.geom.Point2D.Double;
+import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -12,16 +12,15 @@ import java.util.NoSuchElementException;
  * When full, the buffer overwrites the oldest elements in FIFO order.
  * Useful for graphing or time-series data where old data can be discarded as new data arrives.
  */
-public final class CircularPointBuffer implements Iterable<Double>, Collection<Double> {
+public final class CircularPointBuffer implements Iterable<Point2D.Double>, Collection<Point2D.Double> {
     private double[] x;
     private double[] y;
     private int head;
-    @Getter
-    private int cursor;
+    private int cursor; // Physical, low level pointer
     private int size;
     @Getter
     private int capacity;
-    private int iterCount;
+    private int iterCount; // High-level counter, user visible
 
     /**
      * Parameterized constructor.
@@ -69,8 +68,8 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
      * @return Instance of this class for method chaining.
      */
     public CircularPointBuffer advanceCursorWrapped() {
-        cursor = (cursor + 1) % capacity;
-        ++iterCount;
+        cursor = ++cursor % capacity;
+        iterCount = (capacity + cursor - head) % capacity;
         return this;
     }
 
@@ -114,6 +113,33 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
     }
 
     /**
+     * Retrieves Point at a given index. This process mutates cursor. Value remains stored.
+     *
+     * @param index The index to retrieve.
+     * @return Point2D.Double representing the 2D data point at index in buffer.
+     */
+    public Point2D.Double get(int index) {
+        setCursor(index);
+        return new Point2D.Double(x[cursor], y[cursor]);
+    }
+
+    /**
+     * Sets the logical cursor to the given index in the buffer.
+     * The index must be in the range [0, size). Cursor is mutated.
+     *
+     * @param index logical position relative to head (0 = head, 1 = head+1, etc.).
+     * @throws IndexOutOfBoundsException if index is outside valid range.
+     */
+    public void setCursor(int index) {
+        if (index < 0 || index >= size) {
+            final String iOOBE = "Index " + index + " out of bounds for size " + size;
+            throw new IndexOutOfBoundsException(iOOBE);
+        }
+        cursor = (head + index) % capacity;
+        iterCount = index;
+    }
+
+    /**
      * Removes the top [x,y] of buffer.
      *
      * @return [] containing [x,y], in that order.
@@ -130,6 +156,24 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
         --size;
         return top;
     }
+
+    /**
+     * Peeks ahead in the buffer by a given offset from the current cursor.
+     * Does not modify cursor or iterCount.
+     *
+     * @param offset number of steps to peek ahead
+     * @return Point2D.Double representing the point at (cursor + offset) % capacity
+     * @throws IndexOutOfBoundsException if offset is negative or offset >= size
+     */
+    public Point2D.Double peek(int offset) {
+        if (offset < 0 || offset >= size) {
+            final String iOOBE = "Offset " + offset + " out of bounds for size " + size;
+            throw new IndexOutOfBoundsException(iOOBE);
+        }
+        int peekIndex = (cursor + offset) % capacity;
+        return new Point2D.Double(x[peekIndex], y[peekIndex]);
+    }
+
 
     /**
      * Empty checker
@@ -150,12 +194,12 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
      */
     @Override
     public boolean contains(Object o) {
-        if (!(o instanceof Double p)) {
+        if (!(o instanceof Point2D.Double p)) {
             return false;
         }
         for (int i = 0; i < size; ++i) {
             int idx = (head + i) % capacity;
-            if (java.lang.Double.compare(x[idx], p.getX()) == 0 && java.lang.Double.compare(y[idx], p.getY()) == 0) {
+            if (Double.compare(x[idx], p.getX()) == 0 && Double.compare(y[idx], p.getY()) == 0) {
                 return true;
             }
         }
@@ -189,10 +233,10 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
      */
     @Override
     public Object[] toArray() {
-        Double[] pArr = new Double[size];
+        Point2D.Double[] pArr = new Point2D.Double[size];
         int idx = 0;
-        for (Double p : this) {
-            pArr[idx++] = new Double(p.getX(), p.getY());
+        for (Point2D.Double p : this) {
+            pArr[idx++] = new Point2D.Double(p.getX(), p.getY());
         }
         return pArr;
     }
@@ -212,8 +256,8 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
             a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
         }
         int idx = 0;
-        for (Double p : this) {
-            a[idx++] = (T) new Double(p.getX(), p.getY());
+        for (Point2D.Double p : this) {
+            a[idx++] = (T) new Point2D.Double(p.getX(), p.getY());
         }
         if (a.length > size) {
             a[size] = null;
@@ -225,10 +269,10 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
      * Inserts double x and double y into the buffer. Stored with minimal overhead.
      *
      * @param point element whose presence in this collection is to be ensured
-     * @return True if store is successful. False if invalid input parameter.
+     * @return True if store is successful. False otherwise
      */
     @Override
-    public boolean add(Double point) {
+    public boolean add(Point2D.Double point) {
         if (point == null) {
             return false;
         }
@@ -250,8 +294,8 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
      * @return True if all elements were valid.
      */
     @Override
-    public boolean addAll(Collection<? extends Double> c) {
-        for (Double p : c) {
+    public boolean addAll(Collection<? extends Point2D.Double> c) {
+        for (Point2D.Double p : c) {
             if (!add(p)) {
                 return false;
             }
@@ -267,7 +311,7 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
      */
     @Override
     public boolean remove(Object o) {
-        if (!(o instanceof Double target)) {
+        if (!(o instanceof Point2D.Double target)) {
             return false;
         }
         boolean found = false;
@@ -316,11 +360,11 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
     }
 
     @Override
-    public Iterator<Double> iterator() {
+    public Iterator<Point2D.Double> iterator() {
         return new Iterator<>() {
             private int iteratorIndex = 0;
             private int iteratorCursor = head;
-            private final Double reusable = new Double();
+            private final Point2D.Double reusable = new Point2D.Double();
 
             @Override
             public boolean hasNext() {
@@ -328,7 +372,7 @@ public final class CircularPointBuffer implements Iterable<Double>, Collection<D
             }
 
             @Override
-            public Double next() {
+            public Point2D.Double next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
