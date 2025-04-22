@@ -15,12 +15,12 @@ import java.util.NoSuchElementException;
 public final class CircularPointBuffer implements Iterable<Point2D.Double>, Collection<Point2D.Double> {
     private double[] x;
     private double[] y;
-    private int head;
+    private int head; // first element index of container
     private int cursor; // Physical, low level pointer
+    private int iterCount; // High-level counter, user visible
     private int size;
     @Getter
     private int capacity;
-    private int iterCount; // High-level counter, user visible
 
     /**
      * Parameterized constructor.
@@ -140,21 +140,21 @@ public final class CircularPointBuffer implements Iterable<Point2D.Double>, Coll
     }
 
     /**
-     * Removes the top [x,y] of buffer.
+     * Removes the top (head) element from the buffer and returns it as a Point2D.Double.
      *
-     * @return [] containing [x,y], in that order.
+     * @return Point2D.Double containing [x, y] at the head, or null if buffer is empty.
      */
-    public double[] pop() {
+    public Point2D.Double pop() {
         if (size == 0) {
             return null;
         }
-        double[] top = {x[head], y[head]};
+        Point2D.Double point = new Point2D.Double(x[head], y[head]);
         head = (head + 1) % capacity;
         if (cursor == head) {
             cursor = head;
         }
         --size;
-        return top;
+        return point;
     }
 
     /**
@@ -173,7 +173,6 @@ public final class CircularPointBuffer implements Iterable<Point2D.Double>, Coll
         int peekIndex = (cursor + offset) % capacity;
         return new Point2D.Double(x[peekIndex], y[peekIndex]);
     }
-
 
     /**
      * Empty checker
