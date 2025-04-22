@@ -180,10 +180,13 @@ public final class GraphTools {
             return;
         }
         int i = 0;
+        int debugTimer = 0;
         for (int tick : ticks) { // TODO figure out why there is extra iteration in cropped mode
-            if (croppedToData && (tick < oScroll || tick > oScroll + fScroll)) {
+            if (croppedToData && (tick < oScroll || tick >= oScroll + fScroll)) {
                 continue;
             }
+            System.out.printf("Iteration: %d, Processing tick: %d, oScroll: %.1f, fScroll: %.1f, Ticks.length: %d%n",
+                    debugTimer++, tick, oScroll, fScroll, ticks.length);
             int magnitude = (int) (delta * i++ + tickPosNaught);
             int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
             int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
@@ -219,8 +222,8 @@ public final class GraphTools {
             return;
         }
         int i = 0;
-        for (double doubleTick : ticks) { // TODO figure out why there is extra iteration in cropped mode
-            if (croppedToData && (doubleTick < oScroll || doubleTick > oScroll + fScroll)) {
+        for (double doubleTick : ticks) {
+            if (croppedToData && (doubleTick < oScroll || doubleTick >= oScroll + fScroll)) {
                 continue;
             }
             int magnitude = (int) (delta * i++ + tickPosNaught);
