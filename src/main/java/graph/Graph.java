@@ -6,11 +6,7 @@ import util.TickMarkConfig;
 import util.GraphTools;
 
 import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 
 /**
  * Base abstract class for graphs, extending JPanel.
@@ -47,6 +43,10 @@ public abstract class Graph extends JPanel {
      * Default Graph constructor initializes common fields.
      */
     public Graph() {
+        this.xMinVal = Double.POSITIVE_INFINITY;
+        this.yMinVal = xMinVal;
+        this.xMaxVal = -xMinVal;
+        this.yMaxVal = -yMinVal;
         this.tickConfig = new TickMarkConfig();
         this.marginSize = 32;
         this.borderColor = Color.WHITE;
@@ -59,13 +59,6 @@ public abstract class Graph extends JPanel {
         super.setBackground(backgroundColor);
         super.setFont(new Font("Arial", Font.PLAIN, 12));
     }
-
-    // width testing
-//String label = String.format("%.2f", doubleTick);
-//FontMetrics fm = g2.getFontMetrics();
-//int labelWidth = fm.stringWidth(label);
-// height testing
-//int fmAscent = fm.getAscent();
 
     /**
      * Sets whether the graph shows axis space outside visible data.
@@ -257,6 +250,20 @@ public abstract class Graph extends JPanel {
         tickConfig.setDeltaX(newDeltaX);
         tickConfig.setDeltaY(newDeltaY);
         repaint();
+    }
+
+    /**
+     * Verifies that Margin is a viable size given the size of possible tick labels
+     */
+    protected void verifyMarginUse(Graphics2D g2) {
+        // width testing
+        String label = String.format("%.2f", Math.max(xMaxVal, yMaxVal));
+        FontMetrics fm = g2.getFontMetrics();
+        int labelWidth = fm.stringWidth(label);
+
+        // height testing
+        int fmAscent = fm.getAscent();
+
     }
 
     /**

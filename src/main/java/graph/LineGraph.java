@@ -25,9 +25,10 @@ public final class LineGraph extends Graph {
     @Getter(AccessLevel.NONE)
     private final CircularPointBuffer circularPointBuffer;
 
-    private float lineThickness;
+    private Color edgeColor;
 
-    private Color lineColor;
+    private float edgeThickness;
+
 
     /**
      * Default constructor initializing default values and an empty data queue
@@ -35,12 +36,8 @@ public final class LineGraph extends Graph {
     public LineGraph() {
         super();
         this.circularPointBuffer = new CircularPointBuffer(100);
-        this.lineThickness = 2.0f;
-        this.lineColor = Color.GREEN;
-        this.xMinVal = Double.POSITIVE_INFINITY;
-        this.yMinVal = xMinVal;
-        this.xMaxVal = -xMinVal;
-        this.yMaxVal = -yMinVal;
+        this.edgeThickness = 2.0f;
+        this.edgeColor = Color.GREEN;
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -189,21 +186,21 @@ public final class LineGraph extends Graph {
 
     /**
      * Sets the thickness of chart lines
-     * @param lineThickness Thickness of chart lines in pixels
+     * @param edgeThickness Thickness of chart lines in pixels
      * @return Instance of class for chain setting
      */
-    public LineGraph setLineThickness(float lineThickness) {
-        this.lineThickness = lineThickness;
+    public LineGraph setEdgeThickness(float edgeThickness) {
+        this.edgeThickness = edgeThickness;
         return this;
     }
 
     /**
      * Sets the color of the graph line
-     * @param lineColor Color for the data line
+     * @param edgeColor Color for the data line
      * @return Instance of class for chain setting
      */
-    public LineGraph setLineColor(Color lineColor) {
-        this.lineColor = lineColor;
+    public LineGraph setEdgeColor(Color edgeColor) {
+        this.edgeColor = edgeColor;
         return this;
     }
 
@@ -237,8 +234,8 @@ public final class LineGraph extends Graph {
             return;
         }
 
-        g2.setStroke(new BasicStroke(lineThickness));
-        g2.setColor(lineColor);
+        g2.setStroke(new BasicStroke(edgeThickness));
+        g2.setColor(edgeColor);
 
         boolean postStart = false;
         int prevX = 0;
