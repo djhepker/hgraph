@@ -21,19 +21,18 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public final class LineGraph extends Graph {
     @Getter(AccessLevel.NONE)
-    private final CircularPointBuffer circularPointBuffer;
+    private final CircularPointBuffer dataBuffer;
 
     private Color edgeColor;
 
     private float edgeThickness;
-
 
     /**
      * Default constructor initializing default values and an empty data queue
      */
     public LineGraph() {
         super();
-        this.circularPointBuffer = new CircularPointBuffer(100);
+        this.dataBuffer = new CircularPointBuffer(100);
         this.edgeThickness = 2.0f;
         this.edgeColor = Color.GREEN;
 
@@ -111,7 +110,7 @@ public final class LineGraph extends Graph {
         if (xData < xMinVal) {
             xMinVal = xData;
         }
-        circularPointBuffer.add(newData);
+        dataBuffer.add(newData);
         return this;
     }
 
@@ -131,7 +130,7 @@ public final class LineGraph extends Graph {
      * @return Size of queued data
      */
     public int getDataSize() {
-        return circularPointBuffer.size();
+        return dataBuffer.size();
     }
 
     /**
@@ -228,7 +227,7 @@ public final class LineGraph extends Graph {
      */
     @Override
     protected void paintGraphData(Graphics2D g2) {
-        if (circularPointBuffer.isEmpty()) {
+        if (dataBuffer.isEmpty()) {
             return;
         }
 
@@ -239,7 +238,7 @@ public final class LineGraph extends Graph {
         int prevX = 0;
         int prevY = 0;
 
-        for (Point2D.Double point : circularPointBuffer) {
+        for (Point2D.Double point : dataBuffer) {
             int x;
             int y;
             if (cropGraphToData) {

@@ -2,9 +2,7 @@ package util;
 
 import graph.Graph;
 
-import java.awt.BasicStroke;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Point2D.Double;
 import java.text.DecimalFormat;
 
@@ -59,6 +57,16 @@ public final class GraphTools {
     }
 
     /**
+     * Returns a String representation of a double with two decimal places.
+     *
+     * @param d The double being converted.
+     * @return String representation of d rounded to two decimal places.
+     */
+    public static String doubleToString(double d) {
+        return DECIMAL_FORMAT.format(d);
+    }
+
+    /**
      * Fast checker method for checking if coordinates match a Point2D.Double.
      *
      * @param x x value to be evaluated.
@@ -87,16 +95,6 @@ public final class GraphTools {
     }
 
     /**
-     * Returns a String representation of a double with two decimal places.
-     *
-     * @param d The double being converted.
-     * @return String representation of d rounded to two decimal places.
-     */
-    public static String doubleToString(double d) {
-        return DECIMAL_FORMAT.format(d);
-    }
-
-    /**
      * Draws tick marks and labels along the Y- and (optionally) X-axes based on given tick configuration.
      * Tick mark spacing is derived from the value range of the provided dataset.
      *
@@ -111,13 +109,14 @@ public final class GraphTools {
         boolean doublePrecision = config.isDoublePrecision();
         boolean isCroppedToData = graph.isCroppedToData();
         boolean drawTickLabels = graph.isShowingTickLabels();
+        boolean drawGrid = graph.isShowingGridLines();
         int height = graph.getHeight();
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
 
         if (config.isShowXTicks()) {
             if (doublePrecision) {
-                drawDoubleTicks(
+                drawDoubleGridFeatures(
                         height,
                         margin,
                         config.getDeltaX(),
@@ -130,7 +129,7 @@ public final class GraphTools {
                         g2
                 );
             } else {
-                drawIntTicks(
+                drawIntGridFeatures(
                         height,
                         margin,
                         config.getDeltaX(),
@@ -146,7 +145,7 @@ public final class GraphTools {
         }
         if (config.isShowYTicks()) {
             if (doublePrecision) {
-                drawDoubleTicks(
+                drawDoubleGridFeatures(
                         margin + height - margin,
                         height - margin,
                         -config.getDeltaY(),
@@ -159,7 +158,7 @@ public final class GraphTools {
                         g2
                 );
             } else {
-                drawIntTicks(
+                drawIntGridFeatures(
                         margin + height - margin,
                         height - margin,
                         -config.getDeltaY(),
@@ -175,7 +174,15 @@ public final class GraphTools {
         }
     }
 
-    private static void drawIntTicks(
+    public static int[] getTickMagnitudes(int[] ticks, double delta, int tickPosNaught) {
+        int[] tickMagnitudes = new int[ticks.length];
+        for (int i = 0; i < ticks.length; ++i) {
+            tickMagnitudes[i] = (int) (delta * i + tickPosNaught);
+        }
+        return tickMagnitudes;
+    }
+
+    private static void drawIntGridFeatures(
             int borderCenter,
             int tickPosNaught,
             double delta,
@@ -198,21 +205,30 @@ public final class GraphTools {
             int magnitude = (int) (delta * i++ + tickPosNaught);
             int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
             int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
-            String label = String.valueOf(tick);
+
             FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(label);
-            int halfLabelWidth = labelWidth / 2;
             int leftMostPixelIndex;
+
             if (delta > 0) { // x-axis
-                leftMostPixelIndex = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
+                // draw tick
                 g2.drawLine(magnitude, breadth1, magnitude, breadth2);
+                // draw labels
                 if (drawTickLabels) {
+                    String label = String.valueOf(tick);
+                    int labelWidth = fm.stringWidth(label);
+                    int halfLabelWidth = labelWidth / 2;
+                    leftMostPixelIndex = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
                     g2.drawString(label, magnitude - halfLabelWidth, leftMostPixelIndex);
                 }
             } else { // y-axis
-                leftMostPixelIndex = breadth2 - halfLabelWidth - labelWidth;
+                // draw tick
                 g2.drawLine(breadth1, magnitude, breadth2, magnitude);
+                // draw labels
                 if (drawTickLabels) {
+                    String label = String.valueOf(tick);
+                    int labelWidth = fm.stringWidth(label);
+                    int halfLabelWidth = labelWidth / 2;
+                    leftMostPixelIndex = breadth2 - halfLabelWidth - labelWidth;
                     int baselinePixelIndex = magnitude + halfLabelWidth;
                     g2.drawString(label, leftMostPixelIndex, baselinePixelIndex);
                 }
@@ -220,7 +236,7 @@ public final class GraphTools {
         }
     }
 
-    private static void drawDoubleTicks(
+    private static void drawDoubleGridFeatures(
             int borderCenter,
             int tickPosNaught,
             double delta,
@@ -243,21 +259,26 @@ public final class GraphTools {
             int magnitude = (int) (delta * i++ + tickPosNaught);
             int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
             int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
-            String label = doubleToString(doubleTick);
+
             FontMetrics fm = g2.getFontMetrics();
             int fmAscent = fm.getAscent();
-            int labelWidth = fm.stringWidth(label);
-            int halfLabelWidth = labelWidth / 2;
+
             if (delta > 0) { // x-axis
-                int breadthStringPixelo = breadth1 + (fmAscent / 3) + fmAscent;
                 g2.drawLine(magnitude, breadth1, magnitude, breadth2);
+                // draw labels
                 if (drawTickLabels) {
+                    int breadthStringPixelo = breadth1 + (fmAscent / 3) + fmAscent;
+                    String label = doubleToString(doubleTick);
+                    int halfLabelWidth = fm.stringWidth(label) / 2;
                     g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
                 }
             } else { // y-axis
-                int centeredLabelPt = breadth2 / 2 - halfLabelWidth;
                 g2.drawLine(breadth1, magnitude, breadth2, magnitude);
+                //draw labels
                 if (drawTickLabels) {
+                    String label = doubleToString(doubleTick);
+                    int halfLabelWidth = fm.stringWidth(label) / 2;
+                    int centeredLabelPt = breadth2 / 2 - halfLabelWidth;
                     g2.drawString(label, centeredLabelPt, magnitude + fmAscent / 2);
                 }
             }

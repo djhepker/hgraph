@@ -81,7 +81,7 @@ public abstract class Graph extends JPanel {
      * @param showGrid True if lines are shown, false otherwise
      * @return this instance for method chaining
      */
-    public Graph setShowGridlines(boolean showGrid) {
+    public Graph setShowGridLines(boolean showGrid) {
         this.showGrid = showGrid;
         return this;
     }
@@ -91,7 +91,7 @@ public abstract class Graph extends JPanel {
      *
      * @return True if gridlines shown, false otherwise
      */
-    public boolean isShowingGridlines() {
+    public boolean isShowingGridLines() {
         return showGrid;
     }
 

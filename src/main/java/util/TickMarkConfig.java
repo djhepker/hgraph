@@ -28,7 +28,7 @@ public final class TickMarkConfig {
     @Getter
     private Color tickColor;
 
-    private double[] xTicksDouble;
+    private double[] xTicksDouble; // TODO replace tick[] with String[]
     private double[] yTicksDouble;
     private int[] xTicksInt;
     private int[] yTicksInt;
