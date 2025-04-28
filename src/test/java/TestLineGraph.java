@@ -152,7 +152,7 @@ class TestLineGraph {
 
     @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
     @Test
-    void testCroppedGraphWithGrid() throws InterruptedException {
+    void testCroppedIntGraphWithGrid() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
         TickMarkConfig config = new TickMarkConfig()
