@@ -11,14 +11,12 @@ import java.awt.Color;
  * Supports both X and Y axis customization, including visibility, color, length, font, and label count.
  */
 @AllArgsConstructor
-public final class TickMarkConfig {
+public final class DrawConfig {
 
     @Getter
     private boolean showYTicks;
-
     @Getter
     private boolean showXTicks;
-
     @Getter
     private boolean doublePrecision;
 
@@ -27,6 +25,10 @@ public final class TickMarkConfig {
 
     @Getter
     private Color tickColor;
+    @Getter
+    private Color gridColor;
+    @Getter
+    private Color borderColor;
 
     private double[] xTicksDouble; // TODO replace tick[] with String[]
     private double[] yTicksDouble;
@@ -43,7 +45,7 @@ public final class TickMarkConfig {
     /**
      * Default configuration with all settings enabled and standard styling.
      */
-    public TickMarkConfig() {
+    public DrawConfig() {
         this.showYTicks = true;
         this.showXTicks = true;
         this.doublePrecision = false;
@@ -63,7 +65,7 @@ public final class TickMarkConfig {
      * @param doublePrecision Value to set doublePrecision to.
      * @return This config instance for chaining
      */
-    public TickMarkConfig setDoublePrecision(boolean doublePrecision) {
+    public DrawConfig setDoublePrecision(boolean doublePrecision) {
         if (doublePrecision != this.doublePrecision) {
             this.doublePrecision = doublePrecision;
             if (doublePrecision) {
@@ -86,7 +88,7 @@ public final class TickMarkConfig {
      * @param show true to show Y-axis ticks, false to hide
      * @return This config instance for chaining
      */
-    public TickMarkConfig showYTicks(boolean show) {
+    public DrawConfig showYTicks(boolean show) {
         this.showYTicks = show;
         return this;
     }
@@ -96,7 +98,7 @@ public final class TickMarkConfig {
      * @param show true to show X-axis ticks, false to hide
      * @return This config instance for chaining
      */
-    public TickMarkConfig showXTicks(boolean show) {
+    public DrawConfig showXTicks(boolean show) {
         this.showXTicks = show;
         return this;
     }
@@ -132,7 +134,7 @@ public final class TickMarkConfig {
      * @param tickLength Length in pixels
      * @return This config instance for chaining
      */
-    public TickMarkConfig tickLength(int tickLength) {
+    public DrawConfig tickLength(int tickLength) {
         this.tickLength = tickLength;
         return this;
     }
@@ -146,8 +148,36 @@ public final class TickMarkConfig {
      * @param tickColor the color to use for tick marks and labels
      * @return this config instance for method chaining
      */
-    public TickMarkConfig setTickColor(Color tickColor) {
+    public DrawConfig setTickColor(Color tickColor) {
         this.tickColor = tickColor;
+        return this;
+    }
+
+    /**
+     * Sets the color used to draw gridlines.
+     * <p>
+     * Enables fluent configuration by returning the same {@code TickMarkConfig} instance.
+     * </p>
+     *
+     * @param gridColorArg This will be the set color of gridlines when shown on the graph.
+     * @return this config instance for method chaining
+     */
+    public DrawConfig setGridColor(Color gridColorArg) {
+        this.gridColor = gridColorArg;
+        return this;
+    }
+
+    /**
+     * Sets the color of the graph's border.
+     * <p>
+     * Enables fluent configuration by returning the same {@code TickMarkConfig} instance.
+     * </p>
+     *
+     * @param borderColorArg This will be the set color of the border surrounding the graph's data.
+     * @return this config instance for method chaining
+     */
+    public DrawConfig setBorderColor(Color borderColorArg) {
+        this.borderColor = borderColorArg;
         return this;
     }
 
@@ -158,7 +188,7 @@ public final class TickMarkConfig {
      * @param xTicks array of X-axis values
      * @return this config instance
      */
-    public TickMarkConfig setXTickValues(double[] xTicks) {
+    public DrawConfig setXTickValues(double[] xTicks) {
         this.xTicksDouble = xTicks;
         this.xTicksInt = null;
         return this;
@@ -171,7 +201,7 @@ public final class TickMarkConfig {
      * @param yTicks array of Y-axis values
      * @return this config instance
      */
-    public TickMarkConfig setYTickValues(double[] yTicks) {
+    public DrawConfig setYTickValues(double[] yTicks) {
         this.yTicksDouble = yTicks;
         this.yTicksInt = null;
         return this;
@@ -187,7 +217,7 @@ public final class TickMarkConfig {
      * @param xTicks array of integer X-axis values
      * @return this config instance
      */
-    public TickMarkConfig setXTickValues(int[] xTicks) {
+    public DrawConfig setXTickValues(int[] xTicks) {
         this.xTicksInt = xTicks;
         this.xTicksDouble = null;
         return this;
@@ -203,7 +233,7 @@ public final class TickMarkConfig {
      * @param yTicks array of integer Y-axis values
      * @return this config instance
      */
-    public TickMarkConfig setYTickValues(int[] yTicks) {
+    public DrawConfig setYTickValues(int[] yTicks) {
         this.yTicksInt = yTicks;
         this.yTicksDouble = null;
         return this;
@@ -338,7 +368,7 @@ public final class TickMarkConfig {
      * @param tickColor Color object
      * @return This config instance for chaining
      */
-    public TickMarkConfig tickColor(Color tickColor) {
+    public DrawConfig tickColor(Color tickColor) {
         this.tickColor = tickColor;
         return this;
     }

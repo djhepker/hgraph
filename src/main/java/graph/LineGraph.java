@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
-import util.TickMarkConfig;
+import util.DrawConfig;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -59,7 +59,7 @@ public final class LineGraph extends Graph {
      *
      * @param config TickMarkConfig to configure axis ticks
      */
-    public LineGraph(TickMarkConfig config) {
+    public LineGraph(DrawConfig config) {
         this();
         this.tickConfig = config;
     }
@@ -70,7 +70,7 @@ public final class LineGraph extends Graph {
      * @param config TickMarkConfig to configure axis ticks
      * @param initialData Collection of Point2D.Double points to initialize graph data
      */
-    public LineGraph(TickMarkConfig config, Collection<Point2D.Double> initialData) {
+    public LineGraph(DrawConfig config, Collection<Point2D.Double> initialData) {
         this(config);
         this.addAll(initialData);
     }

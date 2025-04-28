@@ -2,7 +2,7 @@ import graph.LineGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import util.TickMarkConfig;
+import util.DrawConfig;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -57,7 +57,7 @@ class TestLineGraph {
 
     @Test
     void testTickMarkConfigTicks() {
-        TickMarkConfig config = new TickMarkConfig();
+        DrawConfig config = new DrawConfig();
         config.setXTickValues(new int[]{1, 2, 3});
         config.setYTickValues(new int[]{10, 20, 30});
 
@@ -75,7 +75,7 @@ class TestLineGraph {
     @Test
     void testCreatingFrameIntTicks() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        TickMarkConfig config = new TickMarkConfig()
+        DrawConfig config = new DrawConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6});
         graph.setTickConfig(config);
@@ -101,7 +101,7 @@ class TestLineGraph {
     void testCropGraphToDataVisualInt() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
-        TickMarkConfig config = new TickMarkConfig()
+        DrawConfig config = new DrawConfig()
                 .setDoublePrecision(false)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
@@ -128,7 +128,7 @@ class TestLineGraph {
     void testCropGraphToDataVisualDouble() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
-        TickMarkConfig config = new TickMarkConfig()
+        DrawConfig config = new DrawConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setDoublePrecision(true);
@@ -155,7 +155,7 @@ class TestLineGraph {
     void testCroppedIntGraphWithGrid() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
-        TickMarkConfig config = new TickMarkConfig()
+        DrawConfig config = new DrawConfig()
                 .setDoublePrecision(false)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});

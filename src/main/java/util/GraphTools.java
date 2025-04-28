@@ -104,7 +104,7 @@ public final class GraphTools {
      * @param graph       Contains the context parameters we will be drawing
      */
     public static void drawTicks(Graphics2D g2, Graph graph) {
-        TickMarkConfig config = graph.getTickConfig();
+        DrawConfig config = graph.getTickConfig();
         g2.setColor(config.getTickColor());
         g2.setFont(graph.getFont());
 
@@ -115,7 +115,7 @@ public final class GraphTools {
         }
     }
 
-    private static void drawIntFeatures(Graph graph, TickMarkConfig config, Graphics2D g2) {
+    private static void drawIntFeatures(Graph graph, DrawConfig config, Graphics2D g2) {
         int[] xTicks = config.getIntXTicks();
         int[] yTicks = config.getIntYTicks();
         if (xTicks.length == 0 || yTicks.length == 0) {
@@ -165,16 +165,14 @@ public final class GraphTools {
         }
     }
 
-    private static void drawDoubleFeatures(Graph graph, TickMarkConfig config, Graphics2D g2) {
+    private static void drawDoubleFeatures(Graph graph, DrawConfig config, Graphics2D g2) {
         double[] xTicks = config.getDoubleXTicks();
         double[] yTicks = config.getDoubleYTicks();
         if (xTicks.length == 0 || yTicks.length == 0) {
             return;
         }
         boolean drawTickLabels = graph.isShowingTickLabels();
-        boolean drawGrid = graph.isShowingGridLines();
         int height = graph.getHeight();
-        int width = graph.getWidth();
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
         double deltaX = config.getDeltaX();
@@ -184,18 +182,22 @@ public final class GraphTools {
         int breadth1 = heightDeltaMargin + halfTickLength;
         int breadth2 = heightDeltaMargin - halfTickLength;
 
-        double magnitudeComponentX = deltaX / margin;
-        double magnitudeComponentY = deltaY / heightDeltaMargin; // TODO: test these
-
         int maxLength = Math.max(xTicks.length, yTicks.length);
         for (int i = 0; i < maxLength; ++i) {
-            // draw tick x
-            int magnitudeX = (int) (deltaX * i) + margin; // (d / m) * i = answer ?
-            g2.drawLine(magnitudeX, breadth1, magnitudeX, breadth2);
+            if (graph.isShowingGridLines()) {
+                int lineMagnitudeX = graph.getWidth() - margin;
+                int lineMagnitudeY = graph.getHeight() - margin;
 
-            // draw tick y
-            int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin; // (d / m) * i = answer ?
-            g2.drawLine(margin - halfTickLength, magnitudeY, margin + halfTickLength, magnitudeY);
+
+            } else {
+                // draw tick x
+                int magnitudeX = (int) (deltaX * i) + margin;
+                g2.drawLine(magnitudeX, breadth1, magnitudeX, breadth2);
+
+                // draw tick y
+                int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
+                g2.drawLine(margin - halfTickLength, magnitudeY, margin + halfTickLength, magnitudeY);
+            }
 
             // labels
             if (drawTickLabels) {

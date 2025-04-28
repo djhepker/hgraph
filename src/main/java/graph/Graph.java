@@ -1,7 +1,7 @@
 package graph;
 
 import lombok.Getter;
-import util.TickMarkConfig;
+import util.DrawConfig;
 import util.GraphTools;
 
 import javax.swing.JPanel;
@@ -18,7 +18,7 @@ import java.awt.RenderingHints;
  */
 public abstract class Graph extends JPanel {
     @Getter
-    protected TickMarkConfig tickConfig;
+    protected DrawConfig tickConfig;
     @Getter
     protected Color backgroundColor;
     @Getter
@@ -50,7 +50,7 @@ public abstract class Graph extends JPanel {
         this.yMinVal = xMinVal;
         this.xMaxVal = -xMinVal;
         this.yMaxVal = -yMinVal;
-        this.tickConfig = new TickMarkConfig();
+        this.tickConfig = new DrawConfig();
         this.marginSize = 32;
         this.borderColor = Color.WHITE;
         this.showGraphTickMarks = true;
@@ -174,7 +174,7 @@ public abstract class Graph extends JPanel {
      * @param config configuration for tick marks
      * @return this instance for method chaining
      */
-    public Graph setTickConfig(TickMarkConfig config) {
+    public Graph setTickConfig(DrawConfig config) {
         this.tickConfig = config;
         return this;
     }
