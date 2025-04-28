@@ -121,7 +121,6 @@ public final class GraphTools {
         if (xTicks.length == 0 || yTicks.length == 0) {
             return;
         }
-
         boolean drawTickLabels = graph.isShowingTickLabels();
         boolean drawGrid = graph.isShowingGridLines();
         int height = graph.getHeight();
@@ -131,18 +130,21 @@ public final class GraphTools {
         double deltaX = config.getDeltaX();
         double deltaY = config.getDeltaY();
 
+        int heightDeltaMargin = height - margin;
+        int breadth1 = heightDeltaMargin + halfTickLength;
+        int breadth2 = heightDeltaMargin - halfTickLength;
+
         int maxLength = Math.max(xTicks.length, yTicks.length);
         for (int i = 0; i < maxLength; ++i) {
-            int heightDeltaMargin = height - margin;
-            int magnitudeX = (int) (deltaX * i) + margin;
-            int breadth1 = heightDeltaMargin + halfTickLength;
-            int breadth2 = heightDeltaMargin - halfTickLength;
             // draw tick x
+            int magnitudeX = (int) (deltaX * i) + margin;
             g2.drawLine(magnitudeX, breadth1, magnitudeX, breadth2);
+
             // draw tick y
             int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
             g2.drawLine(margin - halfTickLength, magnitudeY, margin + halfTickLength, magnitudeY);
 
+            // labels
             if (drawTickLabels) {
                 FontMetrics fm = g2.getFontMetrics();
                 if (yTicks.length > i) {
@@ -178,20 +180,24 @@ public final class GraphTools {
         double deltaX = config.getDeltaX();
         double deltaY = config.getDeltaY();
 
+        int heightDeltaMargin = height - margin;
+        int breadth1 = heightDeltaMargin + halfTickLength;
+        int breadth2 = heightDeltaMargin - halfTickLength;
+
+        double magnitudeComponentX = deltaX / margin;
+        double magnitudeComponentY = deltaY / heightDeltaMargin; // TODO: test these
+
         int maxLength = Math.max(xTicks.length, yTicks.length);
         for (int i = 0; i < maxLength; ++i) {
-            int heightDeltaMargin = height - margin;
-            int magnitudeX = (int) (deltaX * i) + margin;
-            int breadth1 = heightDeltaMargin + halfTickLength;
-            int breadth2 = heightDeltaMargin - halfTickLength;
-
             // draw tick x
+            int magnitudeX = (int) (deltaX * i) + margin; // (d / m) * i = answer ?
             g2.drawLine(magnitudeX, breadth1, magnitudeX, breadth2);
 
             // draw tick y
-            int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
+            int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin; // (d / m) * i = answer ?
             g2.drawLine(margin - halfTickLength, magnitudeY, margin + halfTickLength, magnitudeY);
 
+            // labels
             if (drawTickLabels) {
                 FontMetrics fm = g2.getFontMetrics();
                 if (yTicks.length > i) {
