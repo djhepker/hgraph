@@ -260,8 +260,7 @@ public final class DrawConfig {
     /**
      * Gets the active X-axis tick values as a {@code double[]} array.
      * <p>
-     * If {@code doublePrecision} is enabled, returns {@code xTicksDouble}, or an empty array if null.
-     * Otherwise, converts {@code xTicksInt} to {@code double[]} or returns an empty array if null.
+     * If {@code doublePrecision} is enabled, returns {@code xTicksDouble}. Otherwise, returns null.
      * </p>
      *
      * @return the X-axis tick values as {@code double[]}
@@ -269,18 +268,15 @@ public final class DrawConfig {
     public double[] getDoubleXTicks() {
         if (doublePrecision) {
             return xTicksDouble != null ? xTicksDouble : new double[0];
-        } else if (xTicksInt != null) {
-            return GraphTools.arrayIntToArrayDouble(xTicksInt);
         } else {
-            return new double[0];
+            return null;
         }
     }
 
     /**
      * Gets the active Y-axis tick values as a {@code double[]} array.
      * <p>
-     * If {@code doublePrecision} is enabled, returns {@code yTicksDouble}, or an empty array if null.
-     * Otherwise, converts {@code yTicksInt} to {@code double[]} or returns an empty array if null.
+     * If {@code doublePrecision} is enabled, returns {@code yTicksDouble}. Otherwise, returns null.
      * </p>
      *
      * @return the Y-axis tick values as {@code double[]}
@@ -288,48 +284,38 @@ public final class DrawConfig {
     public double[] getDoubleYTicks() {
         if (doublePrecision) {
             return yTicksDouble != null ? yTicksDouble : new double[0];
-        } else if (yTicksInt != null) {
-            return GraphTools.arrayIntToArrayDouble(yTicksInt);
         } else {
-            return new double[0];
+            return null;
         }
     }
 
     /**
      * Gets the active X-axis tick values as an {@code int[]} array.
      * <p>
-     * If {@code doublePrecision} is disabled, returns {@code xTicksInt}, or an empty array if null.
-     * Otherwise, converts {@code xTicksDouble} to {@code int[]} or returns an empty array if null.
-     * </p>
+     * If {@code doublePrecision} is disabled, returns {@code xTicksInt}. Otherwise, returns null.
      *
      * @return the X-axis tick values as {@code int[]}
      */
     public int[] getIntXTicks() {
         if (!doublePrecision) {
             return xTicksInt != null ? xTicksInt : new int[0];
-        } else if (xTicksDouble != null) {
-            return GraphTools.arrayDoubleToArrayInt(xTicksDouble);
         } else {
-            return new int[0];
+            return null;
         }
     }
 
     /**
      * Gets the active Y-axis tick values as an {@code int[]} array.
      * <p>
-     * If {@code doublePrecision} is disabled, returns {@code yTicksInt}, or an empty array if null.
-     * Otherwise, converts {@code yTicksDouble} to {@code int[]} or returns an empty array if null.
-     * </p>
+     * If {@code doublePrecision} is disabled, returns {@code yTicksInt}. Otherwise, returns null.
      *
      * @return the Y-axis tick values as {@code int[]}
      */
     public int[] getIntYTicks() {
         if (!doublePrecision) {
             return yTicksInt != null ? yTicksInt : new int[0];
-        } else if (yTicksDouble != null) {
-            return GraphTools.arrayDoubleToArrayInt(yTicksDouble);
         } else {
-            return new int[0];
+            return null;
         }
     }
 

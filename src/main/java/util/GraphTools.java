@@ -145,29 +145,48 @@ public final class GraphTools {
             xVertical2 = heightDeltaMargin - halfTickLength;
             yHorizontal2 = margin + halfTickLength;
         }
+
+        double[] xTicksDouble;
+        double[] yTicksDouble;
+        int[] xTicksInt;
+        int[] yTicksInt;
+        if (isDoublePrecision) {
+            xTicksDouble = config.getDoubleXTicks();
+            yTicksDouble = config.getDoubleYTicks();
+            xTicksInt = null;
+            yTicksInt = null;
+        } else {
+            xTicksDouble = null;
+            yTicksDouble = null;
+            xTicksInt = config.getIntXTicks();
+            yTicksInt = config.getIntYTicks();
+        }
+
+        FontMetrics fm = drawTickLabels ? g2.getFontMetrics() : null;
         int maxLength = Math.max(xTicksLength, yTicksLength);
+
         for (int i = 0; i < maxLength; ++i) {
-            // draw tick x
-            int magnitudeX = (int) (deltaX * i) + margin;
+            final int magnitudeX = (int) (deltaX * i) + margin;
+            final int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
+
+            // Draw ticks
             g2.drawLine(magnitudeX, xVertical1, magnitudeX, xVertical2);
-            // draw tick y
-            int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
             g2.drawLine(yHorizontal1, magnitudeY, yHorizontal2, magnitudeY);
-            // labels
+
+            // Draw Labels
             if (drawTickLabels) {
-                FontMetrics fm = g2.getFontMetrics();
                 if (xTicksLength > i) {
                     if (isDoublePrecision) {
-                        drawXTickLabel(config.getDoubleXTicks()[i], g2, fm, xVertical1, magnitudeX);
+                        drawXTickLabel(xTicksDouble[i], g2, fm, xVertical1, magnitudeX);
                     } else {
-                        drawXTickLabel(config.getIntXTicks()[i], g2, fm, xVertical1, magnitudeX);
+                        drawXTickLabel(xTicksInt[i], g2, fm, xVertical1, magnitudeX);
                     }
                 }
                 if (yTicksLength > i) {
                     if (isDoublePrecision) {
-                        drawYTickLabel(config.getDoubleYTicks()[i], g2, fm, yHorizontal1, magnitudeY);
+                        drawYTickLabel(yTicksDouble[i], g2, fm, yHorizontal1, magnitudeY);
                     } else {
-                        drawYTickLabel(config.getIntYTicks()[i], g2, fm, yHorizontal1, magnitudeY);
+                        drawYTickLabel(yTicksInt[i], g2, fm, yHorizontal1, magnitudeY);
                     }
                 }
             }
