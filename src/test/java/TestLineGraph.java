@@ -178,4 +178,34 @@ class TestLineGraph {
         });
         latch.await();
     }
+
+    @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
+    @Test
+    void testCroppedDoubleGraphWithGrid() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        DrawConfig config = new DrawConfig()
+                .setDoublePrecision(false)
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        graph.setTickConfig(config)
+                .cropGraphToData(true)
+                .setShowGridLines(true)
+                .setDoublePrecision(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
+            frame.setSize(1000, 800);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    latch.countDown();
+                }
+            });
+            frame.getContentPane().add(graph);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+        latch.await();
+    }
 }

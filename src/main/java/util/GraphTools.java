@@ -172,32 +172,36 @@ public final class GraphTools {
             return;
         }
         boolean drawTickLabels = graph.isShowingTickLabels();
-        int height = graph.getHeight();
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
         double deltaX = config.getDeltaX();
         double deltaY = config.getDeltaY();
 
-        int heightDeltaMargin = height - margin;
+        int heightDeltaMargin = graph.getHeight() - margin;
         int breadth1 = heightDeltaMargin + halfTickLength;
-        int breadth2 = heightDeltaMargin - halfTickLength;
+        int breadth2;
+
+        int yHoriz1 = margin - halfTickLength;
+        int yHoriz2;
+
+        if (graph.isShowingGridLines()) {
+            breadth2 = margin;
+            yHoriz2 = graph.getWidth() - margin;
+        } else {
+            breadth2 = heightDeltaMargin - halfTickLength;
+            yHoriz2 = margin + halfTickLength;
+        }
 
         int maxLength = Math.max(xTicks.length, yTicks.length);
         for (int i = 0; i < maxLength; ++i) {
-            if (graph.isShowingGridLines()) {
-                int lineMagnitudeX = graph.getWidth() - margin;
-                int lineMagnitudeY = graph.getHeight() - margin;
 
+            // draw tick x
+            int magnitudeX = (int) (deltaX * i) + margin;
+            g2.drawLine(magnitudeX, breadth1, magnitudeX, breadth2);
 
-            } else {
-                // draw tick x
-                int magnitudeX = (int) (deltaX * i) + margin;
-                g2.drawLine(magnitudeX, breadth1, magnitudeX, breadth2);
-
-                // draw tick y
-                int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
-                g2.drawLine(margin - halfTickLength, magnitudeY, margin + halfTickLength, magnitudeY);
-            }
+            // draw tick y
+            int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
+            g2.drawLine(yHoriz1, magnitudeY, yHoriz2, magnitudeY);
 
             // labels
             if (drawTickLabels) {
@@ -205,7 +209,7 @@ public final class GraphTools {
                 if (yTicks.length > i) {
                     String yLabel = String.format("%.2f", yTicks[i]);
                     int yLabelWidth = fm.stringWidth(yLabel);
-                    int yLabelX = margin - halfTickLength - yLabelWidth - 4;
+                    int yLabelX = yHoriz1 - yLabelWidth - 4;
                     int yLabelY = magnitudeY + (fm.getAscent() / 2);
                     g2.drawString(yLabel, yLabelX, yLabelY);
                 }
