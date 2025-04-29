@@ -174,6 +174,9 @@ public final class GraphTools {
         }
     }
 
+    /**
+     * Draws a Y-axis tick label for an integer value.
+     */
     private static void drawYTickLabel(int tick, Graphics2D g2, FontMetrics fm, int yHorizontal1, int magnitudeY) {
         String yLabel = String.valueOf(tick);
         int yLabelWidth = fm.stringWidth(yLabel);
@@ -182,6 +185,9 @@ public final class GraphTools {
         g2.drawString(yLabel, yLabelHorizPos, yLabelVerticalPos);
     }
 
+    /**
+     * Draws a X-axis tick label for a double value.
+     */
     private static void drawYTickLabel(double tick, Graphics2D g2, FontMetrics fm, int yHorizontal1, int magnitudeY) {
         String yLabel = String.format("%.2f", tick);
         int yLabelWidth = fm.stringWidth(yLabel);
@@ -190,6 +196,9 @@ public final class GraphTools {
         g2.drawString(yLabel, yLabelHorizPos, yLabelVerticalPos);
     }
 
+    /**
+     * Draws an X-axis tick label for an integer value.
+     */
     private static void drawXTickLabel(int tick, Graphics2D g2, FontMetrics fm, int xVertical1, int magnitudeX) {
         String xLabel = String.valueOf(tick);
         int xLabelWidth = fm.stringWidth(xLabel);
@@ -198,6 +207,9 @@ public final class GraphTools {
         g2.drawString(xLabel, xLabelHorizPos, xLabelVerticalPos);
     }
 
+    /**
+     * Draws an X-axis tick label for a double value.
+     */
     private static void drawXTickLabel(double tick, Graphics2D g2, FontMetrics fm, int xVertical1, int magnitudeX) {
         String xLabel = String.format("%.2f", tick);
         int xLabelWidth = fm.stringWidth(xLabel);
