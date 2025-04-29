@@ -240,6 +240,24 @@ public final class DrawConfig {
     }
 
     /**
+     * Retrieves the length of the x container
+     *
+     * @return int representing [].length
+     */
+    public int getXArraySize() {
+        return doublePrecision ? xTicksDouble.length : xTicksInt.length;
+    }
+
+    /**
+     * Retrieves the length of the y container
+     *
+     * @return int representing [].length
+     */
+    public int getYArraySize() {
+        return doublePrecision ? yTicksDouble.length : yTicksInt.length;
+    }
+
+    /**
      * Gets the active X-axis tick values as a {@code double[]} array.
      * <p>
      * If {@code doublePrecision} is enabled, returns {@code xTicksDouble}, or an empty array if null.
