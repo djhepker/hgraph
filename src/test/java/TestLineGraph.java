@@ -78,7 +78,7 @@ class TestLineGraph {
         DrawConfig config = new DrawConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6});
-        graph.setTickConfig(config);
+        graph.setDrawConfig(config);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Int Ticks");
             frame.setSize(1000, 800);
@@ -105,7 +105,7 @@ class TestLineGraph {
                 .setDoublePrecision(false)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        graph.setTickConfig(config).cropGraphToData(true);
+        graph.setDrawConfig(config).cropGraphToData(true);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
             frame.setSize(1000, 800);
@@ -132,7 +132,7 @@ class TestLineGraph {
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setDoublePrecision(true);
-        graph.setTickConfig(config).cropGraphToData(true);
+        graph.setDrawConfig(config).cropGraphToData(true);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
             frame.setSize(1000, 800);
@@ -159,7 +159,7 @@ class TestLineGraph {
                 .setDoublePrecision(false)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        graph.setTickConfig(config)
+        graph.setDrawConfig(config)
                 .cropGraphToData(true)
                 .setShowGridLines(true);
         SwingUtilities.invokeLater(() -> {
@@ -188,7 +188,7 @@ class TestLineGraph {
                 .setDoublePrecision(true)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        graph.setTickConfig(config)
+        graph.setDrawConfig(config)
                 .cropGraphToData(true)
                 .setShowGridLines(true);
         SwingUtilities.invokeLater(() -> {

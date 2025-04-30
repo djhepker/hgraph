@@ -18,7 +18,7 @@ import java.awt.RenderingHints;
  */
 public abstract class Graph extends JPanel {
     @Getter
-    protected DrawConfig tickConfig;
+    protected DrawConfig drawConfig;
     @Getter
     protected Color backgroundColor;
     @Getter
@@ -36,7 +36,7 @@ public abstract class Graph extends JPanel {
     @Getter
     protected double yMaxVal;
 
-    protected boolean showGrid; // TODO LOGIC FOR GRID SHOWING
+    protected boolean showGrid;
     protected boolean cropGraphToData;
     protected boolean showMarginBorder;
     protected boolean showGraphTickMarks;
@@ -50,7 +50,7 @@ public abstract class Graph extends JPanel {
         this.yMinVal = xMinVal;
         this.xMaxVal = -xMinVal;
         this.yMaxVal = -yMinVal;
-        this.tickConfig = new DrawConfig();
+        this.drawConfig = new DrawConfig();
         this.marginSize = 32;
         this.borderColor = Color.WHITE;
         this.showGraphTickMarks = true;
@@ -174,8 +174,9 @@ public abstract class Graph extends JPanel {
      * @param config configuration for tick marks
      * @return this instance for method chaining
      */
-    public Graph setTickConfig(DrawConfig config) {
-        this.tickConfig = config;
+    public Graph setDrawConfig(DrawConfig config) {
+        this.drawConfig = config;
+        updateTickParameters();
         return this;
     }
 
@@ -228,7 +229,7 @@ public abstract class Graph extends JPanel {
      * @return this instance for method chaining
      */
     public Graph setDoublePrecision(boolean doublePrecision) {
-        this.tickConfig.setDoublePrecision(doublePrecision);
+        this.drawConfig.setDoublePrecision(doublePrecision);
         updateTickParameters();
         return this;
     }
@@ -259,13 +260,13 @@ public abstract class Graph extends JPanel {
             visibleRangeX = Math.max(1e-10, xMaxVal - xMinVal);
             visibleRangeY = Math.max(1e-10, yMaxVal - yMinVal);
         } else { // If it isn't cropped, we simply set the distance between ticks to be height / numticks
-            visibleRangeX = tickConfig.getIntXTicks().length - 1;
-            visibleRangeY = tickConfig.getIntYTicks().length - 1;
+            visibleRangeX = drawConfig.getIntXTicks().length - 1;
+            visibleRangeY = drawConfig.getIntYTicks().length - 1;
         }
         double newDeltaX = (double) graphWidth / visibleRangeX;
         double newDeltaY = (double) graphHeight / visibleRangeY;
-        tickConfig.setDeltaX(newDeltaX);
-        tickConfig.setDeltaY(newDeltaY);
+        drawConfig.setDeltaX(newDeltaX);
+        drawConfig.setDeltaY(newDeltaY);
         repaint();
     }
 
@@ -276,7 +277,7 @@ public abstract class Graph extends JPanel {
      * @param fm FontMetrics used to verify size against graph parameters
      */
     protected void verifyMarginToLabelScale(FontMetrics fm) {
-        int halfTickLength = (int) (tickConfig.getTickLength() * 0.5);
+        int halfTickLength = (int) (drawConfig.getTickLength() * 0.5);
         // Width check (for x-axis labels)
         int labelWidth = fm.stringWidth(GraphTools.doubleToString(Math.max(Math.abs(xMaxVal), Math.abs(yMaxVal))));
         int widthRequirement = (labelWidth * 4 + 2) / 3 + halfTickLength;
@@ -287,6 +288,18 @@ public abstract class Graph extends JPanel {
         if (Math.abs(requiredMargin - marginSize) > 1) { // 1 pixel threshold for safety
             this.marginSize = requiredMargin;
         }
+    }
+
+    protected void drawTickLabel(Graphics2D g2, String str, int x, int y) {
+
+    }
+
+    protected void drawTickLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
+
+    }
+
+    protected void drawGridLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
+
     }
 
     /**

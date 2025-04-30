@@ -104,7 +104,7 @@ public final class GraphTools {
      * @param graph       Contains the context parameters we will be drawing
      */
     public static void drawTicks(Graphics2D g2, Graph graph) {
-        DrawConfig config = graph.getTickConfig();
+        DrawConfig config = graph.getDrawConfig();
         g2.setColor(config.getTickColor());
         g2.setFont(graph.getFont());
 

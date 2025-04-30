@@ -61,7 +61,7 @@ public final class LineGraph extends Graph {
      */
     public LineGraph(DrawConfig config) {
         this();
-        this.tickConfig = config;
+        this.drawConfig = config;
     }
 
     /**
@@ -142,7 +142,7 @@ public final class LineGraph extends Graph {
      * @param xAxis the array of integer values to use for X-axis tick marks
      */
     public void setXAxis(int[] xAxis) {
-        tickConfig.setXTickValues(xAxis);
+        drawConfig.setXTickValues(xAxis);
     }
 
     /**
@@ -154,7 +154,7 @@ public final class LineGraph extends Graph {
      * @param xAxis the array of double values to use for X-axis tick marks
      */
     public void setXAxis(double[] xAxis) {
-        tickConfig.setXTickValues(xAxis);
+        drawConfig.setXTickValues(xAxis);
     }
 
     /**
@@ -166,7 +166,7 @@ public final class LineGraph extends Graph {
      * @param yAxis the array of integer values to use for Y-axis tick marks
      */
     public void setYAxis(int[] yAxis) {
-        tickConfig.setYTickValues(yAxis);
+        drawConfig.setYTickValues(yAxis);
     }
 
     /**
@@ -178,7 +178,7 @@ public final class LineGraph extends Graph {
      * @param yAxis the array of double values to use for Y-axis tick marks
      */
     public void setYAxis(double[] yAxis) {
-        tickConfig.setYTickValues(yAxis);
+        drawConfig.setYTickValues(yAxis);
     }
 
     /**
@@ -242,11 +242,11 @@ public final class LineGraph extends Graph {
             int x;
             int y;
             if (cropGraphToData) {
-                x = (int) (marginSize + ((point.getX() - xMinVal) * tickConfig.getDeltaX()));
-                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * tickConfig.getDeltaY())));
+                x = (int) (marginSize + ((point.getX() - xMinVal) * drawConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * drawConfig.getDeltaY())));
             } else {
-                x = (int) (marginSize + (point.getX() * tickConfig.getDeltaX()));
-                y = (int) (getHeight() - (marginSize + (point.getY() * tickConfig.getDeltaY())));
+                x = (int) (marginSize + (point.getX() * drawConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + (point.getY() * drawConfig.getDeltaY())));
             }
             if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);
