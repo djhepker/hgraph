@@ -182,60 +182,66 @@ public final class DrawConfig {
     }
 
     /**
-     * Specifies the exact X-values to draw tick marks at.
-     * If this is set, tickCount is ignored for the X-axis.
+     * Sets the ticks which are displayed on the X-axis. If graph is in double precision, will modify the double[] to
+     * an int[] for setting.
      *
-     * @param xTicks array of X-axis values
+     * @param xTicks array of integer X-axis values
      * @return this config instance
      */
     public DrawConfig setXTickValues(double[] xTicks) {
-        this.xTicksDouble = xTicks;
-        this.xTicksInt = null;
+        if (doublePrecision) {
+            this.xTicksDouble = xTicks;
+        } else {
+            this.xTicksInt = GraphTools.arrayDoubleToArrayInt(xTicks);
+        }
         return this;
     }
 
     /**
-     * Specifies the exact Y-values to draw tick marks at.
-     * If this is set, tickCount is ignored for the Y-axis.
+     * Sets the ticks which are displayed on the Y-axis. If graph is in double precision, will modify the double[] to
+     * an int[] for setting.
      *
-     * @param yTicks array of Y-axis values
+     * @param yTicks array of integer Y-axis values
      * @return this config instance
      */
     public DrawConfig setYTickValues(double[] yTicks) {
-        this.yTicksDouble = yTicks;
-        this.yTicksInt = null;
+        if (doublePrecision) {
+            this.yTicksDouble = yTicks;
+        } else {
+            this.yTicksInt = GraphTools.arrayDoubleToArrayInt(yTicks);
+        }
         return this;
     }
 
     /**
-     * Specifies the exact X-values to draw tick marks at using integer values.
-     * <p>
-     * If this is set, tickCount is ignored for the X-axis.
-     * Also nullifies any previously set double-based X-tick values.
-     * </p>
+     * Sets the ticks which are displayed on the X-axis. If graph is in double precision, will modify the int[] to
+     * a double[] for setting.
      *
      * @param xTicks array of integer X-axis values
      * @return this config instance
      */
     public DrawConfig setXTickValues(int[] xTicks) {
-        this.xTicksInt = xTicks;
-        this.xTicksDouble = null;
+        if (doublePrecision) {
+            this.xTicksDouble = GraphTools.arrayIntToArrayDouble(xTicks);
+        } else {
+            this.xTicksInt = xTicks;
+        }
         return this;
     }
 
     /**
-     * Specifies the exact Y-values to draw tick marks at using integer values.
-     * <p>
-     * If this is set, tickCount is ignored for the Y-axis.
-     * Also nullifies any previously set double-based Y-tick values.
-     * </p>
+     * Sets the ticks which are displayed on the Y-axis. If graph is in double precision, will modify the int[] to
+     * a double[] for setting.
      *
      * @param yTicks array of integer Y-axis values
      * @return this config instance
      */
     public DrawConfig setYTickValues(int[] yTicks) {
-        this.yTicksInt = yTicks;
-        this.yTicksDouble = null;
+        if (doublePrecision) {
+            this.yTicksDouble = GraphTools.arrayIntToArrayDouble(yTicks);
+        } else {
+            this.yTicksInt = yTicks;
+        }
         return this;
     }
 
@@ -292,30 +298,38 @@ public final class DrawConfig {
     /**
      * Gets the active X-axis tick values as an {@code int[]} array.
      * <p>
-     * If {@code doublePrecision} is disabled, returns {@code xTicksInt}. Otherwise, returns null.
+     * If {@code doublePrecision} is disabled, returns {@code xTicksInt}, or an empty array if null.
+     * Otherwise, converts {@code xTicksDouble} to {@code int[]} or returns an empty array if null.
+     * </p>
      *
      * @return the X-axis tick values as {@code int[]}
      */
     public int[] getIntXTicks() {
         if (!doublePrecision) {
             return xTicksInt != null ? xTicksInt : new int[0];
+        } else if (xTicksDouble != null) {
+            return GraphTools.arrayDoubleToArrayInt(xTicksDouble);
         } else {
-            return null;
+            return new int[0];
         }
     }
 
     /**
      * Gets the active Y-axis tick values as an {@code int[]} array.
      * <p>
-     * If {@code doublePrecision} is disabled, returns {@code yTicksInt}. Otherwise, returns null.
+     * If {@code doublePrecision} is disabled, returns {@code yTicksInt}, or an empty array if null.
+     * Otherwise, converts {@code yTicksDouble} to {@code int[]} or returns an empty array if null.
+     * </p>
      *
      * @return the Y-axis tick values as {@code int[]}
      */
     public int[] getIntYTicks() {
         if (!doublePrecision) {
             return yTicksInt != null ? yTicksInt : new int[0];
+        } else if (yTicksDouble != null) {
+            return GraphTools.arrayDoubleToArrayInt(yTicksDouble);
         } else {
-            return null;
+            return new int[0];
         }
     }
 
