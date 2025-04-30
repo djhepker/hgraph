@@ -12,11 +12,15 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+import static graph.Graph.GraphState.*;
+
 /**
  * Base abstract class for graphs, extending JPanel.
  * Holds reusable graph configuration and rendering logic.
  */
 public abstract class Graph extends JPanel {
+    private GraphState graphState;
+
     @Getter
     protected DrawConfig drawConfig;
     @Getter
@@ -46,6 +50,7 @@ public abstract class Graph extends JPanel {
      * Protected constructor prevents instantiation outside of this package when not explicitly extending.
      */
     protected Graph() {
+        this.graphState = NEUTRAL;
         this.xMinVal = Double.POSITIVE_INFINITY;
         this.yMinVal = xMinVal;
         this.xMaxVal = -xMinVal;
@@ -166,7 +171,6 @@ public abstract class Graph extends JPanel {
     public boolean isShowingTickLabels() {
         return showTickLabels;
     }
-
 
     /**
      * Sets the TickMarkConfig used for tick rendering.
@@ -290,16 +294,54 @@ public abstract class Graph extends JPanel {
         }
     }
 
-    protected void drawTickLabel(Graphics2D g2, String str, int x, int y) {
-
+    /**
+     * Helper ensures Label is drawn with correct settings.
+     *
+     * @param g2 Obtained from repaint().
+     * @param str Label being drawn.
+     * @param x Beginning x coordinate of the drawn.
+     * @param y Top portion of the String being drawn.
+     */
+    public void drawTickLabel(Graphics2D g2, String str, int x, int y) {
+        if (graphState != DRAW_LABELS) {
+            g2.setColor(drawConfig.getTickLabelColor());
+            graphState = DRAW_LABELS;
+        }
+        g2.drawString(str, x, y);
     }
 
-    protected void drawTickLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
-
+    /**
+     * Draws a tick line with the correct configurations
+     *
+     * @param g2 Obtained from repaint().
+     * @param x1 Beginning x coordinate of our line.
+     * @param y1 Beginning y coordinate of our line.
+     * @param x2 Ending x coordinate of our line.
+     * @param y2 Ending y coordinate of our line.
+     */
+    public void drawTickLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
+        if (graphState != DRAW_TICKS) {
+            g2.setColor(drawConfig.getTickColor());
+            graphState = DRAW_TICKS;
+        }
+        g2.drawLine(x1, y1, x2, y2);
     }
 
-    protected void drawGridLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
-
+    /**
+     * Draws a single grid line across the graph.
+     *
+     * @param g2 Obtained from repaint().
+     * @param x1 Beginning x coordinate of our line.
+     * @param y1 Beginning y coordinate of our line.
+     * @param x2 Ending x coordinate of our line.
+     * @param y2 Ending y coordinate of our line.
+     */
+    public void drawGridLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
+        if (graphState != DRAW_GRID) {
+            g2.setColor(drawConfig.getGridColor());
+            graphState = DRAW_GRID;
+        }
+        g2.drawLine(x1, y1, x2, y2);
     }
 
     /**
@@ -332,6 +374,7 @@ public abstract class Graph extends JPanel {
             GraphTools.drawMargin(g2, this);
         }
         paintGraphData(g2);
+        graphState = NEUTRAL;
     }
 
     /**
@@ -345,4 +388,11 @@ public abstract class Graph extends JPanel {
      * @param g2     The Graphics2D context configured with antialiasing
      */
     protected abstract void paintGraphData(Graphics2D g2);
+
+    protected enum GraphState {
+        NEUTRAL,
+        DRAW_GRID,
+        DRAW_TICKS,
+        DRAW_LABELS,
+    }
 }

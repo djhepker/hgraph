@@ -29,6 +29,8 @@ public final class DrawConfig {
     private Color gridColor;
     @Getter
     private Color borderColor;
+    @Getter
+    private Color tickLabelColor;
 
     private double[] xTicksDouble; // TODO replace tick[] with String[]
     private double[] yTicksDouble;
@@ -51,6 +53,8 @@ public final class DrawConfig {
         this.doublePrecision = false;
         this.tickLength = 10;
         this.tickColor = Color.GREEN;
+        this.tickLabelColor = tickColor;
+        this.gridColor = new Color(255, 255, 255, 64);
         this.xTicksInt = new int[0];
         this.yTicksInt = new int[0];
         this.xTicksDouble = null;

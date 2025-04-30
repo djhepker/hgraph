@@ -105,7 +105,6 @@ public final class GraphTools {
      */
     public static void drawTicks(Graphics2D g2, Graph graph) {
         DrawConfig config = graph.getDrawConfig();
-        g2.setColor(config.getTickColor());
         g2.setFont(graph.getFont());
 
         if (config.isDoublePrecision()) {
@@ -128,23 +127,16 @@ public final class GraphTools {
         }
         boolean isDoublePrecision = config.isDoublePrecision();
         boolean drawTickLabels = graph.isShowingTickLabels();
+        boolean isShowingGridLines = graph.isShowingGridLines();
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
         int heightDeltaMargin = graph.getHeight() - margin;
         double deltaX = config.getDeltaX();
         double deltaY = config.getDeltaY();
         int xVertical1 = heightDeltaMargin + halfTickLength;
-        int xVertical2;
+        int xVertical2 = heightDeltaMargin - halfTickLength;
         int yHorizontal1 = margin - halfTickLength;
-        int yHorizontal2;
-
-        if (graph.isShowingGridLines()) {
-            xVertical2 = margin;
-            yHorizontal2 = graph.getWidth() - margin;
-        } else {
-            xVertical2 = heightDeltaMargin - halfTickLength;
-            yHorizontal2 = margin + halfTickLength;
-        }
+        int yHorizontal2 = margin + halfTickLength;
 
         double[] xTicksDouble;
         double[] yTicksDouble;
@@ -170,8 +162,13 @@ public final class GraphTools {
             final int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
 
             // Draw ticks
-            g2.drawLine(magnitudeX, xVertical1, magnitudeX, xVertical2);
-            g2.drawLine(yHorizontal1, magnitudeY, yHorizontal2, magnitudeY);
+            graph.drawTickLine(g2, magnitudeX, xVertical1, magnitudeX, xVertical2);
+            graph.drawTickLine(g2, yHorizontal1, magnitudeY, yHorizontal2, magnitudeY);
+
+            if (isShowingGridLines) {
+                graph.drawGridLine(g2, magnitudeX, margin, magnitudeX, xVertical1);
+                graph.drawGridLine(g2, yHorizontal2, magnitudeY, graph.getWidth() - margin, magnitudeY);
+            }
 
             // Draw Labels
             if (drawTickLabels) {
@@ -234,6 +231,6 @@ public final class GraphTools {
         int xLabelWidth = fm.stringWidth(xLabel);
         int xLabelHorizPos = magnitudeX - (xLabelWidth / 2);
         int xLabelVerticalPos = xVertical1 + fm.getAscent() + 4;
-        g2.drawString(xLabel, xLabelHorizPos, xLabelVerticalPos);
+        g2.drawString(xLabel, xLabelHorizPos, xLabelVerticalPos); // TODO add the helper methods for drawing
     }
 }
