@@ -6,11 +6,13 @@ import java.awt.BasicStroke;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D.Double;
+import java.text.DecimalFormat;
 
 /**
  * Utility class providing common rendering functions for graphs such as margin drawing and tick mark rendering.
  */
 public final class GraphTools {
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     // Prevent instantiation
     private GraphTools() {}
@@ -24,7 +26,7 @@ public final class GraphTools {
      * @param intArray the array of integers to convert
      * @return a new array of doubles containing the same values as the input array
      */
-    public static double[] intArrayToDoubleArray(int[] intArray) {
+    public static double[] arrayIntToArrayDouble(int[] intArray) {
         if (intArray == null || intArray.length == 0) {
             return new double[0];
         }
@@ -45,16 +47,25 @@ public final class GraphTools {
      * @param doubleArr the array of doubles to convert
      * @return a new array of integers containing the truncated values of the input
      */
-    public static int[] doubleArrayToIntArray(double[] doubleArr) {
+    public static int[] arrayDoubleToArrayInt(double[] doubleArr) {
         if (doubleArr == null || doubleArr.length == 0) {
             return new int[0];
         }
-
         int[] intArray = new int[doubleArr.length];
         for (int i = 0; i < doubleArr.length; i++) {
             intArray[i] = (int) doubleArr[i];
         }
         return intArray;
+    }
+
+    /**
+     * Returns a String representation of a double with two decimal places.
+     *
+     * @param d The double being converted.
+     * @return String representation of d rounded to two decimal places.
+     */
+    public static String doubleToString(double d) {
+        return DECIMAL_FORMAT.format(d);
     }
 
     /**
@@ -76,171 +87,154 @@ public final class GraphTools {
      * @param graph The graph we are drawing in effect. Holds relevant parameter variables
      */
     public static void drawMargin(Graphics2D g2, Graph graph) {
-        int graphWidth = graph.getWidth();
-        int graphHeight = graph.getHeight();
         int margin = graph.getMarginSize();
-
-        g2.setColor(graph.getBackgroundColor());
-        g2.fillRect(0, 0, graphWidth, graphHeight);
-
-        int borderW = graphWidth - margin * 2;
-        int borderH = graphHeight - margin * 2;
+        int borderW = graph.getWidth() - margin * 2;
+        int borderH = graph.getHeight() - margin * 2;
 
         g2.setColor(graph.getBorderColor());
-        g2.setStroke(new BasicStroke(2f));
+        g2.setStroke(new BasicStroke(1f));
         g2.drawRect(margin, margin, borderW, borderH);
     }
 
     /**
-     * Draws tick marks and labels along the Y- and (optionally) X-axes based on provided tick configuration.
+     * Draws tick marks and labels along the Y- and (optionally) X-axes based on given tick configuration.
      * Tick mark spacing is derived from the value range of the provided dataset.
      *
      * @param g2          The graphics context to draw with
      * @param graph       Contains the context parameters we will be drawing
      */
     public static void drawTicks(Graphics2D g2, Graph graph) {
-        TickMarkConfig config = graph.getTickConfig();
-        g2.setColor(config.getTickColor());
-        g2.setFont(config.getTickFont());
+        DrawConfig config = graph.getDrawConfig();
+        g2.setFont(graph.getFont());
 
-        boolean doublePrecision = config.isDoublePrecision();
-        boolean isCroppedToData = graph.isCroppedToData();
-        int height = graph.getHeight();
+        if (config.isDoublePrecision()) {
+            drawGraphFeatures(graph, config, g2);
+        }
+    }
+
+    /**
+     * Helper method which evaluates the graphstate and draws accordingly.
+     *
+     * @param graph Object containing the type of graph and its parameters
+     * @param config Object containing the drawing parameters which will be applied.
+     * @param g2 Graphics pen which is sent from repaint.
+     */
+    private static void drawGraphFeatures(Graph graph, DrawConfig config, Graphics2D g2) {
+        int xTicksLength = config.getXArraySize();
+        int yTicksLength = config.getYArraySize();
+        if (xTicksLength == 0 || yTicksLength == 0) {
+            return;
+        }
+        boolean isDoublePrecision = config.isDoublePrecision();
+        boolean drawTickLabels = graph.isShowingTickLabels();
+        boolean isShowingGridLines = graph.isShowingGridLines();
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
+        int heightDeltaMargin = graph.getHeight() - margin;
+        double deltaX = config.getDeltaX();
+        double deltaY = config.getDeltaY();
+        int xVertical1 = heightDeltaMargin + halfTickLength;
+        int xVertical2 = heightDeltaMargin - halfTickLength;
+        int yHorizontal1 = margin - halfTickLength;
+        int yHorizontal2 = margin + halfTickLength;
 
-        if (config.isShowXTicks()) {
-            if (doublePrecision) {
-                drawDoubleTicks(
-                        height,
-                        margin,
-                        config.getDeltaX(),
-                        halfTickLength,
-                        graph.getScrollXo(),
-                        graph.getScrollXf(),
-                        isCroppedToData,
-                        config.getDoubleXTicks(),
-                        g2
-                );
-            } else {
-                drawIntTicks(
-                        height,
-                        margin,
-                        config.getDeltaX(),
-                        halfTickLength,
-                        graph.getScrollXo(),
-                        graph.getScrollXf(),
-                        isCroppedToData,
-                        config.getIntXTicks(),
-                        g2
-                );
-            }
+        double[] xTicksDouble;
+        double[] yTicksDouble;
+        int[] xTicksInt;
+        int[] yTicksInt;
+        if (isDoublePrecision) {
+            xTicksDouble = config.getDoubleXTicks();
+            yTicksDouble = config.getDoubleYTicks();
+            xTicksInt = null;
+            yTicksInt = null;
+        } else {
+            xTicksDouble = null;
+            yTicksDouble = null;
+            xTicksInt = config.getIntXTicks();
+            yTicksInt = config.getIntYTicks();
         }
-        if (config.isShowYTicks()) {
-            if (doublePrecision) {
-                drawDoubleTicks(
-                        margin + height - margin,
-                        height - margin,
-                        -config.getDeltaY(),
-                        halfTickLength,
-                        graph.getScrollYo(),
-                        graph.getScrollYf(),
-                        isCroppedToData,
-                        config.getDoubleYTicks(),
-                        g2
-                );
-            } else {
-                drawIntTicks(
-                        margin + height - margin,
-                        height - margin,
-                        -config.getDeltaY(),
-                        halfTickLength,
-                        graph.getScrollYo(),
-                        graph.getScrollYf(),
-                        isCroppedToData,
-                        config.getIntYTicks(),
-                        g2
-                );
+
+        int maxLength = Math.max(xTicksLength, yTicksLength);
+
+        for (int i = 0; i < maxLength; ++i) {
+            final int magnitudeX = (int) (deltaX * i) + margin;
+            final int magnitudeY = (int) (-deltaY * i) + heightDeltaMargin;
+
+            // Draw ticks
+            graph.drawTickLine(g2, magnitudeX, xVertical1, magnitudeX, xVertical2);
+            graph.drawTickLine(g2, yHorizontal1, magnitudeY, yHorizontal2, magnitudeY);
+
+            if (isShowingGridLines) {
+                graph.drawGridLine(g2, magnitudeX, margin, magnitudeX, xVertical1);
+                graph.drawGridLine(g2, yHorizontal2, magnitudeY, graph.getWidth() - margin, magnitudeY);
+            }
+
+            // Draw Labels
+            if (drawTickLabels) {
+                if (xTicksLength > i) {
+                    if (isDoublePrecision) {
+                        drawXTickLabel(graph, xTicksDouble[i], g2, xVertical1, magnitudeX);
+                    } else {
+                        drawXTickLabel(graph, xTicksInt[i], g2, xVertical1, magnitudeX);
+                    }
+                }
+                if (yTicksLength > i) {
+                    if (isDoublePrecision) {
+                        drawYTickLabel(graph, yTicksDouble[i], g2, yHorizontal1, magnitudeY);
+                    } else {
+                        drawYTickLabel(graph, yTicksInt[i], g2, yHorizontal1, magnitudeY);
+                    }
+                }
             }
         }
     }
 
-    private static void drawIntTicks(
-            int borderCenter,
-            int tickPosNaught,
-            double delta,
-            int halfTickLineLength,
-            double oScroll,
-            double fScroll,
-            boolean croppedToData,
-            int[] ticks,
-            Graphics2D g2
-    ) {
-        if (ticks.length == 0) {
-            return;
-        }
-        int i = 0;
-        int debugTimer = 0;
-        for (int tick : ticks) { // TODO figure out why there is extra iteration in cropped mode
-            if (croppedToData && (tick < oScroll || tick >= oScroll + fScroll)) {
-                continue;
-            }
-            int magnitude = (int) (delta * i++ + tickPosNaught);
-            int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
-            int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
-            String label = String.valueOf(tick);
-            FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(label);
-            int halfLabelWidth = labelWidth / 2;
-            int breadthStringPixelo;
-            if (delta > 0) { // x-axis
-                breadthStringPixelo = breadth1 + (fm.getAscent() / 3) + fm.getAscent();
-                g2.drawLine(magnitude, breadth1, magnitude, breadth2);
-                g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
-            } else { // y-axis
-                breadthStringPixelo = breadth2 - halfLabelWidth - labelWidth;
-                g2.drawLine(breadth1, magnitude, breadth2, magnitude);
-                g2.drawString(label, breadthStringPixelo, magnitude + halfLabelWidth);
-            }
-        }
+    /**
+     * Draws a Y-axis tick label for an integer value.
+     */
+    private static void drawYTickLabel(Graph graph, int tick, Graphics2D g2, int yHorizontal1, int magnitudeY) {
+        FontMetrics fm = g2.getFontMetrics();
+        String yLabel = String.valueOf(tick);
+        int yLabelWidth = fm.stringWidth(yLabel);
+        int yLabelHorizPos = yHorizontal1 - yLabelWidth - 4;
+        int yLabelVerticalPos = magnitudeY + (fm.getAscent() / 2);
+        graph.drawTickLabel(g2, yLabel, yLabelHorizPos, yLabelVerticalPos);
     }
 
-    private static void drawDoubleTicks(
-            int borderCenter,
-            int tickPosNaught,
-            double delta,
-            int halfTickLineLength,
-            double oScroll,
-            double fScroll,
-            boolean croppedToData,
-            double[] ticks,
-            Graphics2D g2
-    ) {
-        if (ticks.length == 0) {
-            return;
-        }
-        int i = 0;
-        for (double doubleTick : ticks) {
-            if (croppedToData && (doubleTick < oScroll || doubleTick >= oScroll + fScroll)) {
-                continue;
-            }
-            int magnitude = (int) (delta * i++ + tickPosNaught);
-            int breadth1 = borderCenter - tickPosNaught + halfTickLineLength;
-            int breadth2 = borderCenter - tickPosNaught - halfTickLineLength;
-            String label = String.format("%.2f", doubleTick);
-            FontMetrics fm = g2.getFontMetrics();
-            int fmAscent = fm.getAscent();
-            int labelWidth = fm.stringWidth(label);
-            int halfLabelWidth = labelWidth / 2;
-            if (delta > 0) { // x-axis
-                int breadthStringPixelo = breadth1 + (fmAscent / 3) + fmAscent;
-                g2.drawLine(magnitude, breadth1, magnitude, breadth2);
-                g2.drawString(label, magnitude - halfLabelWidth, breadthStringPixelo);
-            } else { // y-axis
-                int centeredLabelPt = breadth2 / 2 - halfLabelWidth;
-                g2.drawLine(breadth1, magnitude, breadth2, magnitude);
-                g2.drawString(label, centeredLabelPt, magnitude + fmAscent / 2);
-            }
-        }
+    /**
+     * Draws a X-axis tick label for a double value.
+     */
+    private static void drawYTickLabel(Graph graph, double tick, Graphics2D g2, int yHorizontal1, int magnitudeY) {
+        FontMetrics fm = g2.getFontMetrics();
+        String yLabel = String.format("%.2f", tick);
+        int yLabelWidth = fm.stringWidth(yLabel);
+        int yLabelHorizPos = yHorizontal1 - yLabelWidth - 4;
+        int yLabelVerticalPos = magnitudeY + (fm.getAscent() / 2);
+        graph.drawTickLabel(g2, yLabel, yLabelHorizPos, yLabelVerticalPos);
+    }
+
+    /**
+     * Draws an X-axis tick label for an integer value.
+     */
+    private static void drawXTickLabel(Graph graph, int tick, Graphics2D g2, int xVertical1, int magnitudeX) {
+        FontMetrics fm = g2.getFontMetrics();
+        String xLabel = String.valueOf(tick);
+        int xLabelWidth = fm.stringWidth(xLabel);
+        int xLabelHorizPos = magnitudeX - (xLabelWidth / 2);
+        int xLabelVerticalPos = xVertical1 + fm.getAscent() + 4;
+        graph.drawTickLabel(g2, xLabel, xLabelHorizPos, xLabelVerticalPos);
+    }
+
+    /**
+     * Draws an X-axis tick label for a double value.
+     */
+    private static void drawXTickLabel(Graph graph, double tick, Graphics2D g2, int xVertical1, int magnitudeX) {
+        FontMetrics fm = g2.getFontMetrics();
+        String xLabel = String.format("%.2f", tick);
+        int xLabelWidth = fm.stringWidth(xLabel);
+        int xLabelHorizPos = magnitudeX - (xLabelWidth / 2);
+        int xLabelVerticalPos = xVertical1 + fm.getAscent() + 4;
+        graph.drawTickLabel(g2, xLabel, xLabelHorizPos, xLabelVerticalPos);
+
     }
 }

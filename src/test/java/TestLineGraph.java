@@ -2,7 +2,7 @@ import graph.LineGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import util.TickMarkConfig;
+import util.DrawConfig;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -57,7 +57,7 @@ class TestLineGraph {
 
     @Test
     void testTickMarkConfigTicks() {
-        TickMarkConfig config = new TickMarkConfig();
+        DrawConfig config = new DrawConfig();
         config.setXTickValues(new int[]{1, 2, 3});
         config.setYTickValues(new int[]{10, 20, 30});
 
@@ -75,10 +75,10 @@ class TestLineGraph {
     @Test
     void testCreatingFrameIntTicks() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        TickMarkConfig config = new TickMarkConfig()
+        DrawConfig config = new DrawConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6});
-        graph.setTickConfig(config);
+        graph.setDrawConfig(config);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Int Ticks");
             frame.setSize(1000, 800);
@@ -101,11 +101,11 @@ class TestLineGraph {
     void testCropGraphToDataVisualInt() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
-        TickMarkConfig config = new TickMarkConfig()
+        DrawConfig config = new DrawConfig()
                 .setDoublePrecision(false)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        graph.setTickConfig(config).cropGraphToData(true);
+        graph.setDrawConfig(config).cropGraphToData(true);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
             frame.setSize(1000, 800);
@@ -128,11 +128,69 @@ class TestLineGraph {
     void testCropGraphToDataVisualDouble() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
-        TickMarkConfig config = new TickMarkConfig()
+        DrawConfig config = new DrawConfig()
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setDoublePrecision(true);
-        graph.setTickConfig(config).cropGraphToData(true);
+        graph.setDrawConfig(config).cropGraphToData(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
+            frame.setSize(1000, 800);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    latch.countDown();
+                }
+            });
+            frame.getContentPane().add(graph);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+        latch.await();
+    }
+
+    @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
+    @Test
+    void testCroppedIntGraphWithGrid() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        DrawConfig config = new DrawConfig()
+                .setDoublePrecision(false)
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        graph.setDrawConfig(config)
+                .cropGraphToData(true)
+                .setShowGridLines(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
+            frame.setSize(1000, 800);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    latch.countDown();
+                }
+            });
+            frame.getContentPane().add(graph);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+        latch.await();
+    }
+
+    @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
+    @Test
+    void testCroppedDoubleGraphWithGrid() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        DrawConfig config = new DrawConfig()
+                .setDoublePrecision(true)
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        graph.setDrawConfig(config)
+                .cropGraphToData(true)
+                .setShowGridLines(true);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
             frame.setSize(1000, 800);

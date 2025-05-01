@@ -5,21 +5,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.Color;
-import java.awt.Font;
 
 /**
  * Configuration object for controlling the appearance and behavior of axis tick marks in a LineGraph.
  * Supports both X and Y axis customization, including visibility, color, length, font, and label count.
  */
 @AllArgsConstructor
-public final class TickMarkConfig {
+public final class DrawConfig {
 
     @Getter
     private boolean showYTicks;
-
     @Getter
     private boolean showXTicks;
-
     @Getter
     private boolean doublePrecision;
 
@@ -29,9 +26,13 @@ public final class TickMarkConfig {
     @Getter
     private Color tickColor;
     @Getter
-    private Font tickFont;
+    private Color gridColor;
+    @Getter
+    private Color borderColor;
+    @Getter
+    private Color tickLabelColor;
 
-    private double[] xTicksDouble;
+    private double[] xTicksDouble; // TODO replace tick[] with String[]
     private double[] yTicksDouble;
     private int[] xTicksInt;
     private int[] yTicksInt;
@@ -46,17 +47,18 @@ public final class TickMarkConfig {
     /**
      * Default configuration with all settings enabled and standard styling.
      */
-    public TickMarkConfig() {
+    public DrawConfig() {
         this.showYTicks = true;
         this.showXTicks = true;
         this.doublePrecision = false;
         this.tickLength = 10;
         this.tickColor = Color.GREEN;
+        this.tickLabelColor = tickColor;
+        this.gridColor = new Color(255, 255, 255, 64);
         this.xTicksInt = new int[0];
         this.yTicksInt = new int[0];
         this.xTicksDouble = null;
         this.yTicksDouble = null;
-        this.tickFont = new Font("Arial", Font.PLAIN, 12);
         this.deltaX = 0.0;
         this.deltaY = 0.0;
     }
@@ -67,18 +69,18 @@ public final class TickMarkConfig {
      * @param doublePrecision Value to set doublePrecision to.
      * @return This config instance for chaining
      */
-    public TickMarkConfig setDoublePrecision(boolean doublePrecision) {
+    public DrawConfig setDoublePrecision(boolean doublePrecision) {
         if (doublePrecision != this.doublePrecision) {
             this.doublePrecision = doublePrecision;
             if (doublePrecision) {
-                this.xTicksDouble = GraphTools.intArrayToDoubleArray(xTicksInt);
+                this.xTicksDouble = GraphTools.arrayIntToArrayDouble(xTicksInt);
                 this.xTicksInt = null;
-                this.yTicksDouble = GraphTools.intArrayToDoubleArray(yTicksInt);
+                this.yTicksDouble = GraphTools.arrayIntToArrayDouble(yTicksInt);
                 this.yTicksInt = null;
             } else {
-                this.xTicksInt = GraphTools.doubleArrayToIntArray(xTicksDouble);
+                this.xTicksInt = GraphTools.arrayDoubleToArrayInt(xTicksDouble);
                 this.xTicksDouble = null;
-                this.yTicksInt = GraphTools.doubleArrayToIntArray(yTicksDouble);
+                this.yTicksInt = GraphTools.arrayDoubleToArrayInt(yTicksDouble);
                 this.yTicksDouble = null;
             }
         }
@@ -90,7 +92,7 @@ public final class TickMarkConfig {
      * @param show true to show Y-axis ticks, false to hide
      * @return This config instance for chaining
      */
-    public TickMarkConfig showYTicks(boolean show) {
+    public DrawConfig showYTicks(boolean show) {
         this.showYTicks = show;
         return this;
     }
@@ -100,7 +102,7 @@ public final class TickMarkConfig {
      * @param show true to show X-axis ticks, false to hide
      * @return This config instance for chaining
      */
-    public TickMarkConfig showXTicks(boolean show) {
+    public DrawConfig showXTicks(boolean show) {
         this.showXTicks = show;
         return this;
     }
@@ -136,7 +138,7 @@ public final class TickMarkConfig {
      * @param tickLength Length in pixels
      * @return This config instance for chaining
      */
-    public TickMarkConfig tickLength(int tickLength) {
+    public DrawConfig tickLength(int tickLength) {
         this.tickLength = tickLength;
         return this;
     }
@@ -150,74 +152,125 @@ public final class TickMarkConfig {
      * @param tickColor the color to use for tick marks and labels
      * @return this config instance for method chaining
      */
-    public TickMarkConfig setTickColor(Color tickColor) {
+    public DrawConfig setTickColor(Color tickColor) {
         this.tickColor = tickColor;
         return this;
     }
 
     /**
-     * Specifies the exact X-values to draw tick marks at.
-     * If this is set, tickCount is ignored for the X-axis.
-     *
-     * @param xTicks array of X-axis values
-     * @return this config instance
-     */
-    public TickMarkConfig setXTickValues(double[] xTicks) {
-        this.xTicksDouble = xTicks;
-        this.xTicksInt = null;
-        return this;
-    }
-
-    /**
-     * Specifies the exact Y-values to draw tick marks at.
-     * If this is set, tickCount is ignored for the Y-axis.
-     *
-     * @param yTicks array of Y-axis values
-     * @return this config instance
-     */
-    public TickMarkConfig setYTickValues(double[] yTicks) {
-        this.yTicksDouble = yTicks;
-        this.yTicksInt = null;
-        return this;
-    }
-
-    /**
-     * Specifies the exact X-values to draw tick marks at using integer values.
+     * Sets the color used to draw gridlines.
      * <p>
-     * If this is set, tickCount is ignored for the X-axis.
-     * Also nullifies any previously set double-based X-tick values.
+     * Enables fluent configuration by returning the same {@code TickMarkConfig} instance.
      * </p>
+     *
+     * @param gridColorArg This will be the set color of gridlines when shown on the graph.
+     * @return this config instance for method chaining
+     */
+    public DrawConfig setGridColor(Color gridColorArg) {
+        this.gridColor = gridColorArg;
+        return this;
+    }
+
+    /**
+     * Sets the color of the graph's border.
+     * <p>
+     * Enables fluent configuration by returning the same {@code TickMarkConfig} instance.
+     * </p>
+     *
+     * @param borderColorArg This will be the set color of the border surrounding the graph's data.
+     * @return this config instance for method chaining
+     */
+    public DrawConfig setBorderColor(Color borderColorArg) {
+        this.borderColor = borderColorArg;
+        return this;
+    }
+
+    /**
+     * Sets the ticks which are displayed on the X-axis. If graph is in double precision, will modify the double[] to
+     * an int[] for setting.
      *
      * @param xTicks array of integer X-axis values
      * @return this config instance
      */
-    public TickMarkConfig setXTickValues(int[] xTicks) {
-        this.xTicksInt = xTicks;
-        this.xTicksDouble = null;
+    public DrawConfig setXTickValues(double[] xTicks) {
+        if (doublePrecision) {
+            this.xTicksDouble = xTicks;
+        } else {
+            this.xTicksInt = GraphTools.arrayDoubleToArrayInt(xTicks);
+        }
         return this;
     }
 
     /**
-     * Specifies the exact Y-values to draw tick marks at using integer values.
-     * <p>
-     * If this is set, tickCount is ignored for the Y-axis.
-     * Also nullifies any previously set double-based Y-tick values.
-     * </p>
+     * Sets the ticks which are displayed on the Y-axis. If graph is in double precision, will modify the double[] to
+     * an int[] for setting.
      *
      * @param yTicks array of integer Y-axis values
      * @return this config instance
      */
-    public TickMarkConfig setYTickValues(int[] yTicks) {
-        this.yTicksInt = yTicks;
-        this.yTicksDouble = null;
+    public DrawConfig setYTickValues(double[] yTicks) {
+        if (doublePrecision) {
+            this.yTicksDouble = yTicks;
+        } else {
+            this.yTicksInt = GraphTools.arrayDoubleToArrayInt(yTicks);
+        }
         return this;
+    }
+
+    /**
+     * Sets the ticks which are displayed on the X-axis. If graph is in double precision, will modify the int[] to
+     * a double[] for setting.
+     *
+     * @param xTicks array of integer X-axis values
+     * @return this config instance
+     */
+    public DrawConfig setXTickValues(int[] xTicks) {
+        if (doublePrecision) {
+            this.xTicksDouble = GraphTools.arrayIntToArrayDouble(xTicks);
+        } else {
+            this.xTicksInt = xTicks;
+        }
+        return this;
+    }
+
+    /**
+     * Sets the ticks which are displayed on the Y-axis. If graph is in double precision, will modify the int[] to
+     * a double[] for setting.
+     *
+     * @param yTicks array of integer Y-axis values
+     * @return this config instance
+     */
+    public DrawConfig setYTickValues(int[] yTicks) {
+        if (doublePrecision) {
+            this.yTicksDouble = GraphTools.arrayIntToArrayDouble(yTicks);
+        } else {
+            this.yTicksInt = yTicks;
+        }
+        return this;
+    }
+
+    /**
+     * Retrieves the length of the x container
+     *
+     * @return int representing [].length
+     */
+    public int getXArraySize() {
+        return doublePrecision ? xTicksDouble.length : xTicksInt.length;
+    }
+
+    /**
+     * Retrieves the length of the y container
+     *
+     * @return int representing [].length
+     */
+    public int getYArraySize() {
+        return doublePrecision ? yTicksDouble.length : yTicksInt.length;
     }
 
     /**
      * Gets the active X-axis tick values as a {@code double[]} array.
      * <p>
-     * If {@code doublePrecision} is enabled, returns {@code xTicksDouble}, or an empty array if null.
-     * Otherwise, converts {@code xTicksInt} to {@code double[]} or returns an empty array if null.
+     * If {@code doublePrecision} is enabled, returns {@code xTicksDouble}. Otherwise, returns null.
      * </p>
      *
      * @return the X-axis tick values as {@code double[]}
@@ -225,18 +278,15 @@ public final class TickMarkConfig {
     public double[] getDoubleXTicks() {
         if (doublePrecision) {
             return xTicksDouble != null ? xTicksDouble : new double[0];
-        } else if (xTicksInt != null) {
-            return GraphTools.intArrayToDoubleArray(xTicksInt);
         } else {
-            return new double[0];
+            return null;
         }
     }
 
     /**
      * Gets the active Y-axis tick values as a {@code double[]} array.
      * <p>
-     * If {@code doublePrecision} is enabled, returns {@code yTicksDouble}, or an empty array if null.
-     * Otherwise, converts {@code yTicksInt} to {@code double[]} or returns an empty array if null.
+     * If {@code doublePrecision} is enabled, returns {@code yTicksDouble}. Otherwise, returns null.
      * </p>
      *
      * @return the Y-axis tick values as {@code double[]}
@@ -244,10 +294,8 @@ public final class TickMarkConfig {
     public double[] getDoubleYTicks() {
         if (doublePrecision) {
             return yTicksDouble != null ? yTicksDouble : new double[0];
-        } else if (yTicksInt != null) {
-            return GraphTools.intArrayToDoubleArray(yTicksInt);
         } else {
-            return new double[0];
+            return null;
         }
     }
 
@@ -264,7 +312,7 @@ public final class TickMarkConfig {
         if (!doublePrecision) {
             return xTicksInt != null ? xTicksInt : new int[0];
         } else if (xTicksDouble != null) {
-            return GraphTools.doubleArrayToIntArray(xTicksDouble);
+            return GraphTools.arrayDoubleToArrayInt(xTicksDouble);
         } else {
             return new int[0];
         }
@@ -283,7 +331,7 @@ public final class TickMarkConfig {
         if (!doublePrecision) {
             return yTicksInt != null ? yTicksInt : new int[0];
         } else if (yTicksDouble != null) {
-            return GraphTools.doubleArrayToIntArray(yTicksDouble);
+            return GraphTools.arrayDoubleToArrayInt(yTicksDouble);
         } else {
             return new int[0];
         }
@@ -342,18 +390,8 @@ public final class TickMarkConfig {
      * @param tickColor Color object
      * @return This config instance for chaining
      */
-    public TickMarkConfig tickColor(Color tickColor) {
+    public DrawConfig tickColor(Color tickColor) {
         this.tickColor = tickColor;
-        return this;
-    }
-
-    /**
-     * Sets the font used to render tick mark labels.
-     * @param tickFont Font object
-     * @return This config instance for chaining
-     */
-    public TickMarkConfig tickFont(Font tickFont) {
-        this.tickFont = tickFont;
         return this;
     }
 

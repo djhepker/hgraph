@@ -1,13 +1,11 @@
 package graph;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
-import util.TickMarkConfig;
+import util.DrawConfig;
 
-import javax.swing.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -20,33 +18,23 @@ import java.util.Collection;
  * Logic for creating a JPanel LineGraph
  */
 @Getter
-@AllArgsConstructor
 @RequiredArgsConstructor
 public final class LineGraph extends Graph {
     @Getter(AccessLevel.NONE)
-    private final CircularPointBuffer circularPointBuffer;
+    private final CircularPointBuffer dataBuffer;
 
-    private float lineThickness;
+    private Color edgeColor;
 
-    private Color lineColor;
-
-    private double minXValue;
-    private double maxXValue;
-    private double minYValue;
-    private double maxYValue;
+    private float edgeThickness;
 
     /**
      * Default constructor initializing default values and an empty data queue
      */
     public LineGraph() {
         super();
-        this.circularPointBuffer = new CircularPointBuffer(100);
-        this.lineThickness = 2.0f;
-        this.lineColor = Color.GREEN;
-        this.maxXValue = Double.NEGATIVE_INFINITY;
-        this.minXValue = -maxXValue;
-        this.maxYValue = maxXValue;
-        this.minYValue = -maxYValue;
+        this.dataBuffer = new CircularPointBuffer(100);
+        this.edgeThickness = 2.0f;
+        this.edgeColor = Color.GREEN;
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -71,9 +59,9 @@ public final class LineGraph extends Graph {
      *
      * @param config TickMarkConfig to configure axis ticks
      */
-    public LineGraph(TickMarkConfig config) {
+    public LineGraph(DrawConfig config) {
         this();
-        this.tickConfig = config;
+        this.drawConfig = config;
     }
 
     /**
@@ -82,7 +70,7 @@ public final class LineGraph extends Graph {
      * @param config TickMarkConfig to configure axis ticks
      * @param initialData Collection of Point2D.Double points to initialize graph data
      */
-    public LineGraph(TickMarkConfig config, Collection<Point2D.Double> initialData) {
+    public LineGraph(DrawConfig config, Collection<Point2D.Double> initialData) {
         this(config);
         this.addAll(initialData);
     }
@@ -110,19 +98,19 @@ public final class LineGraph extends Graph {
     public LineGraph insertData(Point2D.Double newData) {
         double xData = newData.getX();
         double yData = newData.getY();
-        if (yData > maxYValue) {
-            maxYValue = yData;
+        if (yData > yMaxVal) {
+            yMaxVal = yData;
         }
-        if (yData < minYValue) {
-            minYValue = yData;
+        if (yData < yMinVal) {
+            yMinVal = yData;
         }
-        if (xData > maxXValue) {
-            maxXValue = xData;
+        if (xData > xMaxVal) {
+            xMaxVal = xData;
         }
-        if (xData < minXValue) {
-            minXValue = xData;
+        if (xData < xMinVal) {
+            xMinVal = xData;
         }
-        circularPointBuffer.add(newData);
+        dataBuffer.add(newData);
         return this;
     }
 
@@ -142,7 +130,7 @@ public final class LineGraph extends Graph {
      * @return Size of queued data
      */
     public int getDataSize() {
-        return circularPointBuffer.size();
+        return dataBuffer.size();
     }
 
     /**
@@ -154,7 +142,7 @@ public final class LineGraph extends Graph {
      * @param xAxis the array of integer values to use for X-axis tick marks
      */
     public void setXAxis(int[] xAxis) {
-        tickConfig.setXTickValues(xAxis);
+        drawConfig.setXTickValues(xAxis);
     }
 
     /**
@@ -166,7 +154,7 @@ public final class LineGraph extends Graph {
      * @param xAxis the array of double values to use for X-axis tick marks
      */
     public void setXAxis(double[] xAxis) {
-        tickConfig.setXTickValues(xAxis);
+        drawConfig.setXTickValues(xAxis);
     }
 
     /**
@@ -178,7 +166,7 @@ public final class LineGraph extends Graph {
      * @param yAxis the array of integer values to use for Y-axis tick marks
      */
     public void setYAxis(int[] yAxis) {
-        tickConfig.setYTickValues(yAxis);
+        drawConfig.setYTickValues(yAxis);
     }
 
     /**
@@ -190,55 +178,41 @@ public final class LineGraph extends Graph {
      * @param yAxis the array of double values to use for Y-axis tick marks
      */
     public void setYAxis(double[] yAxis) {
-        tickConfig.setYTickValues(yAxis);
+        drawConfig.setYTickValues(yAxis);
     }
 
     /**
      * Sets the thickness of chart lines
-     * @param lineThickness Thickness of chart lines in pixels
+     * @param edgeThickness Thickness of chart lines in pixels
      * @return Instance of class for chain setting
      */
-    public LineGraph setLineThickness(float lineThickness) {
-        this.lineThickness = lineThickness;
+    public LineGraph setEdgeThickness(float edgeThickness) {
+        this.edgeThickness = edgeThickness;
         return this;
     }
 
     /**
      * Sets the color of the graph line
-     * @param lineColor Color for the data line
+     * @param edgeColor Color for the data line
      * @return Instance of class for chain setting
      */
-    public LineGraph setLineColor(Color lineColor) {
-        this.lineColor = lineColor;
+    public LineGraph setEdgeColor(Color edgeColor) {
+        this.edgeColor = edgeColor;
         return this;
     }
 
     /**
-     * Override function for graph cropping. Sets the scroll parameters appropriately for cropped data. Updates
-     * cropGraphToData to user input.
+     * Override function for graph cropping. Updates cropGraphToData setting
+     * and refreshes tick scaling based on current data bounds.
      *
      * @param cropGraphToData True if only relevant graph space is shown.
      * @return Instance of class for chain setting.
      */
     @Override
     public Graph cropGraphToData(boolean cropGraphToData) {
-        if (cropGraphToData) {
-            if (Double.isFinite(minXValue)
-                    && Double.isFinite(maxXValue)
-                    && Double.isFinite(minYValue)
-                    && Double.isFinite(maxYValue)) {
-                scrollXo = minXValue;
-                scrollYo = minYValue;
-                scrollXf = maxXValue;
-                scrollYf = maxYValue;
-            } else {
-                scrollXo = 0.0;
-                scrollYo = 0.0;
-                scrollXf = 10.0;
-                scrollYf = 10.0;
-            }
-        }
-        return super.cropGraphToData(cropGraphToData);
+        this.cropGraphToData = cropGraphToData;
+        updateTickParameters();
+        return this;
     }
 
     /**
@@ -253,26 +227,26 @@ public final class LineGraph extends Graph {
      */
     @Override
     protected void paintGraphData(Graphics2D g2) {
-        if (circularPointBuffer.isEmpty()) {
+        if (dataBuffer.isEmpty()) {
             return;
         }
 
-        g2.setStroke(new BasicStroke(lineThickness));
-        g2.setColor(lineColor);
+        g2.setStroke(new BasicStroke(edgeThickness));
+        g2.setColor(edgeColor);
 
         boolean postStart = false;
         int prevX = 0;
         int prevY = 0;
 
-        for (Point2D.Double point : circularPointBuffer) {
+        for (Point2D.Double point : dataBuffer) {
             int x;
             int y;
             if (cropGraphToData) {
-                x = (int) (marginSize + ((point.getX() - scrollXo) * tickConfig.getDeltaX()));
-                y = (int) (getHeight() - (marginSize + ((point.getY() - scrollYo) * tickConfig.getDeltaY())));
+                x = (int) (marginSize + ((point.getX() - xMinVal) * drawConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * drawConfig.getDeltaY())));
             } else {
-                x = (int) (marginSize + (point.getX() * tickConfig.getDeltaX()));
-                y = (int) (getHeight() - (marginSize + (point.getY() * tickConfig.getDeltaY())));
+                x = (int) (marginSize + (point.getX() * drawConfig.getDeltaX()));
+                y = (int) (getHeight() - (marginSize + (point.getY() * drawConfig.getDeltaY())));
             }
             if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);
