@@ -154,7 +154,6 @@ public final class GraphTools {
             yTicksInt = config.getIntYTicks();
         }
 
-        FontMetrics fm = drawTickLabels ? g2.getFontMetrics() : null;
         int maxLength = Math.max(xTicksLength, yTicksLength);
 
         for (int i = 0; i < maxLength; ++i) {
@@ -174,16 +173,16 @@ public final class GraphTools {
             if (drawTickLabels) {
                 if (xTicksLength > i) {
                     if (isDoublePrecision) {
-                        drawXTickLabel(xTicksDouble[i], g2, fm, xVertical1, magnitudeX);
+                        drawXTickLabel(graph, xTicksDouble[i], g2, xVertical1, magnitudeX);
                     } else {
-                        drawXTickLabel(xTicksInt[i], g2, fm, xVertical1, magnitudeX);
+                        drawXTickLabel(graph, xTicksInt[i], g2, xVertical1, magnitudeX);
                     }
                 }
                 if (yTicksLength > i) {
                     if (isDoublePrecision) {
-                        drawYTickLabel(yTicksDouble[i], g2, fm, yHorizontal1, magnitudeY);
+                        drawYTickLabel(graph, yTicksDouble[i], g2, yHorizontal1, magnitudeY);
                     } else {
-                        drawYTickLabel(yTicksInt[i], g2, fm, yHorizontal1, magnitudeY);
+                        drawYTickLabel(graph, yTicksInt[i], g2, yHorizontal1, magnitudeY);
                     }
                 }
             }
@@ -193,44 +192,49 @@ public final class GraphTools {
     /**
      * Draws a Y-axis tick label for an integer value.
      */
-    private static void drawYTickLabel(int tick, Graphics2D g2, FontMetrics fm, int yHorizontal1, int magnitudeY) {
+    private static void drawYTickLabel(Graph graph, int tick, Graphics2D g2, int yHorizontal1, int magnitudeY) {
+        FontMetrics fm = g2.getFontMetrics();
         String yLabel = String.valueOf(tick);
         int yLabelWidth = fm.stringWidth(yLabel);
         int yLabelHorizPos = yHorizontal1 - yLabelWidth - 4;
         int yLabelVerticalPos = magnitudeY + (fm.getAscent() / 2);
-        g2.drawString(yLabel, yLabelHorizPos, yLabelVerticalPos);
+        graph.drawTickLabel(g2, yLabel, yLabelHorizPos, yLabelVerticalPos);
     }
 
     /**
      * Draws a X-axis tick label for a double value.
      */
-    private static void drawYTickLabel(double tick, Graphics2D g2, FontMetrics fm, int yHorizontal1, int magnitudeY) {
+    private static void drawYTickLabel(Graph graph, double tick, Graphics2D g2, int yHorizontal1, int magnitudeY) {
+        FontMetrics fm = g2.getFontMetrics();
         String yLabel = String.format("%.2f", tick);
         int yLabelWidth = fm.stringWidth(yLabel);
         int yLabelHorizPos = yHorizontal1 - yLabelWidth - 4;
         int yLabelVerticalPos = magnitudeY + (fm.getAscent() / 2);
-        g2.drawString(yLabel, yLabelHorizPos, yLabelVerticalPos);
+        graph.drawTickLabel(g2, yLabel, yLabelHorizPos, yLabelVerticalPos);
     }
 
     /**
      * Draws an X-axis tick label for an integer value.
      */
-    private static void drawXTickLabel(int tick, Graphics2D g2, FontMetrics fm, int xVertical1, int magnitudeX) {
+    private static void drawXTickLabel(Graph graph, int tick, Graphics2D g2, int xVertical1, int magnitudeX) {
+        FontMetrics fm = g2.getFontMetrics();
         String xLabel = String.valueOf(tick);
         int xLabelWidth = fm.stringWidth(xLabel);
         int xLabelHorizPos = magnitudeX - (xLabelWidth / 2);
         int xLabelVerticalPos = xVertical1 + fm.getAscent() + 4;
-        g2.drawString(xLabel, xLabelHorizPos, xLabelVerticalPos);
+        graph.drawTickLabel(g2, xLabel, xLabelHorizPos, xLabelVerticalPos);
     }
 
     /**
      * Draws an X-axis tick label for a double value.
      */
-    private static void drawXTickLabel(double tick, Graphics2D g2, FontMetrics fm, int xVertical1, int magnitudeX) {
+    private static void drawXTickLabel(Graph graph, double tick, Graphics2D g2, int xVertical1, int magnitudeX) {
+        FontMetrics fm = g2.getFontMetrics();
         String xLabel = String.format("%.2f", tick);
         int xLabelWidth = fm.stringWidth(xLabel);
         int xLabelHorizPos = magnitudeX - (xLabelWidth / 2);
         int xLabelVerticalPos = xVertical1 + fm.getAscent() + 4;
-        g2.drawString(xLabel, xLabelHorizPos, xLabelVerticalPos); // TODO add the helper methods for drawing
+        graph.drawTickLabel(g2, xLabel, xLabelHorizPos, xLabelVerticalPos);
+
     }
 }
