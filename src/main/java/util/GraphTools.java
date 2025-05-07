@@ -131,8 +131,8 @@ public final class GraphTools {
         int margin = graph.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
         int heightDeltaMargin = graph.getHeight() - margin;
-        double deltaX = config.getDeltaX();
-        double deltaY = config.getDeltaY();
+        double deltaX = config.getxCoordinateObjectDelta();
+        double deltaY = config.getyCoordinateObjectDelta();
         int xVertical1 = heightDeltaMargin + halfTickLength;
         int xVertical2 = heightDeltaMargin - halfTickLength;
         int yHorizontal1 = margin - halfTickLength;

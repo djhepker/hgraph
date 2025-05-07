@@ -242,11 +242,11 @@ public final class LineGraph extends Graph {
             int x;
             int y;
             if (cropGraphToData) {
-                x = (int) (marginSize + ((point.getX() - xMinVal) * drawConfig.getDeltaX()));
-                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * drawConfig.getDeltaY())));
+                x = (int) (marginSize + ((point.getX() - xMinVal) * drawConfig.getxCoordinateObjectDelta()));
+                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * drawConfig.getyCoordinateObjectDelta())));
             } else {
-                x = (int) (marginSize + (point.getX() * drawConfig.getDeltaX()));
-                y = (int) (getHeight() - (marginSize + (point.getY() * drawConfig.getDeltaY())));
+                x = (int) (marginSize + (point.getX() * drawConfig.getxCoordinateObjectDelta()));
+                y = (int) (getHeight() - (marginSize + (point.getY() * drawConfig.getyCoordinateObjectDelta())));
             }
             if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);

@@ -13,36 +13,31 @@ import java.awt.Color;
 @AllArgsConstructor
 public final class DrawConfig {
 
-    @Getter
-    private boolean showYTicks;
-    @Getter
-    private boolean showXTicks;
-    @Getter
-    private boolean doublePrecision;
+    @Getter @Setter private Color backgroundColor;
+    @Getter @Setter private Color edgeColor;
+    @Getter private Color tickColor;
+    @Getter private Color gridColor;
+    @Getter private Color borderColor;
+    @Getter private Color tickLabelColor;
 
-    @Getter
-    private int tickLength;
+    @Getter @Setter private boolean showGrid;
+    @Getter @Setter private boolean showMarginBorder;
+    @Getter @Setter private boolean showGraphTickMarks;
+    @Getter @Setter private boolean showTickLabels;
+    @Getter private boolean showYTicks;
+    @Getter private boolean showXTicks;
+    @Getter private boolean doublePrecision;
 
-    @Getter
-    private Color tickColor;
-    @Getter
-    private Color gridColor;
-    @Getter
-    private Color borderColor;
-    @Getter
-    private Color tickLabelColor;
+    @Getter private int tickLength;
+    @Getter @Setter private int marginSize;
+    @Getter @Setter private double xCoordinateObjectDelta;
+    @Getter @Setter private double yCoordinateObjectDelta;
+    @Getter @Setter private float edgeThickness;
 
     private double[] xTicksDouble; // TODO replace tick[] with String[]
     private double[] yTicksDouble;
     private int[] xTicksInt;
     private int[] yTicksInt;
-
-    @Getter
-    @Setter
-    private double deltaX; // Horizontal pixel distance between two things
-    @Getter
-    @Setter
-    private double deltaY; // Vertical pixel distance between two things
 
     /**
      * Default configuration with all settings enabled and standard styling.
@@ -59,8 +54,8 @@ public final class DrawConfig {
         this.yTicksInt = new int[0];
         this.xTicksDouble = null;
         this.yTicksDouble = null;
-        this.deltaX = 0.0;
-        this.deltaY = 0.0;
+        this.xCoordinateObjectDelta = 0.0;
+        this.yCoordinateObjectDelta = 0.0;
     }
 
     /**

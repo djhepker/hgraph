@@ -269,8 +269,8 @@ public abstract class Graph extends JPanel {
         }
         double newDeltaX = (double) graphWidth / visibleRangeX;
         double newDeltaY = (double) graphHeight / visibleRangeY;
-        drawConfig.setDeltaX(newDeltaX);
-        drawConfig.setDeltaY(newDeltaY);
+        drawConfig.setxCoordinateObjectDelta(newDeltaX);
+        drawConfig.setyCoordinateObjectDelta(newDeltaY);
         repaint();
     }
 
