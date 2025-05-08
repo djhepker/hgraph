@@ -2,7 +2,6 @@ package graph;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import util.CircularPointBuffer;
 import util.DrawConfig;
 
@@ -16,47 +15,12 @@ import java.util.Collection;
  * Logic for creating a JPanel LineGraph
  */
 @Getter
-@RequiredArgsConstructor
 public final class LineGraph extends Graph {
-
     @Getter(AccessLevel.NONE) private final CircularPointBuffer dataBuffer;
 
     private Color edgeColor;
 
     private float edgeThickness;
-
-    /**
-     * Default constructor initializing default values and an empty data queue
-     */
-    public LineGraph() {
-        super();
-        dataBuffer = new CircularPointBuffer(100);
-        edgeThickness = 2.0f;
-        edgeColor = Color.GREEN;
-
-    }
-
-    /**
-     * Constructs a LineGraph with initial data points.
-     *
-     * @param initialData Collection of Point2D.Double points to initialize graph data
-     */
-    public LineGraph(Collection<Point2D.Double> initialData) {
-        this();
-        this.addAll(initialData);
-    }
-
-    /**
-     * Constructs a LineGraph with a custom TickMarkConfig.
-     *
-     * @param config TickMarkConfig to configure axis ticks
-     */
-    public LineGraph(DrawConfig config) {
-        this();
-        super.setDrawConfig(config);
-        this.edgeColor = config.getEdgeColor();
-        this.edgeThickness = config.getEdgeThickness();
-    }
 
     /**
      * Constructs a LineGraph with a custom TickMarkConfig and initial data points.
@@ -67,6 +31,39 @@ public final class LineGraph extends Graph {
     public LineGraph(DrawConfig config, Collection<Point2D.Double> initialData) {
         this(config);
         addAll(initialData);
+    }
+
+    /**
+     * Default constructor initializing default values and an empty data queue
+     */
+    public LineGraph() {
+        this(new DrawConfig());
+    }
+
+    /**
+     * Constructs a LineGraph with initial data points.
+     *
+     * @param initialData Collection of Point2D.Double points to initialize graph data
+     */
+    public LineGraph(Collection<Point2D.Double> initialData) {
+        this(new DrawConfig(), initialData);
+    }
+
+    /**
+     * Constructs a LineGraph with a custom DrawConfig.
+     *
+     * @param config Drawing configuration used when creating the user's display.
+     */
+    public LineGraph(DrawConfig config) {
+        super(config);
+
+        dataBuffer = new CircularPointBuffer(100);
+
+        edgeThickness = 2.0f;
+        edgeColor = Color.GREEN;
+
+        edgeColor = config.getEdgeColor();
+        edgeThickness = config.getEdgeThickness();
     }
 
     /**
@@ -111,11 +108,11 @@ public final class LineGraph extends Graph {
     /**
      * Adds data to be utilized by graph.
      *
-     * @param xData Data to be stored for use by Graph
-     * @param yData Data to be stored for use by Graph
+     * @param x Data to be stored for use by Graph
+     * @param y Data to be stored for use by Graph
      */
-    public LineGraph insertData(double xData, double yData) {
-        return this.insertData(new Point2D.Double(xData, yData));
+    public LineGraph insertData(double x, double y) {
+        return this.insertData(new Point2D.Double(x, y));
     }
 
     /**
@@ -204,7 +201,6 @@ public final class LineGraph extends Graph {
      */
     @Override
     public LineGraph cropData(boolean argCropToData) {
-        System.out.println("Called cropData in linegraph");
         cropGraphToData = argCropToData;
         updateTickParameters();
         return this;

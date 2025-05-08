@@ -33,9 +33,11 @@ public abstract class Graph extends JPanel {
     @Getter protected boolean cropGraphToData;
 
     /**
-     * Protected constructor prevents instantiation outside of this package when not explicitly extending.
+     * Parameterized constructor receiving DrawConfig to set.
+     *
+     * @param UIConfiguration The DrawConfig to use.
      */
-    protected Graph() {
+    protected Graph(DrawConfig UIConfiguration) {
         graphState = NEUTRAL;
 
         xMinVal = Double.POSITIVE_INFINITY;
@@ -43,7 +45,7 @@ public abstract class Graph extends JPanel {
         xMaxVal = -xMinVal;
         yMaxVal = -yMinVal;
 
-        drawConfig = new DrawConfig();
+        setDrawConfig(UIConfiguration);
 
         setBackground(drawConfig.getBackgroundColor());
         setFont(new Font("Arial", Font.PLAIN, 12));
@@ -52,8 +54,16 @@ public abstract class Graph extends JPanel {
             @Override
             public void componentResized(ComponentEvent e) {
                 updateTickParameters();
+                repaint();
             }
         });
+    }
+
+    /**
+     * Protected constructor prevents instantiation outside of this package when not explicitly extending.
+     */
+    protected Graph() {
+        this(new DrawConfig());
     }
 
     /**
@@ -65,9 +75,7 @@ public abstract class Graph extends JPanel {
         int graphHeight = getHeight() - 2 * marginSize;
         double visibleRangeX;
         double visibleRangeY;
-        System.out.println("About to test cropGraphToData");
         if (cropGraphToData) {
-            System.out.println("cropGraphToData");
             visibleRangeX = Math.max(1e-10, xMaxVal - xMinVal);
             visibleRangeY = Math.max(1e-10, yMaxVal - yMinVal);
         } else { // If it isn't cropped, we simply set the distance between ticks to be height / numticks
@@ -82,11 +90,11 @@ public abstract class Graph extends JPanel {
     /**
      * Sets whether the graph shows axis space outside visible data.
      *
-     * @param cropGraphToData True if only relevant graph space is shown.
+     * @param graphIsCropped True if only relevant graph space is shown.
      * @return this instance for method chaining
      */
-    public Graph cropData(boolean cropGraphToData) {
-        this.cropGraphToData = cropGraphToData;
+    public Graph cropData(boolean graphIsCropped) {
+        cropGraphToData = graphIsCropped;
         updateTickParameters();
         return this;
     }

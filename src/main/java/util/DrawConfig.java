@@ -88,7 +88,7 @@ public final class DrawConfig {
      * @param showingGraphTickMarks true to show tick marks, false to hide them.
      * @return this instance for method chaining.
      */
-    public DrawConfig setShowTickMarks(boolean showingGraphTickMarks) {
+    public DrawConfig showTicks(boolean showingGraphTickMarks) {
         this.showingGraphTickMarks = showingGraphTickMarks;
         return this;
     }
