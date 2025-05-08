@@ -18,15 +18,18 @@ public final class DrawConfig {
     @Getter private Color gridColor;
     @Getter private Color borderColor;
     @Getter private Color tickLabelColor;
+    @Getter private Color vertexColor;
 
     @Getter private boolean showingGrid;
     @Getter private boolean showingGraphTickMarks;
     @Getter private boolean showingTickLabels;
     @Getter private boolean showingMarginBorder;
     @Getter private boolean doublePrecision;
+    @Getter private boolean showVertices;
 
     @Getter private int tickLength;
     @Getter private int marginSize; // TODO build margin x and margin y
+    @Getter private int vertexRadius;
 
     @Getter @Setter private double xPixelsDelta;
     @Getter @Setter private double yPixelsDelta;
@@ -63,6 +66,39 @@ public final class DrawConfig {
         yTicksInt = new int[0];
         xTicksDouble = null;
         yTicksDouble = null;
+    }
+
+    /**
+     * Selects the color vertices will be drawn as.
+     *
+     * @param newVertexColor The color of each vertex as they are drawn when showVertices is set to true.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setVertexColor(Color newVertexColor) {
+        vertexColor = newVertexColor;
+        return this;
+    }
+
+    /**
+     * Mutates whether the graph vertices are drawn to the screen.
+     *
+     * @param drawVertices True if vertices are to be drawn, false otherwise,
+     * @return this instance for method chaining.
+     */
+    public DrawConfig showVertices(boolean drawVertices) {
+        showVertices = drawVertices;
+        return this;
+    }
+
+    /**
+     * Sets the radius, in pixels, the size of each vertex drawn.
+     *
+     * @param newVertexRadius int value of the radius of this vertex.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setVertexRadius(int newVertexRadius) {
+        vertexRadius = newVertexRadius;
+        return this;
     }
 
     /**
