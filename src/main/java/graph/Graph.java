@@ -1,6 +1,7 @@
 package graph;
 
 import lombok.Getter;
+import util.CircularPointBuffer;
 import util.DrawConfig;
 import util.GraphTools;
 
@@ -12,6 +13,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.Point2D;
+import java.util.Collection;
 
 import static graph.Graph.GraphState.*;
 
@@ -19,9 +22,11 @@ import static graph.Graph.GraphState.*;
  * Base abstract class for graphs, extending JPanel.
  * Holds reusable graph configuration and rendering logic.
  */
-public abstract class Graph extends JPanel {
+public abstract class Graph extends JPanel implements XYGraph {
 
     private GraphState graphState;
+
+    protected final CircularPointBuffer dataBuffer;
 
     @Getter protected DrawConfig drawConfig;
 
@@ -37,13 +42,15 @@ public abstract class Graph extends JPanel {
      *
      * @param UIConfiguration The DrawConfig to use.
      */
-    protected Graph(DrawConfig UIConfiguration) {
+    protected Graph(DrawConfig UIConfiguration, CircularPointBuffer newDataBuffer) {
         graphState = NEUTRAL;
 
         xMinVal = Double.POSITIVE_INFINITY;
         yMinVal = xMinVal;
         xMaxVal = -xMinVal;
         yMaxVal = -yMinVal;
+
+        dataBuffer = newDataBuffer;
 
         setDrawConfig(UIConfiguration);
 
@@ -60,10 +67,95 @@ public abstract class Graph extends JPanel {
     }
 
     /**
+     * Receives CircularPointBuffer and instantiates its own DrawConfig.
+     *
+     * @param newDataBuffer CircularPointBuffer to be used by this Graph.
+     */
+    protected Graph(CircularPointBuffer newDataBuffer) {
+        this(new DrawConfig(), newDataBuffer);
+    }
+
+    /**
+     * Receives DrawConfig but instantiates its own CircularPointBuffer.
+     *
+     * @param newDrawConfig The DrawConfig to be used by this Graph.
+     */
+    protected Graph(DrawConfig newDrawConfig) {
+        this(newDrawConfig, new CircularPointBuffer(100));
+    }
+
+    /**
      * Protected constructor prevents instantiation outside of this package when not explicitly extending.
      */
     protected Graph() {
-        this(new DrawConfig());
+        this(new DrawConfig(), new CircularPointBuffer(100));
+    }
+
+    /**
+     * Adds data to be utilized by graph.
+     *
+     * @param x Data to be stored for use by Graph
+     * @param y Data to be stored for use by Graph
+     */
+    public Graph insertData(double x, double y) {
+        return this.insertData(new Point2D.Double(x, y));
+    }
+
+    /**
+     * Getter for the size of dataPoint2Ds
+     *
+     * @return Size of queued data
+     */
+    public int getDataSize() {
+        return dataBuffer.size();
+    }
+
+    /**
+     * Method inserting graph vertex into buffer.
+     *
+     * @param newData Point2D.Double to be inserted into the graph.
+     * @return This LineGraph instance for method chaining
+     */
+    public Graph insertData(Point2D.Double newData) {
+        double xData = newData.getX();
+        double yData = newData.getY();
+        if (yData > yMaxVal) {
+            yMaxVal = yData;
+        }
+        if (yData < yMinVal) {
+            yMinVal = yData;
+        }
+        if (xData > xMaxVal) {
+            xMaxVal = xData;
+        }
+        if (xData < xMinVal) {
+            xMinVal = xData;
+        }
+        dataBuffer.add(newData);
+        return this;
+    }
+
+    /**
+     * Adds a dataset to the LineGraph from an Iterable of Point2D.Double objects.
+     * Each point's X and Y values are inserted into the internal CircularPointBuffer.
+     *
+     * @param dataIterable Iterable collection of Point2D.Double objects to be added
+     * @return This LineGraph instance for method chaining
+     */
+    public Graph addAll(Collection<Point2D.Double> dataIterable) {
+        for (Point2D.Double p : dataIterable) {
+            insertData(p);
+        }
+        return this;
+    }
+
+    /**
+     * Boolean checker to verify whether Graph has data.
+     *
+     * @return True if there is no data currently stored. False otherwise.
+     */
+    public boolean dataEmpty() {
+        return dataBuffer.isEmpty();
     }
 
     /**

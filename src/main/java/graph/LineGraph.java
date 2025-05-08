@@ -1,8 +1,6 @@
 package graph;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import util.CircularPointBuffer;
 import util.DrawConfig;
 
 import java.awt.BasicStroke;
@@ -15,8 +13,7 @@ import java.util.Collection;
  * Logic for creating a JPanel LineGraph
  */
 @Getter
-public final class LineGraph extends Graph {
-    @Getter(AccessLevel.NONE) private final CircularPointBuffer dataBuffer;
+public final class LineGraph extends Graph implements XYGraph {
 
     private Color edgeColor;
 
@@ -57,68 +54,8 @@ public final class LineGraph extends Graph {
     public LineGraph(DrawConfig config) {
         super(config);
 
-        dataBuffer = new CircularPointBuffer(100);
-
         edgeThickness = 2.0f;
         edgeColor = Color.GREEN;
-    }
-
-    /**
-     * Adds a dataset to the LineGraph from an Iterable of Point2D.Double objects.
-     * Each point's X and Y values are inserted into the internal CircularPointBuffer.
-     *
-     * @param dataIterable Iterable collection of Point2D.Double objects to be added
-     * @return This LineGraph instance for method chaining
-     */
-    public LineGraph addAll(Collection<Point2D.Double> dataIterable) {
-        for (Point2D.Double p : dataIterable) {
-            this.insertData(p);
-        }
-        return this;
-    }
-
-    /**
-     * Method inserting graph vertex into buffer.
-     *
-     * @param newData Point2D.Double to be inserted into the graph.
-     * @return This LineGraph instance for method chaining
-     */
-    public LineGraph insertData(Point2D.Double newData) {
-        double xData = newData.getX();
-        double yData = newData.getY();
-        if (yData > yMaxVal) {
-            yMaxVal = yData;
-        }
-        if (yData < yMinVal) {
-            yMinVal = yData;
-        }
-        if (xData > xMaxVal) {
-            xMaxVal = xData;
-        }
-        if (xData < xMinVal) {
-            xMinVal = xData;
-        }
-        dataBuffer.add(newData);
-        return this;
-    }
-
-    /**
-     * Adds data to be utilized by graph.
-     *
-     * @param x Data to be stored for use by Graph
-     * @param y Data to be stored for use by Graph
-     */
-    public LineGraph insertData(double x, double y) {
-        return this.insertData(new Point2D.Double(x, y));
-    }
-
-    /**
-     * Getter for the size of dataPoint2Ds
-     *
-     * @return Size of queued data
-     */
-    public int getDataSize() {
-        return dataBuffer.size();
     }
 
     /**
@@ -203,6 +140,18 @@ public final class LineGraph extends Graph {
         return this;
     }
 
+    @Override
+    public LineGraph insertData(Point2D.Double point) {
+        super.insertData(point);
+        return this;
+    }
+
+    @Override
+    public LineGraph insertData(double x, double y) {
+        super.insertData(x, y);
+        return this;
+    }
+
     /**
      * Renders the graph-specific data for a LineGraph.
      * <p>
@@ -215,7 +164,7 @@ public final class LineGraph extends Graph {
      */
     @Override
     protected void paintGraphData(Graphics2D g2) {
-        if (dataBuffer.isEmpty()) {
+        if (dataEmpty()) {
             return;
         }
 

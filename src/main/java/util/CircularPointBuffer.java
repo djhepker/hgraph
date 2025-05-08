@@ -13,14 +13,13 @@ import java.util.NoSuchElementException;
  * Useful for graphing or time-series data where old data can be discarded as new data arrives.
  */
 public final class CircularPointBuffer implements Iterable<Point2D.Double>, Collection<Point2D.Double> {
-    private double[] x;
+    private double[] x; // TODO: Make these into byte[] buffer for memory efficiency
     private double[] y;
     private int head; // first element index of container
     private int cursor; // Physical, low level pointer
     private int iterCount; // High-level counter, user visible
     private int size;
-    @Getter
-    private int capacity;
+    @Getter private int capacity;
 
     /**
      * Parameterized constructor.
