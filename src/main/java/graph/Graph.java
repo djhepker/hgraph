@@ -5,12 +5,13 @@ import util.DrawConfig;
 import util.GraphTools;
 
 import javax.swing.JPanel;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import static graph.Graph.GraphState.*;
 
@@ -19,35 +20,63 @@ import static graph.Graph.GraphState.*;
  * Holds reusable graph configuration and rendering logic.
  */
 public abstract class Graph extends JPanel {
+
     private GraphState graphState;
 
-    @Getter
-    protected DrawConfig drawConfig;
+    @Getter protected DrawConfig drawConfig;
 
-    @Getter
-    protected double xMinVal;
-    @Getter
-    protected double xMaxVal;
-    @Getter
-    protected double yMinVal;
-    @Getter
-    protected double yMaxVal;
+    @Getter protected double xMinVal;
+    @Getter protected double xMaxVal;
+    @Getter protected double yMinVal;
+    @Getter protected double yMaxVal;
 
-    protected boolean cropGraphToData;
+    @Getter protected boolean cropGraphToData;
 
     /**
      * Protected constructor prevents instantiation outside of this package when not explicitly extending.
      */
     protected Graph() {
-        this.graphState = NEUTRAL;
-        this.xMinVal = Double.POSITIVE_INFINITY;
-        this.yMinVal = xMinVal;
-        this.xMaxVal = -xMinVal;
-        this.yMaxVal = -yMinVal;
-        this.drawConfig = new DrawConfig();
+        graphState = NEUTRAL;
 
-        super.setBackground(drawConfig.getBackgroundColor());
-        super.setFont(new Font("Arial", Font.PLAIN, 12));
+        xMinVal = Double.POSITIVE_INFINITY;
+        yMinVal = xMinVal;
+        xMaxVal = -xMinVal;
+        yMaxVal = -yMinVal;
+
+        drawConfig = new DrawConfig();
+
+        setBackground(drawConfig.getBackgroundColor());
+        setFont(new Font("Arial", Font.PLAIN, 12));
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateTickParameters();
+            }
+        });
+    }
+
+    /**
+     * Helper function which updates delta values for graph ticks.
+     */
+    protected void updateTickParameters() {
+        int marginSize = drawConfig.getMarginSize();
+        int graphWidth = getWidth() - 2 * marginSize;
+        int graphHeight = getHeight() - 2 * marginSize;
+        double visibleRangeX;
+        double visibleRangeY;
+        System.out.println("About to test cropGraphToData");
+        if (cropGraphToData) {
+            System.out.println("cropGraphToData");
+            visibleRangeX = Math.max(1e-10, xMaxVal - xMinVal);
+            visibleRangeY = Math.max(1e-10, yMaxVal - yMinVal);
+        } else { // If it isn't cropped, we simply set the distance between ticks to be height / numticks
+            visibleRangeX = drawConfig.getIntXTicks().length - 1;
+            visibleRangeY = drawConfig.getIntYTicks().length - 1;
+        }
+        drawConfig.setXPixelsDelta((double) graphWidth / visibleRangeX);
+        drawConfig.setYPixelsDelta((double) graphHeight / visibleRangeY);
+        repaint();
     }
 
     /**
@@ -56,7 +85,7 @@ public abstract class Graph extends JPanel {
      * @param cropGraphToData True if only relevant graph space is shown.
      * @return this instance for method chaining
      */
-    public Graph cropGraphToData(boolean cropGraphToData) {
+    public Graph cropData(boolean cropGraphToData) {
         this.cropGraphToData = cropGraphToData;
         updateTickParameters();
         return this;
@@ -70,7 +99,7 @@ public abstract class Graph extends JPanel {
      * @return this instance for method chaining
      */
     public Graph setGraphFont(Font graphFont) {
-        super.setFont(graphFont);
+        setFont(graphFont);
         return this;
     }
 
@@ -81,66 +110,9 @@ public abstract class Graph extends JPanel {
      * @return this instance for method chaining
      */
     public Graph setDrawConfig(DrawConfig config) {
-        this.drawConfig = config;
+        drawConfig = config;
         updateTickParameters();
         return this;
-    }
-
-    /**
-     * Boolean checker to see if user has activated data cropping.
-     *
-     * @return True if graph should only show used graph space. False otherwise.
-     */
-    public boolean isCroppedToData() {
-        return cropGraphToData;
-    }
-
-    /**
-     * Sets whether double precision formatting should be used for ticks.
-     *
-     * @param doublePrecision true to enable double precision
-     * @return this instance for method chaining
-     */
-    public Graph setDoublePrecision(boolean doublePrecision) {
-        this.drawConfig.setDoublePrecision(doublePrecision);
-        updateTickParameters();
-        return this;
-    }
-
-    /**
-     * Retrieves aspect ratio of the current graph inside this instance of JPanel.
-     *
-     * @return Height-to-width aspect ratio of the given graph.
-     */
-    public double getAspectRatio() {
-        int usableWidth = getWidth() - 2 * marginSize;
-        int usableHeight = getHeight() - 2 * marginSize;
-        if (usableWidth <= 0 || usableHeight <= 0) {
-            return 1.0;
-        }
-        return (double) usableWidth / usableHeight;
-    }
-
-    /**
-     * Helper function which updates delta values for graph ticks.
-     */
-    protected void updateTickParameters() {
-        int graphWidth = getWidth() - 2 * marginSize;
-        int graphHeight = getHeight() - 2 * marginSize;
-        double visibleRangeX;
-        double visibleRangeY;
-        if (cropGraphToData) {
-            visibleRangeX = Math.max(1e-10, xMaxVal - xMinVal);
-            visibleRangeY = Math.max(1e-10, yMaxVal - yMinVal);
-        } else { // If it isn't cropped, we simply set the distance between ticks to be height / numticks
-            visibleRangeX = drawConfig.getIntXTicks().length - 1;
-            visibleRangeY = drawConfig.getIntYTicks().length - 1;
-        }
-        double newDeltaX = (double) graphWidth / visibleRangeX;
-        double newDeltaY = (double) graphHeight / visibleRangeY;
-        drawConfig.setxCoordinateObjectDelta(newDeltaX);
-        drawConfig.setyCoordinateObjectDelta(newDeltaY);
-        repaint();
     }
 
     /**
@@ -158,8 +130,8 @@ public abstract class Graph extends JPanel {
         int labelHeight = fm.getAscent() + fm.getDescent();
         int heightRequirement = (labelHeight * 4 + 2) / 3 + halfTickLength;
         int requiredMargin = Math.max(widthRequirement, heightRequirement);
-        if (Math.abs(requiredMargin - marginSize) > 1) { // 1 pixel threshold for safety
-            this.marginSize = requiredMargin;
+        if (Math.abs(requiredMargin - drawConfig.getMarginSize()) > 1) { // 1 pixel threshold for safety
+            drawConfig.setMarginSize(requiredMargin);
         }
     }
 
@@ -233,13 +205,13 @@ public abstract class Graph extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        if (showGraphTickMarks) {
-            if (showTickLabels) {
+        if (drawConfig.isShowingGraphTickMarks()) {
+            if (drawConfig.isShowingTickLabels()) {
                 verifyMarginToLabelScale(g2.getFontMetrics());
             }
             GraphTools.drawTicks(g2, this);
         }
-        if (showMarginBorder) {
+        if (drawConfig.isShowingMarginBorder()) {
             GraphTools.drawMargin(g2, this);
         }
         paintGraphData(g2);

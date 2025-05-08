@@ -9,8 +9,6 @@ import util.DrawConfig;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 
@@ -20,8 +18,8 @@ import java.util.Collection;
 @Getter
 @RequiredArgsConstructor
 public final class LineGraph extends Graph {
-    @Getter(AccessLevel.NONE)
-    private final CircularPointBuffer dataBuffer;
+
+    @Getter(AccessLevel.NONE) private final CircularPointBuffer dataBuffer;
 
     private Color edgeColor;
 
@@ -32,16 +30,10 @@ public final class LineGraph extends Graph {
      */
     public LineGraph() {
         super();
-        this.dataBuffer = new CircularPointBuffer(100);
-        this.edgeThickness = 2.0f;
-        this.edgeColor = Color.GREEN;
+        dataBuffer = new CircularPointBuffer(100);
+        edgeThickness = 2.0f;
+        edgeColor = Color.GREEN;
 
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                updateTickParameters();
-            }
-        });
     }
 
     /**
@@ -61,7 +53,9 @@ public final class LineGraph extends Graph {
      */
     public LineGraph(DrawConfig config) {
         this();
-        this.drawConfig = config;
+        super.setDrawConfig(config);
+        this.edgeColor = config.getEdgeColor();
+        this.edgeThickness = config.getEdgeThickness();
     }
 
     /**
@@ -72,7 +66,7 @@ public final class LineGraph extends Graph {
      */
     public LineGraph(DrawConfig config, Collection<Point2D.Double> initialData) {
         this(config);
-        this.addAll(initialData);
+        addAll(initialData);
     }
 
     /**
@@ -202,15 +196,16 @@ public final class LineGraph extends Graph {
     }
 
     /**
-     * Override function for graph cropping. Updates cropGraphToData setting
+     * Override function for graph cropping. Updates argCropToData setting
      * and refreshes tick scaling based on current data bounds.
      *
-     * @param cropGraphToData True if only relevant graph space is shown.
+     * @param argCropToData True if only relevant graph space is shown.
      * @return Instance of class for chain setting.
      */
     @Override
-    public Graph cropGraphToData(boolean cropGraphToData) {
-        this.cropGraphToData = cropGraphToData;
+    public LineGraph cropData(boolean argCropToData) {
+        System.out.println("Called cropData in linegraph");
+        cropGraphToData = argCropToData;
         updateTickParameters();
         return this;
     }
@@ -237,16 +232,19 @@ public final class LineGraph extends Graph {
         boolean postStart = false;
         int prevX = 0;
         int prevY = 0;
+        double xDelta = drawConfig.getXPixelsDelta();
+        double yDelta = drawConfig.getYPixelsDelta();
+        int marginSize = drawConfig.getMarginSize();
 
         for (Point2D.Double point : dataBuffer) {
             int x;
             int y;
             if (cropGraphToData) {
-                x = (int) (marginSize + ((point.getX() - xMinVal) * drawConfig.getxCoordinateObjectDelta()));
-                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * drawConfig.getyCoordinateObjectDelta())));
+                x = (int) (marginSize + ((point.getX() - xMinVal) * xDelta));
+                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * yDelta)));
             } else {
-                x = (int) (marginSize + (point.getX() * drawConfig.getxCoordinateObjectDelta()));
-                y = (int) (getHeight() - (marginSize + (point.getY() * drawConfig.getyCoordinateObjectDelta())));
+                x = (int) (marginSize + (point.getX() * xDelta));
+                y = (int) (getHeight() - (marginSize + (point.getY() * yDelta)));
             }
             if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);
