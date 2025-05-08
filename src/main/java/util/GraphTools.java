@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
  * Utility class providing common rendering functions for graphs such as margin drawing and tick mark rendering.
  */
 public final class GraphTools {
+
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     // Prevent instantiation
@@ -87,13 +88,12 @@ public final class GraphTools {
      * @param graph The graph we are drawing in effect. Holds relevant parameter variables
      */
     public static void drawMargin(Graphics2D g2, Graph graph) {
-        int margin = graph.getMarginSize();
-        int borderW = graph.getWidth() - margin * 2;
-        int borderH = graph.getHeight() - margin * 2;
+        DrawConfig config = graph.getDrawConfig();
+        int margin = config.getMarginSize();
 
-        g2.setColor(graph.getBorderColor());
+        g2.setColor(config.getBorderColor());
         g2.setStroke(new BasicStroke(1f));
-        g2.drawRect(margin, margin, borderW, borderH);
+        g2.drawRect(margin, margin, graph.getWidth() - margin * 2, graph.getHeight() - margin * 2);
     }
 
     /**
@@ -107,9 +107,7 @@ public final class GraphTools {
         DrawConfig config = graph.getDrawConfig();
         g2.setFont(graph.getFont());
 
-        if (config.isDoublePrecision()) {
-            drawGraphFeatures(graph, config, g2);
-        }
+        drawGraphFeatures(graph, config, g2);
     }
 
     /**
@@ -126,13 +124,13 @@ public final class GraphTools {
             return;
         }
         boolean isDoublePrecision = config.isDoublePrecision();
-        boolean drawTickLabels = graph.isShowingTickLabels();
-        boolean isShowingGridLines = graph.isShowingGridLines();
-        int margin = graph.getMarginSize();
+        boolean drawTickLabels = config.isShowingTickLabels();
+        boolean isShowingGridLines = config.isShowingGrid();
+        int margin = config.getMarginSize();
         int halfTickLength = config.getTickLength() / 2;
         int heightDeltaMargin = graph.getHeight() - margin;
-        double deltaX = config.getDeltaX();
-        double deltaY = config.getDeltaY();
+        double deltaX = config.getXPixelsDelta();
+        double deltaY = config.getYPixelsDelta();
         int xVertical1 = heightDeltaMargin + halfTickLength;
         int xVertical2 = heightDeltaMargin - halfTickLength;
         int yHorizontal1 = margin - halfTickLength;

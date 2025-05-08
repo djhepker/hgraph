@@ -13,54 +13,172 @@ import java.awt.Color;
 @AllArgsConstructor
 public final class DrawConfig {
 
-    @Getter
-    private boolean showYTicks;
-    @Getter
-    private boolean showXTicks;
-    @Getter
-    private boolean doublePrecision;
+    @Getter private Color backgroundColor;
+    @Getter private Color edgeColor;
+    @Getter private Color tickColor;
+    @Getter private Color gridColor;
+    @Getter private Color borderColor;
+    @Getter private Color tickLabelColor;
 
-    @Getter
-    private int tickLength;
+    @Getter private boolean showingGrid;
+    @Getter private boolean showingGraphTickMarks;
+    @Getter private boolean showingTickLabels;
+    @Getter private boolean showingMarginBorder;
+    @Getter private boolean doublePrecision;
 
-    @Getter
-    private Color tickColor;
-    @Getter
-    private Color gridColor;
-    @Getter
-    private Color borderColor;
-    @Getter
-    private Color tickLabelColor;
+    @Getter private int tickLength;
+    @Getter private int marginSize; // TODO build margin x and margin y
+
+    @Getter @Setter private double xPixelsDelta;
+    @Getter @Setter private double yPixelsDelta;
+
+    @Getter private float edgeThickness;
 
     private double[] xTicksDouble; // TODO replace tick[] with String[]
     private double[] yTicksDouble;
     private int[] xTicksInt;
     private int[] yTicksInt;
 
-    @Getter
-    @Setter
-    private double deltaX; // Horizontal pixel distance between two things
-    @Getter
-    @Setter
-    private double deltaY; // Vertical pixel distance between two things
-
     /**
      * Default configuration with all settings enabled and standard styling.
      */
     public DrawConfig() {
-        this.showYTicks = true;
-        this.showXTicks = true;
-        this.doublePrecision = false;
-        this.tickLength = 10;
-        this.tickColor = Color.GREEN;
-        this.tickLabelColor = tickColor;
-        this.gridColor = new Color(255, 255, 255, 64);
-        this.xTicksInt = new int[0];
-        this.yTicksInt = new int[0];
-        this.xTicksDouble = null;
-        this.yTicksDouble = null;
-        this.deltaX = 0.0;
-        this.deltaY = 0.0;
+        showingTickLabels = true;
+        showingMarginBorder = true;
+        showingGraphTickMarks = true;
+        showingGrid = false;
+        doublePrecision = false;
+
+        tickLength = 10;
+        marginSize = 32;
+
+        xPixelsDelta = 0.0;
+        yPixelsDelta = 0.0;
+
+        edgeThickness = 2.0f;
+
+        tickColor = Color.GREEN;
+        tickLabelColor = tickColor;
+        borderColor = Color.WHITE;
+        backgroundColor = Color.BLACK;
+        edgeColor = Color.GREEN;
+
+        gridColor = new Color(255, 255, 255, 64);
+
+        xTicksInt = new int[0];
+        yTicksInt = new int[0];
+        xTicksDouble = null;
+        yTicksDouble = null;
+    }
+
+    /**
+     * Sets whether the margin border around the graph area is shown.
+     *
+     * @param showingMarginBorder True if showing border, false otherwise.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setShowingMarginBorder(boolean showingMarginBorder) {
+        this.showingMarginBorder = showingMarginBorder;
+        return this;
+    }
+
+    /**
+     * Sets whether tick marks should be shown on the graph.
+     *
+     * @param showingGraphTickMarks true to show tick marks, false to hide them.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setShowTickMarks(boolean showingGraphTickMarks) {
+        this.showingGraphTickMarks = showingGraphTickMarks;
+        return this;
+    }
+
+    /**
+     * Mutates boolean determining if grid parameters are drawn. True if shown, false if not shown.
+     *
+     * @param showGrid Value showingGrid will be mutated to,
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setShowGrid(boolean showGrid) {
+        this.showingGrid = showGrid;
+        return this;
+    }
+
+    /**
+     * Mutates boolean determining if margin parameters are drawn. True if shown, false if not shown.
+     *
+     * @param showMarginBorder Value showingGrid will be mutated to,
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setShowMarginBorder(boolean showMarginBorder) {
+        this.showingMarginBorder = showMarginBorder;
+        return this;
+    }
+
+    /**
+     * Mutates whether tick labels will be displayed.
+     *
+     * @param showTickLabels True if tick labels are to be shown. False otherwise.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setShowTickLabels(boolean showTickLabels) {
+        this.showingTickLabels = showTickLabels;
+        return this;
+    }
+
+    /**
+     * Sets the margin size around the graph area.
+     *
+     * @param marginSize margin size in pixels.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setMarginSize(int marginSize) {
+        this.marginSize = marginSize;
+        return this;
+    }
+
+    /**
+     * Sets the thickness of edges connecting vertices.
+     *
+     * @param edgeThickness Pixel width of drawn edges.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setEdgeThickness(float edgeThickness) {
+        this.edgeThickness = edgeThickness;
+        return this;
+    }
+
+    /**
+     * Sets the background color for the graph area.
+     *
+     * @param backgroundColor background fill color.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+        return this;
+    }
+
+    /**
+     * Sets the connecting line, if any, color for the graph area.
+     *
+     * @param argEdgeColor The color of the connecting lines, if any, on this Graph.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setEdgeColor(Color argEdgeColor) {
+        this.edgeColor = argEdgeColor;
+        return this;
+    }
+
+    /**
+     * Sets whether tick labels should be shown on the graph.
+     *
+     * @param showingTickLabels true to show tick labels, false otherwise
+     * @return this instance for method chaining
+     */
+    public DrawConfig setShowingTickLabels(boolean showingTickLabels) {
+        this.showingTickLabels = showingTickLabels;
+        return this;
     }
 
     /**
@@ -88,22 +206,13 @@ public final class DrawConfig {
     }
 
     /**
-     * Enables or disables Y-axis ticks.
-     * @param show true to show Y-axis ticks, false to hide
-     * @return This config instance for chaining
+     * Sets whether gridlines are shown on graph.
+     *
+     * @param showGrid True if lines are shown, false otherwise
+     * @return this instance for method chaining
      */
-    public DrawConfig showYTicks(boolean show) {
-        this.showYTicks = show;
-        return this;
-    }
-
-    /**
-     * Enables or disables X-axis ticks.
-     * @param show true to show X-axis ticks, false to hide
-     * @return This config instance for chaining
-     */
-    public DrawConfig showXTicks(boolean show) {
-        this.showXTicks = show;
+    public DrawConfig setShowGridLines(boolean showGrid) {
+        this.showingGrid = showGrid;
         return this;
     }
 
