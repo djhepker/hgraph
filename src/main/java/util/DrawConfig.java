@@ -14,7 +14,6 @@ import java.awt.Color;
 public final class DrawConfig {
 
     @Getter private Color backgroundColor;
-    @Getter private Color edgeColor;
     @Getter private Color tickColor;
     @Getter private Color gridColor;
     @Getter private Color borderColor;
@@ -31,8 +30,6 @@ public final class DrawConfig {
 
     @Getter @Setter private double xPixelsDelta;
     @Getter @Setter private double yPixelsDelta;
-
-    @Getter private float edgeThickness;
 
     private double[] xTicksDouble; // TODO replace tick[] with String[]
     private double[] yTicksDouble;
@@ -55,13 +52,10 @@ public final class DrawConfig {
         xPixelsDelta = 0.0;
         yPixelsDelta = 0.0;
 
-        edgeThickness = 2.0f;
-
         tickColor = Color.GREEN;
         tickLabelColor = tickColor;
         borderColor = Color.WHITE;
         backgroundColor = Color.BLACK;
-        edgeColor = Color.GREEN;
 
         gridColor = new Color(255, 255, 255, 64);
 
@@ -138,17 +132,6 @@ public final class DrawConfig {
     }
 
     /**
-     * Sets the thickness of edges connecting vertices.
-     *
-     * @param edgeThickness Pixel width of drawn edges.
-     * @return this instance for method chaining.
-     */
-    public DrawConfig setEdgeThickness(float edgeThickness) {
-        this.edgeThickness = edgeThickness;
-        return this;
-    }
-
-    /**
      * Sets the background color for the graph area.
      *
      * @param backgroundColor background fill color.
@@ -156,17 +139,6 @@ public final class DrawConfig {
      */
     public DrawConfig setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
-        return this;
-    }
-
-    /**
-     * Sets the connecting line, if any, color for the graph area.
-     *
-     * @param argEdgeColor The color of the connecting lines, if any, on this Graph.
-     * @return this instance for method chaining.
-     */
-    public DrawConfig setEdgeColor(Color argEdgeColor) {
-        this.edgeColor = argEdgeColor;
         return this;
     }
 

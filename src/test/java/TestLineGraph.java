@@ -35,8 +35,6 @@ class TestLineGraph {
 
         defaultConfig = new DrawConfig()
                 .setBackgroundColor(Color.BLACK)
-                .setEdgeColor(Color.GREEN)
-                .setEdgeThickness(2.0f)
                 .setMarginSize(32)
                 .setShowGrid(true)
                 .setShowMarginBorder(true)
@@ -164,17 +162,17 @@ class TestLineGraph {
 
     @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
     @Test
-    void testDecimalDataWithCroppingAndDoublePrecision() throws InterruptedException {
+    void testDecimalDataWithPreCroppingAndDoublePrecision() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        // Create a LineGraph and insert decimal (floating-point) data
-        defaultConfig.setDoublePrecision(true);
-        defaultConfig.showTicks(true);
-        LineGraph graph = new LineGraph(defaultConfig)
+        defaultConfig.setDoublePrecision(true)
+                .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        LineGraph partialGraph = new LineGraph(defaultConfig)
+                .cropData(true)
                 .insertData(0.25, 1.75)
                 .insertData(1.5, 2.3)
                 .insertData(2.75, 0.9)
-                .insertData(3.1, 3.6)
-                .cropData(true);
+                .insertData(3.1, 3.6);
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
@@ -186,7 +184,7 @@ class TestLineGraph {
                     latch.countDown();
                 }
             });
-            frame.getContentPane().add(graph);
+            frame.getContentPane().add(partialGraph);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });

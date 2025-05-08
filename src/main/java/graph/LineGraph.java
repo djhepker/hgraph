@@ -61,9 +61,6 @@ public final class LineGraph extends Graph {
 
         edgeThickness = 2.0f;
         edgeColor = Color.GREEN;
-
-        edgeColor = config.getEdgeColor();
-        edgeThickness = config.getEdgeThickness();
     }
 
     /**
@@ -193,15 +190,15 @@ public final class LineGraph extends Graph {
     }
 
     /**
-     * Override function for graph cropping. Updates argCropToData setting
+     * Override function for graph cropping. Updates dataCropped setting
      * and refreshes tick scaling based on current data bounds.
      *
-     * @param argCropToData True if only relevant graph space is shown.
+     * @param dataCropped True if only relevant graph space is shown.
      * @return Instance of class for chain setting.
      */
     @Override
-    public LineGraph cropData(boolean argCropToData) {
-        cropGraphToData = argCropToData;
+    public LineGraph cropData(boolean dataCropped) {
+        cropGraphToData = dataCropped;
         updateTickParameters();
         return this;
     }
