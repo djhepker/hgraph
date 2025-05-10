@@ -1,6 +1,5 @@
 package util;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +9,6 @@ import java.awt.Color;
  * Configuration object for controlling the appearance and behavior of axis tick marks in a LineGraph.
  * Supports both X and Y axis customization, including visibility, color, length, font, and label count.
  */
-@AllArgsConstructor
 public final class DrawConfig {
 
     @Getter private Color backgroundColor;
@@ -87,6 +85,17 @@ public final class DrawConfig {
      */
     public DrawConfig showVertices(boolean drawVertices) {
         showVertices = drawVertices;
+        return this;
+    }
+
+    /**
+     * Setter mutates the value of tickLabel color. If drawn, the tick labels will be this color.
+     *
+     * @param newTickLabelColor Color of the tick labels drawn to the graph.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setTickLabelColor(Color newTickLabelColor) {
+        tickLabelColor = newTickLabelColor;
         return this;
     }
 
