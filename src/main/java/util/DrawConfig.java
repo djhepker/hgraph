@@ -49,6 +49,7 @@ public final class DrawConfig {
 
         tickLength = 10;
         marginSize = 32;
+        vertexRadius = 5;
 
         xPixelsDelta = 0.0;
         yPixelsDelta = 0.0;
@@ -57,8 +58,6 @@ public final class DrawConfig {
         tickLabelColor = tickColor;
         borderColor = Color.WHITE;
         backgroundColor = Color.BLACK;
-
-        gridColor = new Color(255, 255, 255, 64);
 
         xTicksInt = new int[0];
         yTicksInt = new int[0];
@@ -84,7 +83,18 @@ public final class DrawConfig {
      * @return this instance for method chaining.
      */
     public DrawConfig showVertices(boolean drawVertices) {
+        return showVertices(drawVertices, Color.GREEN);
+    }
+
+    /**
+     * Mutates whether the graph vertices are drawn to the screen. Allows setting of Color at method call.
+     *
+     * @param drawVertices True if vertices are to be drawn, false otherwise,
+     * @return this instance for method chaining.
+     */
+    public DrawConfig showVertices(boolean drawVertices, Color newVertexColor) {
         showVertices = drawVertices;
+        vertexColor = newVertexColor;
         return this;
     }
 
@@ -133,13 +143,25 @@ public final class DrawConfig {
     }
 
     /**
-     * Mutates boolean determining if grid parameters are drawn. True if shown, false if not shown.
+     * Enables or disables grid rendering and sets a default grid color.
      *
-     * @param showGrid Value showingGrid will be mutated to,
+     * @param showGrid True if grid should be shown, false otherwise.
      * @return this instance for method chaining.
      */
     public DrawConfig setShowGrid(boolean showGrid) {
+        return setShowGrid(showGrid, new Color(255, 255, 255, 64));
+    }
+
+    /**
+     * Enables or disables grid rendering and sets a custom color.
+     *
+     * @param showGrid Whether to show the grid.
+     * @param newGridColor Color to use for the grid when shown.
+     * @return this instance for method chaining.
+     */
+    public DrawConfig setShowGrid(boolean showGrid, Color newGridColor) {
         this.showingGrid = showGrid;
+        this.gridColor = newGridColor;
         return this;
     }
 

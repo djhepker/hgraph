@@ -123,6 +123,7 @@ public final class GraphTools {
         if (xTicksLength == 0 || yTicksLength == 0) {
             return;
         }
+        boolean drawVertices = config.isShowVertices();
         boolean isDoublePrecision = config.isDoublePrecision();
         boolean drawTickLabels = config.isShowingTickLabels();
         boolean isShowingGridLines = config.isShowingGrid();
@@ -165,6 +166,9 @@ public final class GraphTools {
             if (isShowingGridLines) {
                 graph.drawGridLine(g2, magnitudeX, margin, magnitudeX, xVertical1);
                 graph.drawGridLine(g2, yHorizontal2, magnitudeY, graph.getWidth() - margin, magnitudeY);
+            }
+            if (drawVertices) {
+                graph.drawVertices(g2);
             }
 
             // Draw Labels

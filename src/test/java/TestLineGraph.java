@@ -165,6 +165,7 @@ class TestLineGraph {
     void testDecimalDataWithPreCroppingAndDoublePrecision() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         defaultConfig.setDoublePrecision(true)
+                .showVertices(true)
                 .setXTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
                 .setYTickValues(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
         LineGraph partialGraph = new LineGraph(defaultConfig)

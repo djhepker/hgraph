@@ -268,6 +268,28 @@ public abstract class Graph extends JPanel implements XYGraph {
         g2.drawLine(x1, y1, x2, y2);
     }
 
+    public void drawVertices(Graphics2D g2) {
+        int radius = drawConfig.getVertexRadius();  // assumes getVertexRadius() exists
+        int diameter = radius * 2;
+        double xDelta = drawConfig.getXPixelsDelta();
+        double yDelta = drawConfig.getYPixelsDelta();
+        int marginSize = drawConfig.getMarginSize();
+
+        g2.setColor(drawConfig.getVertexColor());  // Or use a separate vertexColor if needed
+
+        for (Point2D.Double point : dataBuffer) {
+            int xPixel, yPixel;
+            if (cropGraphToData) {
+                xPixel = (int) (marginSize + ((point.getX() - xMinVal) * xDelta));
+                yPixel = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * yDelta)));
+            } else {
+                xPixel = (int) (marginSize + point.getX() * xDelta);
+                yPixel = (int) (getHeight() - (marginSize + point.getY() * yDelta));
+            }
+            g2.fillOval(xPixel - radius, yPixel - radius, diameter, diameter);
+        }
+    }
+
     /**
      * Draws a single grid line across the graph.
      *
