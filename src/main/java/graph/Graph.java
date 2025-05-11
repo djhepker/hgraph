@@ -4,6 +4,7 @@ import lombok.Getter;
 import util.CircularPointBuffer;
 import util.DrawConfig;
 import util.GraphTools;
+import util.Pair;
 
 import javax.swing.JPanel;
 import java.awt.Font;
@@ -13,7 +14,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.geom.Point2D;
 import java.util.Collection;
 
 import static graph.Graph.GraphState.*;
@@ -98,7 +98,7 @@ public abstract class Graph extends JPanel implements XYGraph {
      * @param y Data to be stored for use by Graph
      */
     public Graph insertData(double x, double y) {
-        return this.insertData(new Point2D.Double(x, y));
+        return this.insertData(new Pair(x, y));
     }
 
     /**
@@ -113,12 +113,12 @@ public abstract class Graph extends JPanel implements XYGraph {
     /**
      * Method inserting graph vertex into buffer.
      *
-     * @param newData Point2D.Double to be inserted into the graph.
+     * @param newData Pair to be inserted into the graph.
      * @return This LineGraph instance for method chaining
      */
-    public Graph insertData(Point2D.Double newData) {
-        double xData = newData.getX();
-        double yData = newData.getY();
+    public Graph insertData(Pair newData) {
+        double xData = newData.first;
+        double yData = newData.second;
         if (yData > yMaxVal) {
             yMaxVal = yData;
         }
@@ -136,14 +136,14 @@ public abstract class Graph extends JPanel implements XYGraph {
     }
 
     /**
-     * Adds a dataset to the LineGraph from an Iterable of Point2D.Double objects.
+     * Adds a dataset to the LineGraph from an Iterable of Pair objects.
      * Each point's X and Y values are inserted into the internal CircularPointBuffer.
      *
-     * @param dataIterable Iterable collection of Point2D.Double objects to be added
+     * @param dataIterable Iterable collection of Pair objects to be added
      * @return This LineGraph instance for method chaining
      */
-    public Graph addAll(Collection<Point2D.Double> dataIterable) {
-        for (Point2D.Double p : dataIterable) {
+    public Graph addAll(Collection<Pair> dataIterable) {
+        for (Pair p : dataIterable) {
             insertData(p);
         }
         return this;
@@ -269,26 +269,35 @@ public abstract class Graph extends JPanel implements XYGraph {
     }
 
     public void drawVertices(Graphics2D g2) {
-        int radius = drawConfig.getVertexRadius();  // assumes getVertexRadius() exists
+        int radius = drawConfig.getVertexRadius();
         int diameter = radius * 2;
         double xDelta = drawConfig.getXPixelsDelta();
         double yDelta = drawConfig.getYPixelsDelta();
         int marginSize = drawConfig.getMarginSize();
 
-        g2.setColor(drawConfig.getVertexColor());  // Or use a separate vertexColor if needed
+        g2.setColor(drawConfig.getVertexColor());
 
-        for (Point2D.Double point : dataBuffer) {
+        for (Pair pair : dataBuffer) {
             int xPixel, yPixel;
             if (cropGraphToData) {
-                xPixel = (int) (marginSize + ((point.getX() - xMinVal) * xDelta));
-                yPixel = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * yDelta)));
+                xPixel = (int) (marginSize + ((pair.first - xMinVal) * xDelta));
+                yPixel = (int) (getHeight() - (marginSize + ((pair.second - yMinVal) * yDelta)));
             } else {
-                xPixel = (int) (marginSize + point.getX() * xDelta);
-                yPixel = (int) (getHeight() - (marginSize + point.getY() * yDelta));
+                xPixel = (int) (marginSize + pair.first * xDelta);
+                yPixel = (int) (getHeight() - (marginSize + pair.second * yDelta));
             }
             g2.fillOval(xPixel - radius, yPixel - radius, diameter, diameter);
         }
     }
+
+    private void drawDoubleVertices() {
+
+    }
+
+    private void drawIntVertices() {
+
+    }
+
 
     /**
      * Draws a single grid line across the graph.
@@ -327,11 +336,11 @@ public abstract class Graph extends JPanel implements XYGraph {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        if (drawConfig.isShowingGraphTickMarks()) {
+        if (drawConfig.isShowingGraphTickMarks() || drawConfig.isShowingTickLabels() || drawConfig.isShowingGrid()) {
             if (drawConfig.isShowingTickLabels()) {
                 verifyMarginToLabelScale(g2.getFontMetrics());
             }
-            GraphTools.drawTicks(g2, this);
+            GraphTools.drawFeatures(g2, this);
         }
         if (drawConfig.isShowingMarginBorder()) {
             GraphTools.drawMargin(g2, this);

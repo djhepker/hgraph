@@ -3,7 +3,8 @@ package util;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.awt.Color;
+import java.awt.*;
+import java.util.Arrays;
 
 /**
  * Configuration object for controlling the appearance and behavior of axis tick marks in a LineGraph.
@@ -24,6 +25,7 @@ public final class DrawConfig {
     @Getter private boolean showingMarginBorder;
     @Getter private boolean doublePrecision;
     @Getter private boolean showVertices;
+    private boolean incrementalTicks;
 
     @Getter private int tickLength;
     @Getter private int marginSize; // TODO build margin x and margin y
@@ -46,6 +48,7 @@ public final class DrawConfig {
         showingGraphTickMarks = true;
         showingGrid = false;
         doublePrecision = false;
+        incrementalTicks = true;
 
         tickLength = 10;
         marginSize = 32;
@@ -256,32 +259,6 @@ public final class DrawConfig {
     }
 
     /**
-     * Getter returns the size for the appropriate yTick container.
-     *
-     * @return [0,length) of the container.
-     */
-    public int getXTicksSize() {
-        if (doublePrecision) {
-            return xTicksDouble.length;
-        } else {
-            return xTicksInt.length;
-        }
-    }
-
-    /**
-     * Getter returns the size for the appropriate xTick container.
-     *
-     * @return [0,length) of the container.
-     */
-    public int getYTicksSize() {
-        if (doublePrecision) {
-            return yTicksDouble.length;
-        } else {
-            return yTicksInt.length;
-        }
-    }
-
-    /**
      * Sets the length of each tick mark.
      * @param tickLength Length in pixels
      * @return This config instance for chaining
@@ -341,10 +318,13 @@ public final class DrawConfig {
      * @return this config instance
      */
     public DrawConfig setXTickValues(double[] xTicks) {
+        incrementalTicks = GraphTools.isIncremental(xTicks);
+        double[] copy = Arrays.copyOf(xTicks, xTicks.length);
+        Arrays.sort(copy);
         if (doublePrecision) {
-            this.xTicksDouble = xTicks;
+            this.xTicksDouble = copy;
         } else {
-            this.xTicksInt = GraphTools.arrayDoubleToArrayInt(xTicks);
+            this.xTicksInt = GraphTools.arrayDoubleToArrayInt(copy);
         }
         return this;
     }
@@ -357,10 +337,13 @@ public final class DrawConfig {
      * @return this config instance
      */
     public DrawConfig setYTickValues(double[] yTicks) {
+        incrementalTicks = GraphTools.isIncremental(yTicks);
+        double[] copy = Arrays.copyOf(yTicks, yTicks.length);
+        Arrays.sort(copy);
         if (doublePrecision) {
-            this.yTicksDouble = yTicks;
+            this.yTicksDouble = copy;
         } else {
-            this.yTicksInt = GraphTools.arrayDoubleToArrayInt(yTicks);
+            this.yTicksInt = GraphTools.arrayDoubleToArrayInt(copy);
         }
         return this;
     }
@@ -373,10 +356,13 @@ public final class DrawConfig {
      * @return this config instance
      */
     public DrawConfig setXTickValues(int[] xTicks) {
+        incrementalTicks = GraphTools.isIncremental(xTicks);
+        int[] copy = Arrays.copyOf(xTicks, xTicks.length);
+        Arrays.sort(copy);
         if (doublePrecision) {
-            this.xTicksDouble = GraphTools.arrayIntToArrayDouble(xTicks);
+            this.xTicksDouble = GraphTools.arrayIntToArrayDouble(copy);
         } else {
-            this.xTicksInt = xTicks;
+            this.xTicksInt = copy;
         }
         return this;
     }
@@ -389,10 +375,13 @@ public final class DrawConfig {
      * @return this config instance
      */
     public DrawConfig setYTickValues(int[] yTicks) {
+        incrementalTicks = GraphTools.isIncremental(yTicks);
+        int[] copy = Arrays.copyOf(yTicks, yTicks.length);
+        Arrays.sort(copy);
         if (doublePrecision) {
-            this.yTicksDouble = GraphTools.arrayIntToArrayDouble(yTicks);
+            this.yTicksDouble = GraphTools.arrayIntToArrayDouble(copy);
         } else {
-            this.yTicksInt = yTicks;
+            this.yTicksInt = copy;
         }
         return this;
     }
@@ -402,7 +391,7 @@ public final class DrawConfig {
      *
      * @return int representing [].length
      */
-    public int getXArraySize() {
+    public int getNumberOfXTicks() {
         return doublePrecision ? xTicksDouble.length : xTicksInt.length;
     }
 
@@ -411,7 +400,7 @@ public final class DrawConfig {
      *
      * @return int representing [].length
      */
-    public int getYArraySize() {
+    public int getNumberOfYTicks() {
         return doublePrecision ? yTicksDouble.length : yTicksInt.length;
     }
 
@@ -426,8 +415,10 @@ public final class DrawConfig {
     public double[] getDoubleXTicks() {
         if (doublePrecision) {
             return xTicksDouble != null ? xTicksDouble : new double[0];
+        } else if (xTicksInt != null) {
+            return GraphTools.arrayIntToArrayDouble(xTicksInt);
         } else {
-            return null;
+            throw new IllegalStateException("Illegal array state");
         }
     }
 
@@ -442,8 +433,10 @@ public final class DrawConfig {
     public double[] getDoubleYTicks() {
         if (doublePrecision) {
             return yTicksDouble != null ? yTicksDouble : new double[0];
+        } else if (xTicksDouble != null) {
+            return GraphTools.arrayIntToArrayDouble(yTicksInt);
         } else {
-            return null;
+            throw new IllegalStateException("Illegal array state");
         }
     }
 
@@ -462,7 +455,7 @@ public final class DrawConfig {
         } else if (xTicksDouble != null) {
             return GraphTools.arrayDoubleToArrayInt(xTicksDouble);
         } else {
-            return new int[0];
+            throw new IllegalStateException("Illegal array state");
         }
     }
 
@@ -481,7 +474,56 @@ public final class DrawConfig {
         } else if (yTicksDouble != null) {
             return GraphTools.arrayDoubleToArrayInt(yTicksDouble);
         } else {
-            return new int[0];
+            throw new IllegalStateException("Illegal array state");
+        }
+    }
+
+    public Pair getAdjacentTickIndices(double value, int[] target, int startingIndex) {
+        return getAdjacentTickIndices(value, GraphTools.arrayIntToArrayDouble(target), startingIndex);
+    }
+
+    public Pair getAdjacentTickIndices(double value, double[] target, int startingIndex) {
+        Pair result = new Pair();
+        if (target == null) {
+            return result;
+        }
+        int targetLength = target.length;
+        if (targetLength == 0 || startingIndex < 0) {
+            return result;
+        }
+
+        for (int i = startingIndex; i < targetLength; ++i) {
+            if (target[i] >= value) {
+                if (i == 0) {
+                    return result.setPair(i, i);
+                }
+                return result.setPair(i - 1, i);
+            }
+        }
+        return result.setPair(targetLength - 2, targetLength - 1);
+    }
+
+    public Pair getYTickValues(Pair target) {
+        return target.setPair(getYTickValue((int) target.first), getYTickValue((int) target.second));
+    }
+
+    public Pair getXTickValues(Pair target) {
+        return target.setPair(getXTickValue((int) target.first), getXTickValue((int) target.second));
+    }
+
+    public double getYTickValue(int index) {
+        if (doublePrecision) {
+            return yTicksDouble[index];
+        } else {
+            return yTicksInt[index];
+        }
+    }
+
+    public double getXTickValue(int index) {
+        if (doublePrecision) {
+            return xTicksDouble[index];
+        } else {
+            return xTicksInt[index];
         }
     }
 

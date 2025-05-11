@@ -3,13 +3,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import util.DrawConfig;
+import util.Pair;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -18,18 +18,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TestLineGraph {
     private LineGraph graph;
-    private List<Point2D.Double> initialData;
+    private List<Pair> initialData;
     private int listSize;
     private DrawConfig defaultConfig;
 
     @BeforeEach
     void setUp() {
         initialData = Arrays.asList(
-                new Point2D.Double(1.0, 2.0),
-                new Point2D.Double(2.0, 5.0),
-                new Point2D.Double(3.0, 2.0),
-                new Point2D.Double(4.0, 1.0),
-                new Point2D.Double(5.0, 6.0)
+                new Pair(1.0, 2.0),
+                new Pair(2.0, 5.0),
+                new Pair(3.0, 2.0),
+                new Pair(4.0, 1.0),
+                new Pair(5.0, 6.0)
         );
         listSize = initialData.size();
 
@@ -52,7 +52,7 @@ class TestLineGraph {
 
     @Test
     void testInsertDataPointAppends() {
-        graph.insertData(new Point2D.Double(5.0, 6.0));
+        graph.insertData(new Pair(5.0, 6.0));
         assertEquals(listSize + 1, graph.getDataSize(), "Data size should increase after insertion");
     }
 

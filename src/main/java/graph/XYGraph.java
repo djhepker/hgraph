@@ -1,6 +1,7 @@
 package graph;
 
-import java.awt.geom.Point2D;
+import util.Pair;
+
 import java.util.Collection;
 
 /**
@@ -19,20 +20,20 @@ public interface XYGraph {
     Graph insertData(double x, double y);
 
     /**
-     * Inserts a single Point2D.Double into the graph.
+     * Inserts a single Pair into the graph.
      *
      * @param newData the (x, y) point to add
      * @return this instance for method chaining
      */
-    Graph insertData(Point2D.Double newData);
+    Graph insertData(Pair newData);
 
     /**
      * Adds all data points from the given collection to the graph.
      *
-     * @param dataIterable a collection of Point2D.Double points
+     * @param dataIterable a collection of Pair points
      * @return this instance for method chaining
      */
-    Graph addAll(Collection<Point2D.Double> dataIterable);
+    Graph addAll(Collection<Pair> dataIterable);
 
     /**
      * Returns the number of data points currently in the graph.

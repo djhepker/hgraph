@@ -5,7 +5,6 @@ import graph.Graph;
 import java.awt.BasicStroke;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D.Double;
 import java.text.DecimalFormat;
 
 /**
@@ -69,6 +68,24 @@ public final class GraphTools {
         return DECIMAL_FORMAT.format(d);
     }
 
+    public static boolean isIncremental(int[] target) {
+        return isIncremental(GraphTools.arrayIntToArrayDouble(target));
+    }
+
+    public static boolean isIncremental(double[] target) {
+        if (target == null || target.length == 0) {
+            return false;
+        }
+
+        double expected = target[0];
+        for (double j : target) {
+            if (j != expected++) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Fast checker method for checking if coordinates match a Point2D.Double.
      *
@@ -77,8 +94,8 @@ public final class GraphTools {
      * @param target Point2D.Double to be compared against.
      * @return True if a match, false otherwise.
      */
-    public static boolean matchesPoint(double x, double y, Double target) {
-        return java.lang.Double.compare(x, target.getX()) == 0 && java.lang.Double.compare(y, target.getY()) == 0;
+    public static boolean matchesPoint(double x, double y, Pair target) {
+        return java.lang.Double.compare(x, target.first) == 0 && java.lang.Double.compare(y, target.second) == 0;
     }
 
     /**
@@ -103,7 +120,7 @@ public final class GraphTools {
      * @param g2          The graphics context to draw with
      * @param graph       Contains the context parameters we will be drawing
      */
-    public static void drawTicks(Graphics2D g2, Graph graph) {
+    public static void drawFeatures(Graphics2D g2, Graph graph) {
         DrawConfig config = graph.getDrawConfig();
         g2.setFont(graph.getFont());
 
@@ -118,8 +135,8 @@ public final class GraphTools {
      * @param g2 Graphics pen which is sent from repaint.
      */
     private static void drawGraphFeatures(Graph graph, DrawConfig config, Graphics2D g2) {
-        int xTicksLength = config.getXArraySize();
-        int yTicksLength = config.getYArraySize();
+        int xTicksLength = config.getNumberOfXTicks();
+        int yTicksLength = config.getNumberOfYTicks();
         if (xTicksLength == 0 || yTicksLength == 0) {
             return;
         }

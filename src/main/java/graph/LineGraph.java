@@ -2,11 +2,11 @@ package graph;
 
 import lombok.Getter;
 import util.DrawConfig;
+import util.Pair;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
 import java.util.Collection;
 
 /**
@@ -23,9 +23,9 @@ public final class LineGraph extends Graph implements XYGraph {
      * Constructs a LineGraph with a custom TickMarkConfig and initial data points.
      *
      * @param config TickMarkConfig to configure axis ticks
-     * @param initialData Collection of Point2D.Double points to initialize graph data
+     * @param initialData Collection of Pair points to initialize graph data
      */
-    public LineGraph(DrawConfig config, Collection<Point2D.Double> initialData) {
+    public LineGraph(DrawConfig config, Collection<Pair> initialData) {
         this(config);
         addAll(initialData);
     }
@@ -40,9 +40,9 @@ public final class LineGraph extends Graph implements XYGraph {
     /**
      * Constructs a LineGraph with initial data points.
      *
-     * @param initialData Collection of Point2D.Double points to initialize graph data
+     * @param initialData Collection of Pair points to initialize graph data
      */
-    public LineGraph(Collection<Point2D.Double> initialData) {
+    public LineGraph(Collection<Pair> initialData) {
         this(new DrawConfig(), initialData);
     }
 
@@ -141,7 +141,7 @@ public final class LineGraph extends Graph implements XYGraph {
     }
 
     @Override
-    public LineGraph insertData(Point2D.Double point) {
+    public LineGraph insertData(Pair point) {
         super.insertData(point);
         return this;
     }
@@ -178,15 +178,15 @@ public final class LineGraph extends Graph implements XYGraph {
         double yDelta = drawConfig.getYPixelsDelta();
         int marginSize = drawConfig.getMarginSize();
 
-        for (Point2D.Double point : dataBuffer) {
+        for (Pair point : dataBuffer) {
             int x;
             int y;
             if (cropGraphToData) {
-                x = (int) (marginSize + ((point.getX() - xMinVal) * xDelta));
-                y = (int) (getHeight() - (marginSize + ((point.getY() - yMinVal) * yDelta)));
+                x = (int) (marginSize + ((point.first - xMinVal) * xDelta));
+                y = (int) (getHeight() - (marginSize + ((point.second - yMinVal) * yDelta)));
             } else {
-                x = (int) (marginSize + (point.getX() * xDelta));
-                y = (int) (getHeight() - (marginSize + (point.getY() * yDelta)));
+                x = (int) (marginSize + (point.first * xDelta));
+                y = (int) (getHeight() - (marginSize + (point.second * yDelta)));
             }
             if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);
