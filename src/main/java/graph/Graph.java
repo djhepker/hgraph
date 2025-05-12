@@ -96,9 +96,29 @@ public abstract class Graph extends JPanel implements XYGraph {
      *
      * @param x Data to be stored for use by Graph
      * @param y Data to be stored for use by Graph
+     *
+     * @return instance of this class for method chaining.
      */
     public Graph insertData(double x, double y) {
         return this.insertData(new Pair(x, y));
+    }
+
+    /**
+     * Sorts data stored in dataBuffer by their x values.
+     *
+     * @return instance of this class for method chaining.
+     */
+    public Graph sortDataByX() {
+        dataBuffer.sortByX();
+        return this;
+    }
+
+    public double[] getDataXCopy(double valueOffset) {
+        return dataBuffer.getDataXCopy(valueOffset);
+    }
+
+    public double[] getDataYCopy(double valueOffset) {
+        return dataBuffer.getDataYCopy(valueOffset);
     }
 
     /**

@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Configuration object for controlling the appearance and behavior of axis tick marks in a LineGraph.
@@ -25,7 +26,7 @@ public final class DrawConfig {
     @Getter private boolean showingMarginBorder;
     @Getter private boolean doublePrecision;
     @Getter private boolean showVertices;
-    private boolean incrementalTicks;
+    @Getter private boolean incrementalTicks;
 
     @Getter private int tickLength;
     @Getter private int marginSize; // TODO build margin x and margin y

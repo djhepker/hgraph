@@ -2,12 +2,15 @@ package graph;
 
 import lombok.Getter;
 import util.DrawConfig;
+import util.GraphTools;
 import util.Pair;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Logic for creating a JPanel LineGraph
@@ -152,6 +155,12 @@ public final class LineGraph extends Graph implements XYGraph {
         return this;
     }
 
+    @Override
+    public LineGraph sortDataByX() {
+        super.sortDataByX();
+        return this;
+    }
+
     /**
      * Renders the graph-specific data for a LineGraph.
      * <p>
@@ -174,9 +183,24 @@ public final class LineGraph extends Graph implements XYGraph {
         boolean postStart = false;
         int prevX = 0;
         int prevY = 0;
+        double xValueOffset;
+        double yValueOffset;
         double xDelta = drawConfig.getXPixelsDelta();
         double yDelta = drawConfig.getYPixelsDelta();
         int marginSize = drawConfig.getMarginSize();
+
+        if (cropGraphToData) {
+            xValueOffset = -xMinVal;
+            yValueOffset = -yMinVal;
+        } else {
+            xValueOffset = 0;
+            yValueOffset = 0;
+        }
+
+        Map<Double, Integer> valueXCoordinates = GraphTools.generatePixelCoordinates(
+                getDataXCopy(xValueOffset), drawConfig.getDoubleXTicks(), xDelta);
+        Map<Double, Integer> valueYCoordinates = GraphTools.generatePixelCoordinates(
+                getDataYCopy(yValueOffset), drawConfig.getDoubleYTicks(), yDelta);
 
         for (Pair point : dataBuffer) {
             int x;
@@ -185,8 +209,8 @@ public final class LineGraph extends Graph implements XYGraph {
                 x = (int) (marginSize + ((point.first - xMinVal) * xDelta));
                 y = (int) (getHeight() - (marginSize + ((point.second - yMinVal) * yDelta)));
             } else {
-                x = (int) (marginSize + (point.first * xDelta));
-                y = (int) (getHeight() - (marginSize + (point.second * yDelta)));
+                x = marginSize + valueXCoordinates.get(point.first);
+                y = getHeight() - marginSize - valueYCoordinates.get(point.second);
             }
             if (postStart) {
                 g2.drawLine(prevX, prevY, x, y);

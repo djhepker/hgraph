@@ -6,6 +6,7 @@ import java.awt.BasicStroke;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 
 /**
  * Utility class providing common rendering functions for graphs such as margin drawing and tick mark rendering.
@@ -84,6 +85,46 @@ public final class GraphTools {
             }
         }
         return true;
+    }
+
+    public static HashMap<Double, Integer> generatePixelCoordinates(int[] values, int[] ticks, double delta) {
+        return generatePixelCoordinates(
+                GraphTools.arrayIntToArrayDouble(values),
+                GraphTools.arrayIntToArrayDouble(ticks),
+                delta
+        );
+    }
+
+    public static HashMap<Double, Integer> generatePixelCoordinates(double[] values, double[] ticks, double delta) {
+        HashMap<Double, Integer> result = new HashMap<>();
+        if (values == null || ticks == null || values.length == 0 || ticks.length < 2) {
+            return result;
+        }
+        for (double value : values) {
+            if (value < ticks[0]) {
+                result.put(value, 0);
+                continue;
+            }
+            boolean found = false;
+            for (int i = 1; i < ticks.length; ++i) {
+                if (value <= ticks[i]) {
+                    double lowValue = ticks[i - 1];
+                    double percentTravelled = (value - lowValue) / (ticks[i] - lowValue);
+                    int numPixels = (int) ((i - 1 + percentTravelled) * delta);
+                    result.put(value, numPixels);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                int maxPixel = (int) ((ticks.length - 1) * delta);
+                result.put(value, maxPixel);
+            }
+        }
+        if (result.size() < values.length) {
+            throw new RuntimeException("Map too small");
+        }
+        return result;
     }
 
     /**

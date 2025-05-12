@@ -2,9 +2,7 @@ package util;
 
 import lombok.Getter;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * A fixed-size circular buffer that stores paired (x, y) coordinate values.
@@ -214,6 +212,90 @@ public final class CircularPointBuffer implements Iterable<Pair>, Collection<Pai
     }
 
     /**
+     * Sorts the buffer contents in-place by X values.
+     */
+    public void sortByX() {
+        sort(Comparator.comparingDouble(a -> a.first));
+    }
+
+    /**
+     * Sorts the buffer contents in-place by Y values.
+     */
+    public void sortByY() {
+        sort(Comparator.comparingDouble(a -> a.second));
+    }
+
+    /**
+     * Internal sort function that linearizes the buffer, sorts, and writes back.
+     */
+    private void sort(Comparator<Pair> comparator) {
+        if (size <= 1) return;
+
+        // Step 1: Convert circular buffer to linear list
+        List<Pair> linear = new ArrayList<>(size);
+        for (int i = 0; i < size; ++i) {
+            int idx = (head + i) % capacity;
+            linear.add(new Pair(x[idx], y[idx]));
+        }
+        linear.sort(comparator);
+
+        for (int i = 0; i < size; ++i) {
+            x[i] = linear.get(i).first;
+            y[i] = linear.get(i).second;
+        }
+        head = 0;
+        cursor = 0;
+    }
+
+    /**
+     * Returns a copy of all X values currently stored in the buffer.
+     *
+     * @return a new double array containing the current X values.
+     */
+    public double[] getDataXCopy() {
+        return getDataXCopy(0);
+    }
+
+    /**
+     * Returns a copy of all X values currently stored in the buffer, with an optional offset applied to each value.
+     *
+     * @param valueOffset an integer value to add to each X coordinate in the copy.
+     * @return a new double array containing the offset-adjusted X values.
+     */
+    public double[] getDataXCopy(double valueOffset) {
+        double[] copy = new double[size];
+        for (int i = 0; i < size; i++) {
+            int idx = (head + i) % capacity;
+            copy[i] = x[idx] + valueOffset;
+        }
+        return copy;
+    }
+
+    /**
+     * Returns a copy of all Y values currently stored in the buffer.
+     *
+     * @return a new double array containing the current Y values.
+     */
+    public double[] getDataYCopy() {
+        return getDataYCopy(0);
+    }
+
+    /**
+     * Returns a copy of all Y values currently stored in the buffer, with an optional offset applied to each value.
+     *
+     * @param valueOffset an integer value to add to each Y coordinate in the copy.
+     * @return a new double array containing the offset-adjusted Y values.
+     */
+    public double[] getDataYCopy(double valueOffset) {
+        double[] copy = new double[size];
+        for (int i = 0; i < size; i++) {
+            int idx = (head + i) % capacity;
+            copy[i] = y[idx] + valueOffset;
+        }
+        return copy;
+    }
+
+    /**
      * Getter method for the number of valid buffer entries.
      *
      * @return Number of valid entries. [0,size).
@@ -229,7 +311,7 @@ public final class CircularPointBuffer implements Iterable<Pair>, Collection<Pai
      * @return Pair[] of all valid elements.
      */
     @Override
-    public Object[] toArray() {
+    public Pair[] toArray() {
         Pair[] pArr = new Pair[size];
         int idx = 0;
         for (Pair p : this) {

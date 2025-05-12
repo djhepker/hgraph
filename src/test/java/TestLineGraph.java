@@ -191,4 +191,38 @@ class TestLineGraph {
         });
         latch.await();
     }
+
+    @Disabled("Disabled for CI/CD GitHub Actions because it opens GUI window")
+    @Test
+    void testDecimalNonIncrementalGraph() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        int[] tickValues = {0, 1, 3, 4, 8, 9, 10};
+        defaultConfig.setDoublePrecision(true)
+                .showVertices(true)
+                .setXTickValues(tickValues)
+                .setYTickValues(tickValues);
+        LineGraph partialGraph = new LineGraph(defaultConfig)
+                .cropData(true)
+                .insertData(2, 1)
+                .insertData(3.5, 4.3)
+                .insertData(6, 0.9)
+                .insertData(8.1, 6.6)
+                .insertData(9.8, 1.2);
+
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame: Crop Graph to Data");
+            frame.setSize(1000, 800);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    latch.countDown();
+                }
+            });
+            frame.getContentPane().add(partialGraph);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+        latch.await();
+    }
 }
